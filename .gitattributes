@@ -41,4 +41,4 @@ LICENSES/**  text eol=lf linguist-vendored=true
 # endings here: simulation.html arrived with CRLF terminators and `* text=auto
 # eol=lf` would silently rewrite all 162 of them, breaking the digest and the
 # "byte-identical" claim with it.
-spike/**  -text -diff
+spike/**  -text
