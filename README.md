@@ -42,17 +42,19 @@ A trace-0 flight down an exposed corridor is still a dead flight.
 This is honest rather than modest. Of eight ledger claims, **seven are green and
 one is red — and the red one is the falsifier for the whole premise.**
 
-> **C6.** Fly the same route from every launch phase. All 30 land, with peak
-> exposure 7 of 8 at *every* phase — the same number each time. The route's
-> exposure is phase-invariant: it comes from permanently-painted cells, and the
-> oscillator shutters contribute nothing to it.
+> **C6.** Fly the same route from every launch phase. **3 of 14 off-phase
+> launches are now shot down as PAINTED**, and peak exposure varies 7..8 across
+> phases. Two of C6's three assertions pass: the failures are dominated by
+> radar rather than terrain. The third still fails — a *majority* must die, and
+> 3/14 is not a majority.
 
-By this project's own standard, that means **the substrate is currently scenery**,
-and the game is not yet the game. The line-of-sight mechanic is proven (C2, C3)
-and the map does contain genuinely phase-dependent cells — but the *level
-geometry* is wrong: the shutter banks do not lie across the sight lines the
-viable route actually uses, and 45 of 85 corridor cells are never painted, so
-temporal cover never has to matter.
+So the radar is no longer decoration, but the level is not yet a phase puzzle
+either. Getting here took replacing the flanking shutter banks with a
+**chokepoint**: a wall across the corridor with a single gap, watched by a
+short-range gate sensor, with a p15 pentadecathlon shuttering the sight line to
+that gap. Cover beside a route you need not take is scenery; cover over the only
+way through is a puzzle. The earlier design had 0/30 phases fail with peak
+exposure constant at 7 — the route ignored the shutters entirely.
 
 It is reported, not hidden, and it does not gate the build while it is known-red.
 See [`VERIFICATION.md`](./VERIFICATION.md) and [`AUDIT.adoc`](./AUDIT.adoc).
@@ -64,7 +66,8 @@ just verify      # the gating ledger (C1,C2,C3,C5,C8,C11,C12)
 just falsifier   # C6 — currently RED, deliberately
 just measure     # the level's instrument panel
 just solve       # search for a witness route
-just sweep       # find the solvable / phase-critical parameter band
+just sweep       # scalar sweep: range x LOCK
+just place       # PLACEMENT sweep: chokepoint, shutter and sensor positions
 ```
 
 Node ≥ 18. No dependencies — there is nothing to install. Without `just`, every

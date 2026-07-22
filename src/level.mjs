@@ -35,7 +35,7 @@
 // -------------------------------------------------------------------------
 // A glider flies one diagonal step per four generations and may only turn at
 // phase 0, so the route is a coarse diagonal staircase. The corridor runs
-// north-west to south-east along y = x + 8.
+// north-west to south-east along y = x + 4.
 //
 // Sensors sit off the corridor's flanks, looking ACROSS it — north-east and
 // south-west, i.e. perpendicular to the direction of travel, so a sight line
@@ -43,9 +43,9 @@
 // corridor stands a SHUTTER BANK of oscillators, laid parallel to the corridor.
 // As the bank cycles, the sight lines through it open and close.
 //
-// Periods present: blinker 2, pulsar 3, pentadecathlon 15, and the glider's own
-// 4. The substrate period is therefore lcm(2,3,15) = 30 — measured, not assumed,
-// by design/period.mjs and pinned by claim C11.
+// Periods present: pentadecathlon 15, pulsar 3, and the glider's own 4. The
+// substrate period is therefore lcm(3,15) = 15 — measured, not assumed, by
+// design/measure.mjs and pinned by claim C11.
 
 import { xf, P, parseRLE } from './kernel/engine.mjs';
 
@@ -60,7 +60,12 @@ export const OSC = {
   penta: parseRLE('2bo4bo2b$2ob4ob2o$2bo4bo2b!'),              // p15, 10x3
 };
 
-export const PERIOD = 30;   // lcm(2, 3, 15). Asserted by C11, not trusted.
+// lcm of the oscillator periods actually placed. This was 30 while the level
+// carried blinkers/beacons/toads (p2) in its flanking banks; removing those
+// banks removed the factor of 2, and C11 caught the stale declaration at once —
+// "period is the declared 30 (measured 15)". Declared values that are not
+// re-measured are how a level quietly stops meaning what its docs say.
+export const PERIOD = 15;   // lcm(15 pentadecathlon, 3 pulsar). Asserted by C11.
 
 /**
  * A shutter bank: `n` oscillators laid along the corridor direction (1,1),
@@ -84,6 +89,29 @@ function bank(x, y, n, gap, kinds) {
   return out;
 }
 
+/**
+ * A wall laid ACROSS the corridor — along (1,-1), perpendicular to the flight
+ * direction — with a single gap.
+ *
+ * This is what makes phase load-bearing. Shutter banks flanking an open
+ * corridor do not: the solver simply routes around them through permanent
+ * cover, which is exactly what made claim C6 red. A wall the route MUST pass
+ * through turns "where is there cover?" into "WHEN is the gap masked?".
+ *
+ * Blocks are 2x2 spaced 5 along the wall, so bounding boxes clear by 3 (C12's
+ * minimum) while the 3-cell openings between them are far too narrow to fly:
+ * the aircraft dies within Chebyshev 2 of any live cell, so a passable gap
+ * needs roughly 7 clear cells. Only the declared gap is passable.
+ */
+function wall(cx, cy, n, gapAt, gapWide = 2) {
+  const out = [];
+  for (let k = -n; k <= n; k++) {
+    if (k >= gapAt && k < gapAt + gapWide) continue;   // the one way through
+    out.push([P.block, cx + k * 5, cy - k * 5]);
+  }
+  return out;
+}
+
 export function buildLevel(opts = {}) {
   const W = 172, H = 108;
   const { withSensors = true, radarRange = 40 } = opts;
@@ -99,12 +127,28 @@ export function buildLevel(opts = {}) {
   }
 
   // --- shutter banks, laid parallel to the corridor between sensor and route.
+  // Flanking shutter banks were REMOVED after claim C6 measured them ineffective:
+  // with an open corridor the solver simply routed around them through permanent
+  // cover, and the witness route's exposure came out phase-invariant (7/8 at all
+  // 30 phases). Cover beside a route you need not take is scenery. The
+  // chokepoint below replaces them. Only the late bank is kept, far from the
+  // gate, as terrain interest.
   // gap 16 > the 13x13 pulsar, so no two members touch. See bank() and C12.
   const banks = [
-    ...bank(34, 18, 4, 16, [OSC.penta, OSC.pulsar, OSC.blinker]),  // north flank, early
-    ...bank(26, 58, 3, 16, [OSC.pulsar, OSC.penta, OSC.beacon]),   // south flank, middle
-    ...bank(84, 56, 3, 16, [OSC.penta, OSC.pulsar, OSC.toad]),     // north flank, late
+    ...bank(96, 68, 2, 16, [OSC.penta, OSC.pulsar]),
   ];
+
+  // --- THE CHOKEPOINT. The corridor is y = x + 4; the wall crosses it at
+  // (chokeX, chokeX + 4) and the gap is the only way south.
+  const {
+    chokeX = 56, shutterAt = [65, 66], gateSensor = [76, 74], wallN = 5,
+    gateRange = 20,
+  } = opts;
+  const choke = wall(chokeX, chokeX + 4, wallN, 0, 1);
+
+  // The shutter: a p15 pentadecathlon on the sight line between the gate sensor
+  // and the gap, so the gap is masked at some phases and open at others.
+  const shutter = [[OSC.penta, shutterAt[0], shutterAt[1]]];
 
   // --- still-life terrain: collision hazard, and permanent cover. Kept sparse:
   // permanent cover that is too generous makes the moving cover irrelevant.
@@ -114,26 +158,36 @@ export function buildLevel(opts = {}) {
   // substrate from periodic-at-t=0 to a 621-generation transient. Bisection,
   // not inspection, found them; C12 now enforces the clearance.
   const terrain = [
-    [P.block, 20, 40], [P.beehive, 68, 22], [P.boat, 70, 92],
-    [P.block, 128, 66], [P.beehive, 46, 96], [P.tub, 120, 40],
+    [P.beehive, 20, 12], [P.boat, 140, 92], [P.block, 128, 30], [P.tub, 150, 50],
   ];
 
-  // --- sensors. Placed off the flanks so sight lines CROSS the corridor.
+  // --- sensors. RDR-GATE watches the chokepoint gap specifically; the others
+  // deny the flanks so the gap cannot simply be walked around.
   const sensors = withSensors ? [
-    { name: 'RDR-1', cells: P.beehive.map(([x, y]) => [x + 56, y + 12]) },
-    { name: 'RDR-2', cells: P.beehive.map(([x, y]) => [x + 24, y + 84]) },
-    { name: 'RDR-3', cells: P.beehive.map(([x, y]) => [x + 116, y + 58]) },
+    { name: 'RDR-1', cells: P.beehive.map(([x, y]) => [x + 96, y + 14]) },
+    { name: 'RDR-2', cells: P.beehive.map(([x, y]) => [x + 14, y + 74]) },
+    { name: 'RDR-3', cells: P.beehive.map(([x, y]) => [x + 140, y + 66]) },
+    // RDR-GATE has its OWN, short range. At the shared range it covered the
+    // whole ingress and killed the aircraft 20 cells before the wall, which
+    // makes the approach the puzzle instead of the gate. A short range is what
+    // localises the threat to the chokepoint, where the shutter can modulate it.
+    {
+      name: 'RDR-GATE', range: gateRange,
+      cells: P.beehive.map(([x, y]) => [x + gateSensor[0], y + gateSensor[1]]),
+    },
   ] : [];
 
   const stamps = [
     [E4, ...hangarAt],
     ...banks.map(([cells, x, y]) => [cells, x, y]),
+    ...choke.map(([cells, x, y]) => [cells, x, y]),
+    ...shutter.map(([cells, x, y]) => [cells, x, y]),
     ...terrain,
     ...sensors.map((s) => [s.cells, 0, 0]),
   ];
 
   return {
-    W, H, stamps, sensors, terrain, banks, hangarCells,
+    W, H, stamps, sensors, terrain, banks, choke, shutter, hangarCells,
     // CLAMPED TO THE GRID, and that is load-bearing rather than tidy.
     // missionStep's landing check sweeps this zone comparing world cells to the
     // eater's footprint. Off-grid reads return undefined, which is never equal
@@ -177,9 +231,14 @@ export function buildLevel(opts = {}) {
     // to reach LOCK. Changing radarRange without re-running the sweep will
     // silently produce either a walkover or an impossibility.
     witness: [
-      [0, 1, 1], [48, -1, 1], [60, 1, 1], [64, -1, 1], [68, 1, 1],
-      [84, -1, 1], [88, 1, 1], [164, 1, -1], [188, 1, 1], [192, 1, -1],
-      [196, 1, 1], [348, -1, 1], [356, 1, 1],
+      [0, 1, 1], [84, 1, -1], [88, 1, 1], [100, 1, -1],
+      [104, 1, 1], [176, -1, 1], [180, 1, 1], [196, -1, 1],
+      [208, 1, 1], [216, -1, 1], [224, 1, 1], [228, -1, 1],
+      [232, 1, 1], [236, -1, 1], [240, 1, 1], [244, -1, 1],
+      [252, 1, 1], [260, -1, 1], [264, 1, 1], [268, -1, 1],
+      [272, 1, 1], [280, -1, 1], [284, 1, 1], [300, -1, 1],
+      [304, 1, 1], [368, 1, -1], [372, 1, 1], [376, 1, -1],
+      [380, 1, 1], [384, 1, -1], [412, 1, 1],
     ],
   };
 }

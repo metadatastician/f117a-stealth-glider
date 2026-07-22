@@ -78,23 +78,39 @@ export function solve(L, buildFn, opts = {}) {
       for (let nh = 0; nh < 4; nh++) {
         const tbl = T[HEADINGS[nh]];
         let ax = x, ay = y, ex = e, ok = true, landed = false;
+        // MIRRORS missionStep's ordering exactly, and that ordering is not the
+        // obvious one. missionStep tests collision against the CURRENT world,
+        // then moves, then advances the world, then evaluates radar. So radar
+        // sees the POST-move aircraft against the NEXT generation's shadow.
+        //
+        // The first version of this loop tested both against the same (phase,
+        // position). It produced routes that died at every phase when flown
+        // through the real engine — including their own. An off-by-one here is
+        // not a rounding error; it silently searches a different game.
         for (let k = 0; k < 4; k++) {
           const ph = (p + k) % P;
-          let hitHangar = false, contact = false, oob = false, painted = false;
+          let hitHangar = false, contact = false, oob = false;
           for (const [sx, sy] of tbl.shapes[k]) {
             const cx = ax + sx, cy = ay + sy;
             if (cx < 1 || cy < 1 || cx >= W - 1 || cy >= H - 1) { oob = true; break; }
-            const i = cy * W + cx;
-            if (danger[ph][i]) contact = true;
+            if (danger[ph][cy * W + cx]) contact = true;
             if (inHangar(cx, cy)) hitHangar = true;
-            if (shadows[ph][i]) painted = true;
           }
           if (oob) { ok = false; why.oob++; break; }
           if (contact) { if (hitHangar && laneOK(ax, ay, nh)) { landed = true; break; } ok = false; why.contact++; break; }
+
+          const d = tbl.deltas[k];
+          ax += d[0]; ay += d[1];                       // move
+
+          const nph = (p + k + 1) % P;                  // world advances
+          let painted = false;
+          for (const [sx, sy] of tbl.shapes[(k + 1) % 4]) {
+            const cx = ax + sx, cy = ay + sy;
+            if (cx < 0 || cy < 0 || cx >= W || cy >= H) continue;
+            if (shadows[nph][cy * W + cx]) { painted = true; break; }
+          }
           ex = painted ? ex + 1 : (ex > 0 ? ex - 1 : 0);
           if (ex >= EXP_MAX) { ok = false; why.exposure++; break; }
-          const d = tbl.deltas[k];
-          ax += d[0]; ay += d[1];
         }
         if (landed) {
           const s2 = idx(Math.max(0, Math.min(W - 1, ax)), Math.max(0, Math.min(H - 1, ay)), nh, (p + 4) % P, ex);

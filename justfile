@@ -34,9 +34,14 @@ measure:
 solve:
     node design/solve.mjs
 
-# Find the solvable / phase-critical parameter band.
+# Scalar sweep: radar range x LOCK.
 sweep:
     node design/sweep.mjs
+
+# PLACEMENT sweep: chokepoint, shutter and sensor POSITIONS. This is the one
+# that moved C6 - scalar tuning cannot fix a geometry problem.
+place:
+    node design/place.mjs
 
 # Execute the contractile probes.
 contracts:

@@ -43,25 +43,29 @@ demonstrating it failing on purpose.
 Fly the *same* route from every launch phase. For the level to be a phase puzzle,
 most off-phase launches must fail, and fail specifically as `PAINTED`.
 
-*Measured: all 30 phases LAND, with peak exposure 7 of 8 at every single phase.*
+*Measured: 3 of 14 off-phase launches are shot down as PAINTED; peak exposure
+varies 7..8 across phases.*
 
-Identical, phase after phase. The route's exposure is therefore phase-invariant:
-it accrues entirely from permanently-painted cells, and the oscillator shutters
-contribute nothing to it. By this project's own inherited standard — _if it
-becomes learnable without tracking phase, the substrate is scenery_ — the
-substrate is currently scenery.
+Two of C6's three assertions now pass — failures are dominated by radar rather
+than by terrain, and at least one launch is locked. The third does not: a
+*majority* must fail, and 3/14 is not a majority. So the radar is load-bearing
+but not yet decisive.
 
-What is wrong is the *level geometry*, not the code:
+*This is a large improvement on the first design*, and the difference is
+instructive. That design flanked an open corridor with shutter banks and
+measured *0 of 30* phases failing, with peak exposure constant at 7 — the solver
+simply routed around the banks through permanent cover. Cover beside a route you
+need not take is scenery.
 
-* the shutter banks do not lie across the sight lines the viable route uses;
-* 45 of 85 corridor cells are never painted, so temporal cover never has to matter;
-* `design/sweep.mjs` shows the window is knife-edged — of 21 `(radarRange, LOCK)`
-  combinations tried, exactly *one* is solvable at all.
+The fix was a *chokepoint*: a wall across the corridor with one gap, a
+short-range gate sensor watching it, and a p15 pentadecathlon shuttering the
+sight line to the gap. What remains is to make the gap the *only* survivable
+option — currently 11 of 14 phases still find a way through.
 
-Fixing it means moving sensors and banks so the only survivable corridor is one
-whose cover is the oscillators, then re-running the sweep. The tooling to do that
-— `design/measure.mjs`, `design/solve.mjs`, `design/sweep.mjs` — is in place and
-is what found the problem.
+The search that found this is `design/place.mjs`, which sweeps *placement*
+rather than scalars. The earlier conclusion that the level could not be made
+phase-critical was unearned: it swept `radarRange`, `LOCK` and pattern spacing
+and never moved a sensor. Geometry problems are not fixed by tuning numbers.
 
 == Argued, not verified
 
