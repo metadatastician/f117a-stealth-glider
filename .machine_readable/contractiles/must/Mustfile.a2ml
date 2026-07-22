@@ -149,9 +149,15 @@ generic template.
 
 ### ci-runs-the-cited-ledger
 - description: The CI workflow actually runs the cited verification scripts
-- run: grep -q 'verify1 verify2 verify3 verify8 verify9' .github/workflows/ci.yml
+- run: grep -q 'verify-kernel-parity verify-los verify-level verify-determinism verify-witness' .github/workflows/ci.yml && grep -q 'verify-falsifier.mjs' .github/workflows/ci.yml
 - severity: critical
-- notes: A CI file that does not execute the ledger is a fake gate.
+- notes: |
+    A CI file that does not execute the ledger is a fake gate. Both halves matter.
+    The first clause pins the GATING scripts. The second pins verify-falsifier.mjs,
+    which is currently RED and runs under continue-on-error: without this clause the
+    cheapest way to make CI green would be to delete the falsifier, which is precisely
+    the failure this repository exists to avoid. When C6 goes green, fold it into the
+    first clause and drop continue-on-error from the workflow.
 
 ## Machine-Readable Structure
 
