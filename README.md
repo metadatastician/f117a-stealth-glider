@@ -42,11 +42,11 @@ A trace-0 flight down an exposed corridor is still a dead flight.
 This is honest rather than modest. Of eight ledger claims, **seven are green and
 one is red — and the red one is the falsifier for the whole premise.**
 
-> **C6.** Fly the same route from every launch phase. **3 of 14 off-phase
-> launches are now shot down as PAINTED**, and peak exposure varies 7..8 across
+> **C6.** Fly the same route from every launch phase. **4 of 14 off-phase
+> launches are shot down as PAINTED**, and peak exposure varies 7..8 across
 > phases. Two of C6's three assertions pass: the failures are dominated by
 > radar rather than terrain. The third still fails — a *majority* must die, and
-> 3/14 is not a majority.
+> 4/14 is not a majority.
 
 So the radar is no longer decoration, but the level is not yet a phase puzzle
 either. Getting here took replacing the flanking shutter banks with a
@@ -55,6 +55,15 @@ short-range gate sensor, with a p15 pentadecathlon shuttering the sight line to
 that gap. Cover beside a route you need not take is scenery; cover over the only
 way through is a puzzle. The earlier design had 0/30 phases fail with peak
 exposure constant at 7 — the route ignored the shutters entirely.
+
+Two measurements pin what is left to do. First, the wall had to *be* a wall: it
+originally spanned ~50 cells of a line whose in-bounds length is ~106, so the
+route simply flew round the end and the shutter was guarding an optional path.
+Second, shutter **tangency** matters more than shutter presence — a 72-position
+sweep shows a pentadecathlon squarely on the sight line masking the gap at
+*every* phase (15/15 land, peak flat at 7..7), while the same oscillator moved
+to graze the ray occludes only on its extended phases (4/15 shot down, peak
+7..8). Grazing beats covering; it is simply not yet decisive enough.
 
 It is reported, not hidden, and it does not gate the build while it is known-red.
 See [`VERIFICATION.md`](./VERIFICATION.md) and [`AUDIT.adoc`](./AUDIT.adoc).
