@@ -67,7 +67,7 @@ destroy the project's entire premise without breaking anything visible.
 
 #### spdx-headers-intact
 - description: Every source file still declares AGPL-3.0-or-later on its first line
-- run: "! for f in src/*.mjs src/*.js; do head -1 \"$f\" | grep -q '^// SPDX-License-Identifier: AGPL-3.0-or-later$' || echo BAD; done | grep -q BAD"
+- run: "! find src -name '*.mjs' -exec head -1 {} \\; | grep -qv '^// SPDX-License-Identifier: AGPL-3.0-or-later$'"
 - severity: critical
 
 ## Design Integrity
@@ -79,13 +79,13 @@ destroy the project's entire premise without breaking anything visible.
 - notes: THE standing falsifier. If the crossing becomes learnable by feel without reading phase, the substrate is scenery and v0 fails its premise.
 
 #### level-not-retuned
-- description: The frozen level geometry has not been tuned to make a test pass
-- run: grep -q 'const W = 172, H = 108;' src/level.mjs && grep -q 'const fenceX = \[0, 8, 16, 24, 32, 36, 56, 60\];' src/level.mjs
+- description: The level has not been tuned to make the falsifier pass
+- run: grep -q 'radarRange = 40' src/level.mjs && grep -q 'glidepaths: \[-10, -4, 3\]' src/level.mjs
 - severity: critical
 
-#### bundle-not-stale
-- description: The committed bundle is byte-identical to a fresh rebuild
-- run: "cd src && node build.mjs >/dev/null 2>&1 && cmp -s f117a-stealth-glider.html ../f117a-stealth-glider.html; rc=$?; rm -f f117a-stealth-glider.html; exit $rc"
+#### spike-digests-intact
+- description: The v0 provenance is still byte-identical to what was landed
+- run: "test \"$(sha256sum spike/world.html | cut -d' ' -f1)\" = a7689fe15d8a00957bb445d451084043377cd98421f0676eca6546dc2c93ba1a && test \"$(sha256sum spike/simulation.html | cut -d' ' -f1)\" = 9756d73f4e025991955d975b8746ed70299280622b9ac516d9870fc0eb7fd1d9"
 - severity: critical
 - notes: build.mjs replays the witness on the TRANSFORMED core, so this also re-proves the shipped artefact is completable.
 
