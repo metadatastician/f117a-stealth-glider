@@ -148,7 +148,7 @@ export function buildLevel(opts = {}) {
   // --- THE CHOKEPOINT. The corridor is y = x + 4; the wall crosses it at
   // (chokeX, chokeX + 4) and the gap is the only way south.
   const {
-    chokeX = 56, shutterAt = [65, 66], gateSensor = [76, 74], wallN = 5,
+    chokeX = 56, shutterAt = [68, 68], gateSensor = [76, 74], wallN = 5,
     gateRange = 20, gapWide = 1,
     // A SECOND sight line onto the same gap. With one emitter the gap is safe
     // whenever its single ray is blocked, which is most phases; with two the gap
@@ -159,8 +159,19 @@ export function buildLevel(opts = {}) {
   } = opts;
   const choke = wall(chokeX, chokeX + 4, W, H, gapWide);
 
-  // The shutter: a p15 pentadecathlon on the sight line between the gate sensor
-  // and the gap, so the gap is masked at some phases and open at others.
+  // The shutter: a p15 pentadecathlon GRAZING the sight line between the gate
+  // sensor and the gap.
+  //
+  // Tangency is deliberate and measured. A 72-point sweep of shutter positions
+  // shows the difference starkly: placed squarely ON the ray (e.g. [64,64]) it
+  // masks the gap at every phase — 15/15 launches land and peak exposure is a
+  // flat 7..7, i.e. the automaton contributes nothing. Moved to graze the ray at
+  // [68,68], only its extended phases occlude: 4/15 launches are shot down and
+  // peak exposure varies 7..8.
+  //
+  // So the direction of the hypothesis is confirmed — grazing beats covering —
+  // but the magnitude is not yet enough for C6, which needs a majority. See
+  // AUDIT.adoc.
   const shutter = [
     [OSC.penta, shutterAt[0], shutterAt[1]],
     ...(shutter2At ? [[OSC.penta, shutter2At[0], shutter2At[1]]] : []),
@@ -252,13 +263,13 @@ export function buildLevel(opts = {}) {
     // silently produce either a walkover or an impossibility.
     witness: [
       [0, 1, 1], [84, 1, -1], [88, 1, 1], [100, 1, -1],
-      [104, 1, 1], [176, -1, 1], [180, 1, 1], [196, -1, 1],
-      [208, 1, 1], [216, -1, 1], [224, 1, 1], [228, -1, 1],
-      [232, 1, 1], [236, -1, 1], [240, 1, 1], [244, -1, 1],
-      [252, 1, 1], [260, -1, 1], [264, 1, 1], [268, -1, 1],
-      [272, 1, 1], [280, -1, 1], [284, 1, 1], [300, -1, 1],
-      [304, 1, 1], [368, 1, -1], [372, 1, 1], [376, 1, -1],
-      [380, 1, 1], [384, 1, -1], [412, 1, 1],
+      [104, 1, 1], [176, -1, 1], [180, 1, 1], [204, -1, 1],
+      [224, 1, 1], [228, -1, 1], [232, 1, 1], [236, -1, 1],
+      [240, 1, 1], [244, -1, 1], [252, 1, 1], [260, -1, 1],
+      [264, 1, 1], [268, -1, 1], [272, 1, 1], [280, -1, 1],
+      [284, 1, 1], [300, -1, 1], [304, 1, 1], [368, 1, -1],
+      [372, 1, 1], [376, 1, -1], [380, 1, 1], [384, 1, -1],
+      [412, 1, 1],
     ],
   };
 }

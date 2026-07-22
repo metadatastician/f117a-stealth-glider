@@ -113,19 +113,25 @@ a still life at every phase alike.
 
 Measured, at `radarRange` 40 and `LOCK` 8:
 
-> **All 30 launch phases LAND. Peak exposure is 7 of 8 at every single phase —
-> the same number, phase after phase.**
+> **4 of 14 off-phase launches are shot down as PAINTED; peak exposure varies
+> 7..8 across phases.**
 
-The route's exposure is therefore entirely phase-invariant. It accrues from
-permanently-painted cells; the oscillator shutters contribute nothing to it. The
-radar is currently a static obstacle in a dynamic costume.
+Two of the three assertions pass — the failures are dominated by radar rather
+than terrain, and at least one launch is locked. The majority clause does not.
 
-The mechanic is sound — C2 and C3 establish the geometry, and `design/measure.mjs`
-finds genuinely phase-dependent cells on the map. The **level** is wrong: the
-shutter banks do not lie across the sight lines the viable route uses, and 45 of
-85 corridor cells are never painted, so temporal cover never has to matter.
-`design/sweep.mjs` shows how narrow the window is — of 21 `(range, LOCK)`
-combinations, exactly one is solvable at all.
+This is a large improvement on the first design, which measured **0 of 30** with
+peak exposure flat at 7..7. Two geometry fixes got it here, both measured:
+
+1. **The wall had to be a wall.** It spanned ~50 cells of a line whose in-bounds
+   length is ~106, so the route flew round the end and the shutter was guarding
+   an optional path.
+2. **Tangency beats coverage.** A 72-position sweep shows the shutter placed
+   squarely on the gate-to-gap sight line masking at *every* phase (15/15 land,
+   peak 7..7); grazing the ray at [68,68] leaves only its extended phases
+   occluding (4/15 shot down, peak 7..8).
+
+Untried: a second gate sensor onto the same gap (safe only when both rays are
+blocked), a narrower gap, a shorter-period shutter.
 
 ## C8 — determinism
 
