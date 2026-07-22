@@ -1,0 +1,29 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "F117A Stealth Glider — Operation Nightglass"
+abstract: >-
+  A single-player stealth puzzle played on a live Conway's Game of Life field
+  (B3/S23), in which every hazard is a genuine Life pattern rather than a
+  scripted entity. Includes a verification ledger establishing that a glider
+  cannot cleanly cross a settled period-30 glider stream at any launch phase —
+  0 of 30 clean crossings — because stream spacing (~15 units) is narrower than
+  a perpendicular crosser's exclusion diameter (~17 units). The result is
+  geometric rather than a matter of timing, and the level is designed around it.
+type: software
+authors:
+  - family-names: "Jewell"
+    given-names: "Jonathan D. A."
+    alias: "hyperpolymath"
+version: "0.1.0"
+date-released: "2026-07-22"
+url: "https://metadatastician.github.io/f117a-stealth-glider/"
+repository-code: "https://github.com/metadatastician/f117a-stealth-glider"
+license: AGPL-3.0-or-later
+keywords:
+  - "cellular automata"
+  - "conway's game of life"
+  - "game design"
+  - "puzzle game"
+  - "glider gun"
+  - "verification"
+  - "javascript"

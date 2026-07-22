@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>F-19 Style 6-DOF CA Simulator</title>
+  <style>
+    body { margin: 0; background: #000; overflow: hidden; color: #0f0; font-family: monospace; }
+    canvas { display: block; }
+    #hud { position: absolute; top: 10px; left: 10px; pointer-events: none; }
+  </style>
+</head>
+<body>
+  <div id="hud">
+    <h2>SYS.OP: STEALTH / CA BOUNDARY</h2>
+    <div id="telemetry"></div>
+  </div>
+  <canvas id="screen"></canvas>
+
+  <script>
+    // ==========================================
+    // 1. 3D Conway's Game of Life (Environment)
+    // ==========================================
+    class Conway3D {
+      constructor(size) {
+        this.size = size;
+        this.grid = new Int8Array(size * size * size);
+        this.nextGrid = new Int8Array(size * size * size);
+        this.cellSize = 20; // meters per voxel
+        this.seedGlider();
+      }
+
+      idx(x, y, z) {
+        // Wrap around bounds (toroidal space)
+        x = (x + this.size) % this.size;
+        y = (y + this.size) % this.size;
+        z = (z + this.size) % this.size;
+        return x + y * this.size + z * this.size * this.size;
+      }
+
+      seedGlider() {
+        // Seed a cluster of active cells in the flight path
+        for(let i=0; i<150; i++) {
+          const x = Math.floor(Math.random() * 10) + 10;
+          const y = Math.floor(Math.random() * 10) + 10;
+          const z = Math.floor(Math.random() * 10) + 10;
+          this.grid[this.idx(x, y, z)] = 1;
+        }
+      }
+
+      tick() {
+        // Rule 4555: Survive on 4 or 5, Born on 5
+        for (let x = 0; x < this.size; x++) {
+          for (let y = 0; y < this.size; y++) {
+            for (let z = 0; z < this.size; z++) {
+              let neighbors = 0;
+              for (let dx = -1; dx <= 1; dx++) {
+                for (let dy = -1; dy <= 1; dy++) {
+                  for (let dz = -1; dz <= 1; dz++) {
+                    if (dx === 0 && dy === 0 && dz === 0) continue;
+                    neighbors += this.grid[this.idx(x + dx, y + dy, z + dz)];
+                  }
+                }
+              }
+              const current = this.grid[this.idx(x, y, z)];
+              if (current === 1 && (neighbors === 4 || neighbors === 5)) {
+                this.nextGrid[this.idx(x, y, z)] = 1;
+              } else if (current === 0 && neighbors === 5) {
+                this.nextGrid[this.idx(x, y, z)] = 1;
+              } else {
+                this.nextGrid[this.idx(x, y, z)] = 0;
+              }
+            }
+          }
+        }
+        this.grid.set(this.nextGrid);
+      }
+      
+      checkCollision(x_m, y_m, z_m) {
+        // Convert earth meters to grid coordinates
+        const gx = Math.floor(x_m / this.cellSize) % this.size;
+        const gy = Math.floor(y_m / this.cellSize) % this.size;
+        const gz = Math.floor(z_m / this.cellSize) % this.size;
+        if (gx >= 0 && gy >= 0 && gz >= 0) {
+           return this.grid[this.idx(gx, gy, gz)] === 1;
+        }
+        return false;
+      }
+    }
+
+    // ==========================================
+    // 2. Continuous 6-DOF Physics
+    // ==========================================
+    class FlightDynamics {
+      constructor() {
+        this.mass = 1.5;
+        this.Ixx = 0.015; this.Iyy = 0.025; this.Izz = 0.038;
+        this.wingArea = 0.5; this.wingspan = 1.2; this.chord = 0.42;
+        this.gravity = 9.81;
+        
+        // State includes earth X, Y, Z coordinates
+        this.state = { 
+          x: 200, y: 200, z: 200, // Earth coordinates (start in middle of CA grid)
+          u: 15, w: 0,            // Body velocities
+          theta: 0, q: 0,         // Pitch and Pitch Rate
+          phi: 0, p: 0,           // Roll and Roll Rate
+          psi: 0                  // Heading
+        }; 
+      }
+
+      update(dt, pitchCmd, rollCmd, inTurbulence) {
+        const velocity = Math.sqrt(this.state.u**2 + this.state.w**2);
+        const gamma = Math.atan2(-this.state.w, this.state.u); 
+        const alpha = this.state.theta - gamma;
+
+        // Aerodynamics (Simplified for real-time rendering)
+        const q_dyn = 0.5 * 1.225 * velocity**2;
+        const CL = (2 * Math.PI) * alpha;
+        const CD = 0.025 + (CL**2) / (Math.PI * ((this.wingspan**2)/this.wingArea) * 0.85);
+        
+        let lift = q_dyn * this.wingArea * CL;
+        let drag = q_dyn * this.wingArea * CD;
+        
+        // Turbulence from CA cells
+        let turbPitch = 0; let turbRoll = 0;
+        if (inTurbulence) {
+           turbPitch = (Math.random() - 0.5) * 5.0; // Random aggressive pitching
+           turbRoll = (Math.random() - 0.5) * 5.0;  // Random aggressive rolling
+           drag *= 1.5; // High density cell
+        }
+
+        const Cm = 0.01 - (0.4 * alpha) - (0.015 * -pitchCmd) - (10.0 * this.state.q * this.chord / (2 * velocity)) + turbPitch;
+        const Cl = (0.05 * rollCmd) - (0.5 * this.state.p * this.wingspan / (2 * velocity)) + turbRoll;
+
+        const pitchMoment = q_dyn * this.wingArea * this.chord * Cm;
+        const rollMoment = q_dyn * this.wingArea * this.wingspan * Cl;
+
+        // Accelerations
+        const vertLift = lift * Math.cos(this.state.phi);
+        const latForce = lift * Math.sin(this.state.phi);
+        
+        const u_dot = (-drag * Math.cos(gamma) - vertLift * Math.sin(gamma)) / this.mass;
+        const w_dot = this.gravity + (drag * Math.sin(gamma) - vertLift * Math.cos(gamma)) / this.mass;
+        const turnRate = velocity > 0 ? latForce / (this.mass * velocity) : 0;
+
+        // Integration
+        this.state.u += u_dot * dt;
+        this.state.w += w_dot * dt;
+        this.state.q += (pitchMoment / this.Iyy) * dt;
+        this.state.p += (rollMoment / this.Ixx) * dt;
+        
+        this.state.theta += this.state.q * dt;
+        this.state.phi += this.state.p * dt;
+        this.state.psi += turnRate * dt;
+
+        // Earth Frame Translation
+        // u is forward velocity, w is vertical. Projecting to world X, Y, Z based on heading and pitch.
+        const v_earth_x = velocity * Math.cos(this.state.theta) * Math.cos(this.state.psi);
+        const v_earth_y = velocity * Math.cos(this.state.theta) * Math.sin(this.state.psi);
+        const v_earth_z = velocity * Math.sin(this.state.theta); // Note: Simplified vertical earth mapping
+
+        this.state.x += v_earth_x * dt;
+        this.state.y += v_earth_y * dt;
+        this.state.z -= this.state.w * dt; // Altitude
+      }
+    }
+
+    // ==========================================
+    // 3. F-19 Style 3D Software Renderer
+    // ==========================================
+    const canvas = document.getElementById('screen');
+    const ctx = canvas.getContext('2d');
+    
+    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    window.addEventListener('resize', resize); resize();
+
+    function project(x, y, z, camX, camY, camZ, camYaw, camPitch) {
+      // Translate to camera
+      let dx = x - camX; let dy = y - camY; let dz = z - camZ;
+
+      // Rotate by Camera Yaw
+      let rx = dx * Math.cos(-camYaw) - dz * Math.sin(-camYaw);
+      let rz = dx * Math.sin(-camYaw) + dz * Math.cos(-camYaw);
+      
+      // Rotate by Camera Pitch
+      let ry = dy * Math.cos(-camPitch) - rz * Math.sin(-camPitch);
+      rz = dy * Math.sin(-camPitch) + rz * Math.cos(-camPitch);
+
+      if (rz < 0.1) return null; // Behind camera
+
+      const fov = 400;
+      return {
+        x: (rx / rz) * fov + canvas.width / 2,
+        y: (ry / rz) * fov + canvas.height / 2,
+        scale: fov / rz
+      };
+    }
+
+    // Glider geometry (Diamond shape, stealth profile)
+    const gliderVerts = [
+      {x: 2, y: 0, z: 0},    // Nose
+      {x: -1, y: 0.5, z: 0}, // Top canopy
+      {x: -2, y: 0, z: -1.5},// Left wing
+      {x: -2, y: 0, z: 1.5}, // Right wing
+      {x: -2.5, y: 0, z: 0}  // Tail
+    ];
+
+    // ==========================================
+    // Master Loop
+    // ==========================================
+    const ca = new Conway3D(30);
+    const glider = new FlightDynamics();
+    
+    let lastTime = performance.now();
+    let caTimer = 0;
+
+    // Autopilot state
+    let targetPitch = -0.05; // Slightly nose down to maintain speed
+    let targetRoll = 0.35;   // 20 degree bank to fly in a circle around the grid
+
+    function loop(time) {
+      requestAnimationFrame(loop);
+      const dt = (time - lastTime) / 1000;
+      lastTime = time;
+
+      // 1. Tick CA (2 Hz)
+      caTimer += dt;
+      if (caTimer > 0.5) {
+        ca.tick();
+        caTimer = 0;
+      }
+
+      // 2. Check Environment Interaction
+      const inTurbulence = ca.checkCollision(glider.state.x, glider.state.y, glider.state.z);
+
+      // 3. Tick Physics (Sub-stepping for stability)
+      const subSteps = 10;
+      const subDt = dt / subSteps;
+      for(let i=0; i<subSteps; i++) {
+         // Simple P-controllers for autopilot
+         let pitchCmd = (targetPitch - glider.state.theta) * 2.0;
+         let rollCmd = (targetRoll - glider.state.phi) * 1.5;
+         glider.update(subDt, pitchCmd, rollCmd, inTurbulence);
+      }
+
+      // 4. Render
+      ctx.fillStyle = '#001100'; // Dark radar green sky
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Camera chases the glider
+      const camYaw = glider.state.psi;
+      const camPitch = -0.2; 
+      const camDistance = 15;
+      const camX = glider.state.x - Math.cos(camYaw) * camDistance;
+      const camY = glider.state.z + 4; // Slightly above
+      const camZ = glider.state.y - Math.sin(camYaw) * camDistance; 
+
+      // Draw Grid Ground
+      ctx.strokeStyle = '#030';
+      ctx.lineWidth = 1;
+      for(let i=-5; i<5; i++) {
+         const p1 = project(glider.state.x + i*50, 0, glider.state.y - 250, camX, camY, camZ, camYaw, camPitch);
+         const p2 = project(glider.state.x + i*50, 0, glider.state.y + 250, camX, camY, camZ, camYaw, camPitch);
+         if(p1 && p2) { ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke(); }
+      }
+
+      // Draw Conway Cells
+      ctx.strokeStyle = '#0f0'; // Neon green wireframe obstacles
+      for (let x = 0; x < ca.size; x++) {
+        for (let y = 0; y < ca.size; y++) {
+          for (let z = 0; z < ca.size; z++) {
+            if (ca.grid[ca.idx(x, y, z)] === 1) {
+              const wx = x * ca.cellSize;
+              const wy = y * ca.cellSize;
+              const wz = z * ca.cellSize;
+              const p = project(wx, wy, wz, camX, camY, camZ, camYaw, camPitch);
+              if (p) {
+                const s = p.scale * (ca.cellSize / 2);
+                ctx.strokeRect(p.x - s, p.y - s, s*2, s*2);
+              }
+            }
+          }
+        }
+      }
+
+      // Draw Glider (Flat shaded polygon)
+      const projectedVerts = [];
+      for (const v of gliderVerts) {
+        // Rotate local geometry by glider attitudes
+        // (Simplified drawing logic: yaw is handled by earth position, just apply pitch and roll locally)
+        let rx = v.x * Math.cos(glider.state.theta) - v.y * Math.sin(glider.state.theta);
+        let ry = v.x * Math.sin(glider.state.theta) + v.y * Math.cos(glider.state.theta);
+        
+        let ry2 = ry * Math.cos(glider.state.phi) - v.z * Math.sin(glider.state.phi);
+        let rz = ry * Math.sin(glider.state.phi) + v.z * Math.cos(glider.state.phi);
+
+        // Map local to earth
+        const ex = glider.state.x + rx * Math.cos(glider.state.psi) - rz * Math.sin(glider.state.psi);
+        const ez = glider.state.y + rx * Math.sin(glider.state.psi) + rz * Math.cos(glider.state.psi);
+        const ey = glider.state.z + ry2;
+
+        const p = project(ex, ey, ez, camX, camY, camZ, camYaw, camPitch);
+        if (p) projectedVerts.push(p);
+      }
+
+      if (projectedVerts.length === 5) {
+        ctx.fillStyle = '#333'; // Stealth grey
+        ctx.strokeStyle = '#111';
+        ctx.beginPath();
+        ctx.moveTo(projectedVerts[0].x, projectedVerts[0].y);
+        ctx.lineTo(projectedVerts[2].x, projectedVerts[2].y);
+        ctx.lineTo(projectedVerts[4].x, projectedVerts[4].y);
+        ctx.lineTo(projectedVerts[3].x, projectedVerts[3].y);
+        ctx.closePath();
+        ctx.fill(); ctx.stroke();
+      }
+
+      // Update HUD
+      document.getElementById('telemetry').innerHTML = `
+        ALT : ${glider.state.z.toFixed(0)} m<br>
+        SPD : ${Math.sqrt(glider.state.u**2 + glider.state.w**2).toFixed(1)} m/s<br>
+        HDG : ${(glider.state.psi * 180 / Math.PI % 360).toFixed(0)}°<br>
+        BNK : ${(glider.state.phi * 180 / Math.PI).toFixed(1)}°<br>
+        ENV : ${inTurbulence ? '<span style="color:red; background:white;">! CA BOUNDARY !</span>' : 'CLEAR'}
+      `;
+    }
+
+    requestAnimationFrame(loop);
+  </script>
+</body>
+</html>

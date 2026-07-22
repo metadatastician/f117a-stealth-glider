@@ -1,0 +1,75 @@
+# SPDX-License-Identifier: MPL-2.0
+# STATE.a2ml — F117A Stealth Glider
+#
+# Current project state, phase, and route to the next milestone.
+# Machine-readable snapshot; keep in sync with README.md and VERIFICATION.md.
+
+[metadata]
+project = "F117A Stealth Glider"
+version = "0.1.0"
+type = "game"
+last-updated = "2026-07-22"
+branch = "main"
+build-status = "green"
+test-status = "cited ledger (verify1,2,3,8,9 + build) green in CI on every push; exploratory scripts 4,5,6,7,10 run only via `just verify-all`"
+
+[project-context]
+description = "A stealth puzzle played on a live Conway's Game of Life field (B3/S23). The player flies a single glider across a hostile cellular-automaton airspace to a hangar without ever contacting the substrate's live cells. Every threat is a real Life pattern evolving deterministically — a Gosper gun firing a period-30 glider stream, eaters, and still-life terrain — not a scripted sprite."
+subtitle = "Operation Nightglass"
+tagline = "The substrate is the enemy."
+substrate = "B3/S23"
+language = "javascript"
+module-system = "esm"
+runtime = "node >= 18 (verification) / any modern browser (play)"
+dependencies = "none"
+depends-on = []
+distribution = "single self-contained f117a-stealth-glider.html at the repo root"
+
+[level]
+# src/level.mjs is FROZEN — this mirrors it, it does not override it.
+name = "Operation Nightglass v2"
+width = 172
+height = 108
+spawn = "[8, 16] heading [1, 1] (SE)"
+hangar = "[86, 94]"
+fence-row = "y = 54, posts at x = 0, 8, 16, 24, 32, 36, 56, 60"
+breach = "anchors 44..47 — the passable columns are exactly 40..51 (verify9)"
+stream-lane = 14
+gun-box = "[0, 0, 40, 13] (Gosper gun)"
+clean-glidepath = "-8 (the single clean SE landing lane; verify3)"
+
+[roadmap]
+phases = "v0 Nightglass > v1 searchlight gate > v2 sealed barrier > multi-level campaign"
+current-phase = "v0 Nightglass"
+phase-goal = "One complete, fully verified level whose substrate is provably load-bearing: unsolvable by feel, solvable by reading the automaton."
+phase-status = "complete and verified — the level ships, the ledger is green, the central geometric question is closed."
+
+[component-status]
+engine = { percent = 90, notes = "src/engine.mjs — B3/S23 step, RLE, 8 symmetries, bounds-checked stamp, pattern library, empirically derived glider kinematics, shadow-filtered findGlider. Stable; changes here invalidate the whole ledger." }
+mission = { percent = 85, notes = "src/mission.mjs — player overlay, Chebyshev contact rule, sensors, trace accounting frozen at the hangar threshold, ambient stepping after mission end." }
+level = { percent = 100, notes = "src/level.mjs — FROZEN. Operation Nightglass v2 geometry; the single source of truth." }
+ui = { percent = 70, notes = "src/ui.js — browser render + input only; carries no gameplay truth." }
+verification = { percent = 95, notes = "11-claim ledger in VERIFICATION.md; verify1,2,3,8,9 + build cited and CI-enforced." }
+bundle = { percent = 100, notes = "src/build.mjs emits the self-contained HTML and replays the witness on the transformed core; CI asserts byte-identity with the committed file." }
+
+[settled-questions]
+# Recorded here because they are CLOSED. Do not re-derive them.
+resolved = [
+  { question = "Is a p30 glider stream crossable at all under this geometry?", answer = "No — 0/30 clean crossings at every launch phase.", evidence = "src/verify8.mjs, VERIFICATION.md claim #4", cause = "Geometry, not phase: 15-unit glider spacing against a ~17-unit exclusion diameter, so no phase-gap is ever wide enough. Under a true cell-overlap rule with no proximity radius, 21/30 phases overlap outright and the remaining 9 pass only at Chebyshev-1, an adjacency that annihilates on the next generation." },
+  { question = "Should the contact rule be relaxed to overlap-only to make the crossing passable?", answer = "No — that trips the standing falsifier.", evidence = "Design invariant; see 0-AI-MANIFEST.a2ml", cause = "Overlap-only makes the crossing learnable by feel, which converts the substrate into scenery and fails v0's premise. The route goes AROUND the stream instead." },
+  { question = "How many clean eater1 landing lanes exist?", answer = "Exactly one (lambda = 0).", evidence = "src/verify3.mjs, VERIFICATION.md claim #3", cause = "An earlier out-of-bounds `stamp` bug wrapped silently and produced a phantom second lane. `stamp` now throws; the corrected sweep shows one." },
+]
+
+[open-decisions]
+remaining = [
+  { item = "Whether v1 introduces the queen-bee-shuttle searchlight gate or the sealed-barrier layout first", resolve-by = "start of v1", notes = "Both were scoped in design and are already ruled in; period-thinning was explored and abandoned." },
+  { item = "Whether level content should be split out of src/level.mjs into a data file under a content licence (CC-BY-SA-4.0)", resolve-by = "when a second level exists", notes = "Today the level is code and is AGPL like everything else, so no content licence is vendored." },
+]
+
+[route-to-next]
+remaining = [
+  { item = "Design v1's gate (searchlight or sealed barrier) against the same standing falsifier", priority = "high" },
+  { item = "Promote the exploratory design-search scripts (verify4,5,6,7,10) into a reusable level-search harness", priority = "medium" },
+  { item = "Add an in-game phase readout so the player can read the automaton without counting ticks by hand", priority = "medium" },
+  { item = "Second level, to prove the engine generalises beyond one frozen geometry", priority = "medium" },
+]

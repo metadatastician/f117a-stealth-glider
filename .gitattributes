@@ -1,0 +1,44 @@
+# Normalise line endings on check-in; LF in the repository, always.
+* text=auto eol=lf
+
+# Explicit text types present in this repository.
+*.mjs   text diff=javascript
+*.js    text diff=javascript
+*.html  text diff=html
+*.md    text
+*.adoc  text
+*.a2ml  text
+*.toml  text
+*.yml   text
+*.yaml  text
+*.json  text
+*.cff   text
+*.txt   text
+justfile text
+
+# ── The generated bundle ─────────────────────────────────────────────────────
+# f117a-stealth-glider.html is produced mechanically by src/build.mjs and CI
+# asserts it is byte-identical to a fresh rebuild. It is committed (so the game
+# is playable straight from a clone) but it is not hand-authored source:
+#   * linguist-generated  — collapsed by default in diffs and excluded from
+#                           the repository's language statistics, so the project
+#                           does not read as majority-HTML
+#   * eol=lf              — a CRLF checkout on Windows would break the
+#                           byte-for-byte comparison and turn CI red
+f117a-stealth-glider.html text eol=lf linguist-generated=true
+
+# ── Vendored licence texts ───────────────────────────────────────────────────
+# Verbatim upstream. Exclude from language stats and from diff noise.
+LICENSE      text eol=lf linguist-vendored=true
+LICENSES/**  text eol=lf linguist-vendored=true
+
+# ── Documentation ────────────────────────────────────────────────────────────
+# Count VERIFICATION.md as documentation rather than prose-of-unknown-kind.
+*.adoc linguist-documentation=true
+
+# spike/ is verbatim provenance, not source. Its SHA-256 digests are published in
+# spike/README.md and a CI probe re-checks them, so git must NOT normalise line
+# endings here: simulation.html arrived with CRLF terminators and `* text=auto
+# eol=lf` would silently rewrite all 162 of them, breaking the digest and the
+# "byte-identical" claim with it.
+spike/**  -text -diff

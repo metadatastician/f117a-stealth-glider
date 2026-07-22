@@ -1,0 +1,75 @@
+# SPDX-License-Identifier: MPL-2.0
+# Dustfile — Cleanup and hygiene contract for F117A Stealth Glider
+# Author: Jonathan D.A. Jewell (hyperpolymath)
+#
+# Paired runner: scripts/contractiles.mjs
+# Verb:          dust
+# Semantics:     What should be cleaned up. Housekeeping, not blockers.
+
+@abstract:
+Cleanup and hygiene items for F117A Stealth Glider. These are maintenance tasks
+that keep the repository tidy — build leftovers, editor cruft, and metadata
+drift — none of which block a build.
+@end
+
+## Stale Files
+
+### no-build-leftovers
+- description: The intermediate bundle written into src/ by build.mjs is not committed
+- run: test -z "$(git ls-files src/f117a-stealth-glider.html 2>/dev/null)"
+- severity: info
+- notes: build.mjs writes src/f117a-stealth-glider.html and the recipe moves it to the root. The src/ copy is git-ignored and should never be tracked.
+
+### no-node-modules
+- description: No node_modules directory is present or tracked
+- run: test ! -d node_modules && test -z "$(git ls-files node_modules 2>/dev/null)"
+- severity: info
+- notes: The project has zero dependencies, so node_modules should never appear at all.
+
+### no-editor-cruft
+- description: No stray editor or backup files in the tree
+- run: test -z "$(find . -path ./.git -prune -o \( -name '*.orig' -o -name '*.rej' -o -name '*~' -o -name '.DS_Store' \) -print 2>/dev/null | head -1)"
+- severity: info
+
+### no-stray-logs
+- description: No committed log files
+- run: test -z "$(git ls-files '*.log' 2>/dev/null)"
+- severity: info
+
+## Format Hygiene
+
+### metadata-format-a2ml
+- description: Machine-readable metadata files use the .a2ml format
+- run: test -z "$(find .machine_readable -name '*.contractile' -o -name '*.hs' 2>/dev/null | head -1)"
+- severity: warning
+
+### no-duplicate-root-metadata
+- description: No stray STATE/META/ECOSYSTEM copies in the repository root
+- run: test ! -f STATE.a2ml && test ! -f META.a2ml && test ! -f ECOSYSTEM.a2ml
+- severity: warning
+- notes: The authoritative copies live under .machine_readable/descriptiles/. The root carries only 0-AI-MANIFEST.a2ml and k9iser.toml.
+
+### no-superseded-6a2-directory
+- description: The superseded 6a2/ directory name is not present alongside descriptiles/
+- run: test ! -d .machine_readable/6a2
+- severity: warning
+- notes: RSR v2 renamed 6a2/ to descriptiles/. Carrying both would be exactly the duplication this repo is trying not to inherit.
+
+### no-flat-contractiles
+- description: No superseded flat-layout contractile files remain beside the trident directories
+- run: test ! -f .machine_readable/contractiles/Mustfile.a2ml && test ! -f .machine_readable/contractiles/Trustfile.a2ml && test ! -f .machine_readable/contractiles/Intentfile.a2ml && test ! -f .machine_readable/contractiles/Adjustfile.a2ml
+- severity: warning
+- notes: INDEX.a2ml v2.0.0 mandates verb-named subdirectories. A flat copy left behind is what makes upstream's own probes ambiguous.
+
+## Documentation Hygiene
+
+### no-todo-markers-in-shipped-source
+- description: No FIXME/XXX/HACK markers in the shipped source
+- run: "! grep -rlE '\\b(FIXME|XXX|HACK)\\b' src/ 2>/dev/null | head -1 | grep -q ."
+- severity: info
+- notes: TODO is permitted (it names future work); FIXME/XXX/HACK name known defects and should not ship.
+
+### changelog-present
+- description: A CHANGELOG exists and is not empty
+- run: test -s CHANGELOG.md
+- severity: info

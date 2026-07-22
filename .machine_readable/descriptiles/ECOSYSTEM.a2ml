@@ -1,0 +1,45 @@
+# SPDX-License-Identifier: MPL-2.0
+# ECOSYSTEM.a2ml — Ecosystem position
+#
+# Where F117A Stealth Glider sits, what it depends on, and its explicit boundaries.
+
+[metadata]
+project = "F117A Stealth Glider"
+ecosystem = "hyperpolymath"
+org = "metadatastician"
+
+[position]
+type = "game"
+purpose = "A stealth puzzle whose enemy is a cellular automaton. The player flies one glider to a hangar across a live B3/S23 field; every hazard is a real Life pattern, so evading them means reading the automaton's phase rather than learning a patrol route."
+scope = "One complete, fully verified level (Operation Nightglass v0). Deliberately small: the point is that the substrate is provably load-bearing, demonstrated once and rigorously, rather than sprawled across many levels."
+
+[architecture]
+substrate = "src/engine.mjs — B3/S23 core: bounded grid, step, RLE, the 8 symmetries, bounds-checked stamp, named pattern library, empirically derived glider kinematics, shadow-filtered findGlider."
+mission = "src/mission.mjs — player overlay, Chebyshev contact rule, sensors, trace accounting, hangar splice, ambient stepping."
+level = "src/level.mjs — FROZEN Operation Nightglass v2 geometry; single source of truth."
+presentation = "src/ui.js — browser render and input; no gameplay truth."
+distribution = "src/build.mjs -> f117a-stealth-glider.html, a single self-contained file with no dependencies."
+verification = "src/verify1..10.mjs + VERIFICATION.md — 11 claims, each discharged by a named script."
+
+[dependencies]
+runtime = []
+build = []
+notes = "Zero dependencies by design (D-08). Node >= 18 for the verification scripts; any modern browser to play. There is no package registry surface to audit and nothing to install."
+
+[related-projects]
+projects = [
+  { name = "IDApTIK", relationship = "sibling", notes = "The estate's other game, also under metadatastician. Shares the governance and machine-readable conventions, no code." },
+  { name = "Conway's Game of Life (B3/S23)", relationship = "substrate", notes = "Not a dependency — the rule itself, implemented from scratch in engine.mjs." },
+  { name = "Gosper glider gun", relationship = "level-primitive", notes = "The period-30 stream generator that forms the impassable eastern border. Verified to emit one isolated SE glider every 30 generations on lane 14." },
+]
+
+[boundaries]
+# What F117A Stealth Glider deliberately is NOT.
+not = [
+  "Not a Life sandbox or simulator — it is a designed level with a win condition, and the automaton is the antagonist rather than the toy.",
+  "Not a game with scripted enemies — nothing moves except by B3/S23, and there are no special-cased cells (D-01).",
+  "Not a reflex or twitch game — the difficulty is reading phase and geometry, not execution speed.",
+  "Not tunable-by-playtest — src/level.mjs is frozen; a failing route is redesigned or recorded as a negative result, never softened by relaxing the contact rule (D-02, D-03).",
+  "Not a framework, engine, or library — there is no public API and no versioned interface for other projects to build on.",
+  "Not dependency-bearing — no npm packages, no CDN, no network access at runtime.",
+]

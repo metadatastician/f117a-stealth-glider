@@ -1,0 +1,30 @@
+# Dependabot configuration for F117A Stealth Glider.
+#
+# There is exactly ONE ecosystem to watch here, and it is not a package manager.
+#
+# The project is deliberately dependency-free: package.json declares no
+# `dependencies` and no `devDependencies`, and a critical Mustfile probe fails
+# the build if either appears. So there is no npm surface for Dependabot to
+# monitor, and configuring one would be a permanently no-op job.
+#
+# What DOES need watching is GitHub Actions. Every `uses:` in this repository is
+# pinned to a full commit SHA (the organisation enforces sha_pinning_required,
+# and a tag ref produces startup_failure at 0s). SHA pins are the right security
+# posture, but they do not update themselves — without Dependabot the pins
+# silently rot and the repo ends up running years-old action code. This config
+# is what keeps pinning from becoming staleness.
+#
+# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "ci"
+    labels:
+      - "dependencies"
+      - "github-actions"

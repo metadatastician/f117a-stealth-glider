@@ -1,0 +1,78 @@
+// SPDX-License-Identifier: CC-BY-SA-4.0
+// Copyright (c) 2026 Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
+= Maintainers — F117A Stealth Glider
+
+This file lists the current maintainers. Governance process lives in
+link:GOVERNANCE.adoc[GOVERNANCE.adoc].
+
+== Active maintainers
+
+[cols="2,2,1,2", options="header"]
+|===
+| Name | GitHub | Role | Since
+
+| Jonathan D.A. Jewell
+| @hyperpolymath (org: @metadatastician)
+| Primary
+| 2026-07-22 (project start)
+|===
+
+This is a single-maintainer project. The table is not aspirational scaffolding
+for a team that does not exist — if it gains a second row, the decision-making
+sections of `GOVERNANCE.adoc` need rewriting at the same time.
+
+== Areas of responsibility
+
+Because there is one maintainer, ownership is not divided by area. What *is*
+divided is the level of scrutiny a change receives:
+
+[cols="2,3", options="header"]
+|===
+| Area | Review standard
+
+| `src/engine.mjs`
+| Highest. Changes to the B3/S23 substrate invalidate the entire verification
+  ledger; every cited script must be re-run and its output shown.
+
+| `src/level.mjs`
+| Highest. Frozen geometry — see `GOVERNANCE.adoc` §invariants. Requires a
+  decision record.
+
+| `src/mission.mjs`
+| High. Contains the contact rule, which is the project's standing falsifier.
+
+| `VERIFICATION.md`
+| High. A claim may only change alongside a re-run of the script that
+  discharges it.
+
+| `src/verify*.mjs`, `src/ui.js`, `src/build.mjs`
+| Normal.
+
+| Docs, CI, `.machine_readable/`
+| Normal — but a contractile probe that cannot pass against this tree is a
+  defect, not documentation.
+|===
+
+== Emeritus maintainers
+
+None.
+
+== Becoming a maintainer
+
+There is no formal ladder yet, which is the honest position for a project this
+size. In practice: contribute substantively, demonstrate that you understand why
+the design invariants exist rather than merely that they exist, and ask.
+
+The single most useful qualification is a track record of *reporting negative
+results accurately* — this project has already had one claim die in testing
+because a harness bug produced a false positive, and catching that kind of thing
+matters more here than shipping features.
+
+== Contact
+
+* General: open an issue.
+* Security: see link:SECURITY.md[SECURITY.md]. Do not open a public issue.
+
+---
+
+_Last updated: 2026-07-22._

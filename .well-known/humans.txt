@@ -1,0 +1,19 @@
+# SPDX-License-Identifier: MPL-2.0
+# humanstxt.org
+
+/* TEAM */
+Maintainer: Jonathan D.A. Jewell (hyperpolymath)
+Contact: https://github.com/metadatastician/f117a-stealth-glider/issues
+From: United Kingdom
+
+/* SITE */
+Last update: 2026-07-22
+Standards: RSR (Rhodium Standard Repository), A2ML
+License: AGPL-3.0-or-later (code) / CC-BY-SA-4.0 (docs) / MPL-2.0 (.a2ml metadata)
+Components: Conway's Game of Life (B3/S23) engine, mission layer, canvas UI
+Language: JavaScript (ESM) — zero dependencies
+Tools: node, just, mise
+
+/* THANKS */
+Bill Gosper: for the glider gun that forms this level's eastern wall.
+John Conway: for B3/S23.

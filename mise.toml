@@ -1,0 +1,32 @@
+# Toolchain pins for F117A Stealth Glider, managed by mise (https://mise.jdx.dev).
+#
+# mise is used instead of asdf: same `.tool-versions` semantics, but a fast Rust
+# binary, PATH-based activation (no shim hop), and registry backends that install
+# tools without hunting for a bespoke plugin. Versions mirror the wider estate
+# where they overlap, so sibling projects agree.
+#
+#   $ mise install     # install everything pinned below
+#   $ just             # list the available recipes
+#
+# NOTE: mise silently ignores pins in an untrusted directory. If `mise install`
+# appears to do nothing, run `mise trust` first.
+#
+# This project has ZERO dependencies (D-08). The two tools below are the entire
+# toolchain: one runtime and one task runner. There is no bundler, no linter
+# config, no transpiler, and no package manager step — `node src/verify8.mjs`
+# works from a bare checkout.
+
+[tools]
+# --- Runtime for the verification scripts and the bundler.
+# The scripts need Node >= 18 (package.json `engines`); this pins a current LTS.
+# CI deliberately does NOT use setup-node — ubuntu-latest already ships Node 20,
+# and the org's sha_pinning_required makes every extra action a liability.
+node = "22.11.0"
+
+# --- Task runner (this repo's justfile).
+just = "1.46.0"
+
+# --- Deliberately absent:
+# No package manager: there is nothing to install. `npm ci` would be a no-op
+# against a package.json with no dependencies, and adding one would regress the
+# zero-dependency invariant that the Mustfile enforces.

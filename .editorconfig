@@ -1,0 +1,53 @@
+# EditorConfig helps maintain consistent coding styles between editors and IDEs.
+# https://editorconfig.org
+#
+# Scoped to the file types this repository actually contains. A long list of
+# languages the project does not use is template residue, not configuration.
+
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# JavaScript — the whole of src/ and scripts/.
+[*.{mjs,js}]
+indent_size = 2
+
+# The generated bundle. Do not reformat it: CI compares it byte-for-byte
+# against a fresh `just build`, so any editor touch turns the build red.
+[f117a-stealth-glider.html]
+insert_final_newline = unset
+trim_trailing_whitespace = unset
+indent_size = unset
+
+[*.{yml,yaml,json,toml,a2ml}]
+indent_size = 2
+
+# Markdown — trailing whitespace is a hard line break.
+[*.md]
+trim_trailing_whitespace = false
+
+[*.adoc]
+indent_size = 2
+
+# justfile recipes are shell; keep them readable at 4.
+[justfile]
+indent_size = 4
+
+# Vendored licence texts are verbatim upstream. Never normalise them.
+[LICENSES/**]
+insert_final_newline = unset
+trim_trailing_whitespace = unset
+indent_style = unset
+indent_size = unset
+
+[LICENSE]
+insert_final_newline = unset
+trim_trailing_whitespace = unset
+indent_style = unset
+indent_size = unset

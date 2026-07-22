@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>F-117A Stealth Glider Simulation</title>
+  <style>
+    body { font-family: monospace; background: #121212; color: #00ff66; padding: 20px; }
+    table { border-collapse: collapse; width: 100%; max-width: 650px; margin-top: 15px; }
+    th, td { border: 1px solid #333; padding: 8px 12px; text-align: right; }
+    th { background: #1e1e1e; color: #fff; }
+  </style>
+</head>
+<body>
+  <h2>🛩️ F-117A Stealth Glider Flight Telemetry</h2>
+  <table id="telemetry">
+    <thead>
+      <tr>
+        <th>Time (s)</th>
+        <th>Alt (m)</th>
+        <th>Vel (m/s)</th>
+        <th>AoA (deg)</th>
+        <th>Pitch (deg)</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    class GliderGeometry {
+      constructor() {
+        this.wingArea = 0.5;
+        this.wingspan = 1.2;
+        this.chord = 0.42;
+        this.mass = 1.5;
+        this.aspectRatio = (this.wingspan ** 2) / this.wingArea;
+        this.Ixx = 0.015;
+        this.Iyy = 0.025;
+        this.Izz = 0.038;
+      }
+    }
+
+    class Aerodynamics {
+      constructor(geometry) {
+        this.geometry = geometry;
+        this.airDensity = 1.225;
+      }
+
+      getCoefficients(alpha, beta, elevonDeflection) {
+        const CL_alpha = 2 * Math.PI; 
+        const CL = CL_alpha * alpha;
+        const CD0 = 0.025;
+        const e = 0.85;
+        const CD_induced = (CL ** 2) / (Math.PI * this.geometry.aspectRatio * e);
+        const CD = CD0 + CD_induced;
+        const Cm0 = 0.01;
+        const Cm_alpha = -0.4;
+        const Cm_delta = -0.015;
+        const Cm = Cm0 + (Cm_alpha * alpha) + (Cm_delta * elevonDeflection.pitch);
+        return { CL, CD, Cm };
+      }
+
+      calculateForces(velocity, alpha, beta, elevonDeflection) {
+        const dynamicPressure = 0.5 * this.airDensity * (velocity ** 2);
+        const coeffs = this.getCoefficients(alpha, beta, elevonDeflection);
+        const lift = dynamicPressure * this.geometry.wingArea * coeffs.CL;
+        const drag = dynamicPressure * this.geometry.wingArea * coeffs.CD;
+        const pitchMoment = dynamicPressure * this.geometry.wingArea * this.geometry.chord * coeffs.Cm;
+        return { lift, drag, pitchMoment };
+      }
+    }
+
+    class PIDController {
+      constructor(kp, ki, kd) {
+        this.kp = kp; this.ki = ki; this.kd = kd;
+        this.integral = 0;
+        this.prevError = 0;
+      }
+
+      compute(setpoint, current, dt) {
+        const error = setpoint - current;
+        this.integral += error * dt;
+        const derivative = (error - this.prevError) / dt;
+        this.prevError = error;
+        return (this.kp * error) + (this.ki * this.integral) + (this.kd * derivative);
+      }
+    }
+
+    class ElevonMixer {
+      mix(pitchCommand, rollCommand) {
+        return {
+          leftElevon: pitchCommand + rollCommand,
+          rightElevon: pitchCommand - rollCommand,
+          pitch: pitchCommand, 
+          roll: rollCommand
+        };
+      }
+    }
+
+    class FlightDynamics {
+      constructor(geometry) {
+        this.geom = geometry;
+        this.state = { z: 100, u: 15, w: 0, theta: 0, q: 0 }; 
+        this.gravity = 9.81;
+      }
+
+      update(dt, forces) {
+        const mass = this.geom.mass;
+        const u_dot = (-forces.drag * Math.cos(this.state.theta) + forces.lift * Math.sin(this.state.theta)) / mass;
+        const w_dot = this.gravity - ((forces.lift * Math.cos(this.state.theta) + forces.drag * Math.sin(this.state.theta)) / mass);
+        const q_dot = forces.pitchMoment / this.geom.Iyy;
+
+        this.state.u += u_dot * dt;
+        this.state.w += w_dot * dt;
+        this.state.q += q_dot * dt;
+        this.state.theta += this.state.q * dt;
+        this.state.z -= this.state.w * dt; 
+
+        const alpha = Math.atan2(this.state.w, this.state.u);
+        const velocity = Math.sqrt(this.state.u**2 + this.state.w**2);
+        return { alpha, velocity };
+      }
+    }
+
+    function runSimulation() {
+      const dt = 0.02;
+      const simTime = 5.0;
+      const glider = new GliderGeometry();
+      const aero = new Aerodynamics(glider);
+      const dynamics = new FlightDynamics(glider);
+      const mixer = new ElevonMixer();
+      const pitchPID = new PIDController(0.5, 0.01, 0.1);
+      const targetPitch = -0.087;
+
+      let alpha = 0;
+      let velocity = dynamics.state.u;
+      const tbody = document.querySelector("#telemetry tbody");
+
+      for (let t = 0; t <= simTime; t += dt) {
+        const pitchCmd = pitchPID.compute(targetPitch, dynamics.state.theta, dt);
+        const elevons = mixer.mix(pitchCmd, 0);
+        const forces = aero.calculateForces(velocity, alpha, 0, elevons);
+        const kinematics = dynamics.update(dt, forces);
+        alpha = kinematics.alpha;
+        velocity = kinematics.velocity;
+
+        if (Math.abs(t % 1.0) < dt/2) {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${t.toFixed(1)}</td>
+            <td>${dynamics.state.z.toFixed(2)}</td>
+            <td>${velocity.toFixed(2)}</td>
+            <td>${(alpha * 180/Math.PI).toFixed(2)}</td>
+            <td>${(dynamics.state.theta * 180/Math.PI).toFixed(2)}</td>
+          `;
+          tbody.appendChild(tr);
+        }
+      }
+    }
+
+    runSimulation();
+  </script>
+</body>
+</html>

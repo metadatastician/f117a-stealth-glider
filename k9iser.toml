@@ -1,0 +1,58 @@
+# k9iser manifest — wrap F117A Stealth Glider's configs into self-validating K9 contracts
+# SPDX-License-Identifier: MPL-2.0
+#
+# F117A Stealth Glider: a stealth puzzle played on a live Conway's Game of Life
+# field (B3/S23). Safety-tier "kennel" — low risk: a self-contained browser game
+# with no runtime service, no user data, no network access, and no dependencies.
+# Nothing here mutates live systems.
+#
+# k9iser's config parser supports toml/yaml/json/ini. This repository has exactly
+# one machine-parsable config — package.json — because the project is deliberately
+# dependency-free and has no build, lint, or bundler configuration. mise.toml is
+# also wrapped, for the toolchain pins.
+#
+# The invariants that actually matter here are NOT config values: they are the
+# design invariants in src/ (the B3/S23 substrate, the frozen level geometry, the
+# Chebyshev-2 contact rule). Those are enforced by the contractiles, which are
+# genuinely executable in this repo — see scripts/contractiles.mjs and
+# `just contracts`. This file complements them; it does not stand in for them.
+
+[project]
+name = "F117A Stealth Glider"
+safety-tier = "kennel"           # kennel (low) | yard (medium) | hunt (high)
+
+# ── package.json — project identity, licence, and the zero-dependency invariant ──
+
+[[configs]]
+name = "package-metadata"
+source = "package.json"
+format = "json"
+# Must rules. Keys suffix-match the flattened dotted path.
+must = [
+  "license == \"AGPL-3.0-or-later\"",   # strong copyleft by design; do not relicense
+  "type == \"module\"",                 # plain ESM, no transpiler
+  "private == false",                   # the repo is public
+]
+trust = ["signed-by: ci-pipeline"]
+dust = ["remove: dependencies", "remove: devDependencies"]
+intend = ["copyleft-preserved", "zero-dependency", "open-source"]
+notes = "Zero dependencies is a design property (D-08), not an accident. The `dust` rules above are absolute rather than tidying: any dependency key appearing here is a regression, and the Mustfile probe `zero-runtime-dependencies` fails the build on it."
+
+# ── mise.toml — pinned toolchains ────────────────────────────────────────────
+
+[[configs]]
+name = "toolchain-pins"
+source = "mise.toml"
+format = "toml"
+must = [
+  "node == \"22.11.0\"",           # LTS; the verification scripts need >= 18
+  "just == \"1.46.0\"",            # task runner, version mirrored from the estate
+]
+trust = ["signed-by: ci-pipeline"]
+dust = ["remove: unpinned-tool-versions"]
+intend = ["reproducible-toolchain", "estate-aligned"]
+
+[validation]
+strict = true
+auto-fix = false
+report-format = "text"

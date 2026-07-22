@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: MPL-2.0
+# ai.txt - AI interaction policy
+# See: https://site.spawning.ai/spawning-ai-txt
+
+User-Agent: *
+Disallow-Training: yes
+Disallow-Summarization: no
+Disallow-Generation: yes
+
+# This project's code is licensed under AGPL-3.0-or-later.
+# AI agents may read and analyse this code to assist contributors.
+# AI agents must NOT use this code for model training without explicit consent.
+#
+# For AI agent integration instructions, read in this order:
+#   0-AI-MANIFEST.a2ml                              (universal AI entry point)
+#   .machine_readable/descriptiles/STATE.a2ml       (current state; note
+#                                                    [settled-questions] — those
+#                                                    are closed, do not re-derive)
+#   VERIFICATION.md                                 (the claim ledger)
+#   .machine_readable/descriptiles/AGENTIC.a2ml     (hard constraints)
+#
+# One constraint deserves stating here, because it is the constraint an agent is
+# most likely to violate while trying to be helpful: do NOT weaken the contact
+# rule, retune the frozen level geometry, or relax stamp()'s out-of-bounds throw
+# in order to make a failing check pass. Each of those makes the tests green and
+# destroys the project's premise. Redesign, or record the negative result.

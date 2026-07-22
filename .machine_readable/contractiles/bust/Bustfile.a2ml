@@ -1,0 +1,100 @@
+# SPDX-License-Identifier: MPL-2.0
+# Bustfile — Failure-mode contractile for F117A Stealth Glider
+# Author: Jonathan D.A. Jewell (hyperpolymath)
+#
+# Paired runner: scripts/contractiles.mjs
+# Verb:          bust
+# Semantics:     Every declared failure mode must have a working recovery path
+#                that has been exercised. Status moves:
+#                  declared -> drilled (probe run) -> verified (recovery confirmed)
+#                  or -> failing (recovery broken)
+
+@abstract:
+Bustfile for F117A Stealth Glider. Lists failure modes for the verification
+ledger, the bundle, and the CI/publication path, each paired with a recovery
+path. These are drills, not day-to-day gates. Several are marked `verified`
+because the failure genuinely occurred and the recovery was genuinely applied.
+@end
+
+## Failure Modes
+
+### stamp-out-of-bounds-in-sweep
+- class: harness
+- description: A lane sweep stamps a pattern at a negative coordinate and throws `stamp out of bounds`
+- injection_probe: "true"
+- recovery_probe: "cd src && node verify3.mjs >/dev/null 2>&1 && node verify9.mjs >/dev/null 2>&1"
+- expected_recovery_time_seconds: 30
+- status: verified
+- notes: REAL, and it happened. verify3 and verify9 both crashed at the most-negative lanes. The recovery is to enlarge the grid and co-shift glider AND eater by a constant — Life is translation-invariant away from borders, so the measured RELATIVE lane is preserved. The recovery is NEVER to relax `stamp`, because silent wrapping is what manufactured the phantom clean landing lane in the first place.
+
+### phantom-result-from-silent-clipping
+- class: correctness
+- description: An out-of-bounds write is silently absorbed and produces a fabricated positive result
+- injection_probe: "grep -q 'stamp out of bounds' src/engine.mjs"
+- recovery_probe: "cd src && node verify3.mjs 2>&1 | grep -qi 'clean'"
+- expected_recovery_time_seconds: 30
+- status: verified
+- notes: This is why stamp throws (D-06). A claim of a "second clean landing lane" survived review once because the harness was lying rather than failing. Fail-loud beats fail-quiet.
+
+### stale-bundle-shipped
+- class: distribution
+- description: src/ changes but the committed f117a-stealth-glider.html is not regenerated
+- injection_probe: "true"
+- recovery_probe: "cd src && node build.mjs >/dev/null 2>&1 && cmp -s f117a-stealth-glider.html ../f117a-stealth-glider.html; rc=$?; rm -f f117a-stealth-glider.html; exit $rc"
+- expected_recovery_time_seconds: 10
+- status: verified
+- notes: Recovery is `just build` + commit. CI catches it byte-for-byte, and build.mjs replays the witness on the transformed core so the shipped artefact is re-proved completable at every build.
+
+### workflow-startup-failure
+- class: ci
+- description: A workflow `uses:` a tag rather than a SHA; the org's sha_pinning_required rejects it and the job dies at 0s
+- injection_probe: "true"
+- recovery_probe: "! grep -rhoE 'uses: *[A-Za-z0-9_.-]+/[A-Za-z0-9_./-]+@[^ ]+' .github/workflows/ | grep -qvE '@[0-9a-f]{40}$'"
+- expected_recovery_time_seconds: 60
+- status: verified
+- notes: REAL, and it happened on this repo's first CI run. The insidious part is that startup_failure is not a red test — it is a check that never ran, which reads as absence rather than failure. Recovery: pin every action to a full commit SHA with a trailing version comment.
+
+### pages-deploy-without-site
+- class: publication
+- description: pages.yml runs deploy-pages against a repository with no Pages site configured, and fails
+- injection_probe: "true"
+- recovery_probe: "gh api repos/metadatastician/f117a-stealth-glider/pages --jq .build_type 2>/dev/null | grep -q workflow"
+- expected_recovery_time_seconds: 30
+- status: verified
+- notes: Recovery: gh api -X POST repos/metadatastician/f117a-stealth-glider/pages -f build_type=workflow. Enable the site BEFORE committing the workflow, otherwise the repo carries a guaranteed-red check.
+
+### codeql-advanced-vs-default-conflict
+- class: ci
+- description: An advanced codeql.yml is committed while code-scanning default setup is enabled; analyses are rejected
+- injection_probe: "true"
+- recovery_probe: "test ! -f .github/workflows/codeql.yml"
+- expected_recovery_time_seconds: 30
+- status: verified
+- notes: Default setup is configured for this repo (actions + javascript, extended suite). The recovery is to NOT commit an advanced workflow — copying the estate's codeql.yml would have produced a permanently failing check (D-10).
+
+### push-blocked-private-email
+- class: provenance
+- description: A push is rejected with GH007 because the commit uses a private email address
+- injection_probe: "true"
+- recovery_probe: "! git log -1 --format='%ae' | grep -q '@gmail.com$'"
+- expected_recovery_time_seconds: 60
+- status: verified
+- notes: REAL, and it happened. Recovery: git commit --amend --reset-author with 6759885+hyperpolymath@users.noreply.github.com.
+
+### licence-clobbered-by-sweep
+- class: licensing
+- description: An estate-wide sweep flattens the AGPL licence to a permissive one
+- injection_probe: "true"
+- recovery_probe: "grep -q 'GNU AFFERO GENERAL PUBLIC LICENSE' LICENSE && grep -q '\"license\": \"AGPL-3.0-or-later\"' package.json && cmp -s LICENSE LICENSES/AGPL-3.0-or-later.txt"
+- expected_recovery_time_seconds: 120
+- status: declared
+- notes: This has happened to sibling repos in this estate. Check BOTH directions — a correct header over a wrong body is the same defect as the reverse.
+
+### contractile-probe-rot
+- class: contractile_integrity
+- description: A contractile probe references a path that no longer exists, so it fails or silently passes
+- injection_probe: "true"
+- recovery_probe: "node scripts/contractiles.mjs >/dev/null 2>&1"
+- expected_recovery_time_seconds: 30
+- status: verified
+- notes: The canonical instance of this rot is upstream: rsr-template-repo's own Mustfile still probes the superseded FLAT contractile paths, so `must check` fails against the template's own tree. This repo uses the trident paths that actually exist, and runs the probes in CI so the rot cannot accumulate silently.

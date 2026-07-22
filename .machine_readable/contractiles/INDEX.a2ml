@@ -1,0 +1,96 @@
+# SPDX-License-Identifier: MPL-2.0
+# INDEX.a2ml — Contractile Registry for F117A Stealth Glider
+# Author: Jonathan D.A. Jewell (hyperpolymath)
+#
+# Machine-readable catalogue of the contractile verbs carried by this repo.
+# Consumers (CI scripts, Hypatia rules, agents) SHOULD read this file to
+# discover the available verbs rather than hard-coding the list.
+
+---
+id = "contractiles-registry"
+version = "2.0.0"
+spec = "hyperpolymath/standards docs/CONTRACTILE-SPEC.adoc"
+last_updated = "2026-07-22"
+layout = "trident"
+runner = "scripts/contractiles.mjs"
+
+## Runner note
+
+# The canonical trident is (Xfile.a2ml, x.ncl, x.k9.ncl). This repository ships
+# the .a2ml declaration for all six verbs but NOT the .ncl / .k9.ncl runners,
+# deliberately: the Nickel contractile runners are not built anywhere in the
+# estate, so committing them here would be scaffolding that cannot execute —
+# precisely the false-green pattern these contractiles exist to catch.
+#
+# Instead every `- run:` probe in this set is a plain shell one-liner, and
+# `scripts/contractiles.mjs` executes them for real. `just contracts` runs the
+# whole set; CI fails the build on any `critical` breach. When the estate's
+# .ncl runners land, add them per verb and drop the shim.
+
+## Verbs
+
+[[verbs]]
+name = "must"
+semantics = "physical-state hard requirements"
+files = ["must/Mustfile.a2ml"]
+status = "active"
+tier = "Hunt"
+authority = "blocking"
+gating = "hard (exit-nonzero)"
+cardinality = "one per repo"
+notes = "File presence, source structure, the design invariants the ledger rests on, CI integrity, and machine-readable shape. Probes target this tree, not a generic template."
+
+[[verbs]]
+name = "trust"
+semantics = "trust boundaries + integrity invariants"
+files = ["trust/Trustfile.a2ml"]
+status = "active"
+tier = "Hunt"
+authority = "blocking"
+gating = "hard (exit-nonzero)"
+cardinality = "one per repo"
+notes = "Trust level `standard`. The operative risk here is not operational — it is an agent silently softening a design invariant to make a test pass, which destroys the premise without breaking anything visible."
+
+[[verbs]]
+name = "bust"
+semantics = "failure modes + exercised recovery paths"
+files = ["bust/Bustfile.a2ml"]
+status = "active"
+tier = "Hunt-read-only"
+authority = "blocking"
+gating = "hard (exit-nonzero)"
+cardinality = "one per repo"
+notes = "Several entries are status `verified` rather than `declared` because the failure genuinely occurred during development and the recovery was genuinely applied — out-of-bounds stamp, workflow startup_failure, GH007 push block."
+
+[[verbs]]
+name = "intend"
+semantics = "committed next-actions + horizon aspirations"
+files = ["intend/Intentfile.a2ml"]
+status = "active"
+tier = "Kennel"
+authority = "advisory"
+gating = "none (report only)"
+cardinality = "one per repo"
+notes = "North-star contractile. Declares the purpose and, importantly, the anti-purpose."
+
+[[verbs]]
+name = "adjust"
+semantics = "drift tolerances + corrective actions"
+files = ["adjust/Adjustfile.a2ml"]
+status = "active"
+tier = "Yard"
+authority = "advisory"
+gating = "advisory (continue-with-warnings)"
+cardinality = "one per repo"
+notes = "Tracks cumulative drift — design drift, verification drift, documentation drift, repository drift. The `settled-questions-stay-settled` band exists to stop closed questions being silently reopened."
+
+[[verbs]]
+name = "dust"
+semantics = "cleanup + hygiene"
+files = ["dust/Dustfile.a2ml"]
+status = "active"
+tier = "Yard"
+authority = "advisory"
+gating = "advisory (continue-with-warnings)"
+cardinality = "one per repo"
+notes = "Housekeeping. Includes probes against carrying BOTH the superseded 6a2/ directory and the superseded flat contractile layout — the duplication this repo deliberately avoided inheriting."

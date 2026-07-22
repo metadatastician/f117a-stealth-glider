@@ -1,0 +1,53 @@
+# SPDX-License-Identifier: MPL-2.0
+# Copyright (c) 2026 Jonathan D.A. Jewell (hyperpolymath)
+#
+# META.a2ml — Project meta-level information
+# Architecture decisions, development practices, design rationale.
+
+[metadata]
+version = "0.1.0"
+last-updated = "2026-07-22"
+
+[project-info]
+name = "F117A Stealth Glider"
+type = "game"                        # single-player stealth puzzle on a cellular automaton
+languages = ["javascript"]
+license = "AGPL-3.0-or-later"        # all code, including the level
+license-metadata = "MPL-2.0"         # the .a2ml machine-readable set
+author = "Jonathan D.A. Jewell (hyperpolymath)"
+repository = "https://github.com/metadatastician/f117a-stealth-glider"
+homepage = "https://metadatastician.github.io/f117a-stealth-glider/"
+
+[architecture-decisions]
+# This project predates a formal docs/adr/ tree; the decisions that shaped it are
+# recorded here, each with the evidence that settled it. Promote to docs/adr/ if
+# the project grows a second level.
+# status = accepted | rejected | superseded
+records = [
+  { id = "D-01", title = "The substrate is real B3/S23, never special-cased", status = "accepted", notes = "Every threat is a genuine Life pattern evolving under the same two rules as the rest of the universe. A scripted 'enemy' would make the automaton decorative." },
+  { id = "D-02", title = "The level is frozen geometry, not tunable parameters", status = "accepted", notes = "src/level.mjs is the single source of truth. When a verification script fails, redesign the crossing or record the negative result; do not retune lanes until green." },
+  { id = "D-03", title = "Contact is a Chebyshev proximity rule (radius 2), not cell overlap", status = "accepted", notes = "Overlap-only contact makes the stream learnable by feel, which trips the standing falsifier. Chebyshev-3 is the exact independence criterion under which the player overlay is a valid fiction; radius 2 is the shipped rule." },
+  { id = "D-04", title = "The p30 stream is an impassable border; the route goes around it", status = "accepted", notes = "Forced by the no-go lemma (verify8, 0/30). The only way south is a single fence breach whose safe lane is phase-independent by construction." },
+  { id = "D-05", title = "Player identity is established by counterfactual shadow, not by tagging", status = "accepted", notes = "The player is the glider ABSENT from a shadow world stepped without them. findGlider(..., notInGrid) therefore cannot hijack ambient traffic — the substrate stays uniform." },
+  { id = "D-06", title = "stamp() throws on out-of-bounds rather than clipping or wrapping", status = "accepted", notes = "Silent wrapping previously manufactured a phantom clean landing lane. Strictness is a correctness gate; sweeps needing negative lanes co-shift the configuration instead." },
+  { id = "D-07", title = "Ship a single self-contained HTML bundle, mechanically generated", status = "accepted", notes = "build.mjs concatenates the four modules and replays the witness on the transformed core, so the artefact is verified as shipped, not merely as authored. CI asserts byte-identity." },
+  { id = "D-08", title = "Zero runtime dependencies", status = "accepted", notes = "Plain ESM on Node >= 18 and any modern browser. Nothing to install, nothing to audit, and the verification scripts run with bare `node`." },
+  { id = "D-09", title = "Period-thinning the stream to open a gap", status = "rejected", notes = "Explored during design and abandoned — it dilutes the automaton's own dynamics into a level-design knob, which is D-01 in reverse." },
+  { id = "D-10", title = "CodeQL runs via GitHub default setup, not a committed advanced workflow", status = "accepted", notes = "Default setup is already configured for this repo (actions + javascript, extended query suite). An advanced codeql.yml would conflict with it and fail, so none is committed." },
+]
+
+[development-practices]
+build-tool = "just"                  # justfile at the repo root
+toolchain-manager = "mise"           # mise.toml pins node + just
+ci-platform = "github-actions"       # .github/workflows/{ci,pages}.yml
+package-managers = []                # zero dependencies; package.json is metadata + scripts only
+code-scanning = "github code-scanning default setup (actions, javascript; extended suite, weekly)"
+contribution = "DCO 1.1 — sign commits with `git commit -s`"
+verification = "Every design claim is discharged by a named script runnable with plain `node`. CI runs the cited ledger and fails on any red."
+
+[design-rationale]
+substrate-is-the-enemy = "The premise is that the cellular automaton is load-bearing rather than atmospheric. Threats are Gosper guns, eaters and still lifes obeying B3/S23 — so the player's skill is reading the automaton, not memorising sprite patrol routes."
+falsifier-driven-design = "v0 carries an explicit standing falsifier: if the crossing becomes learnable by feel without tracking phase, the substrate is scenery and the level fails. Design changes are judged against that, not against playtest comfort."
+no-go-lemma-shapes-the-map = "The central geometric result is negative: a glider cannot cleanly cross a settled p30 stream at ANY of the 30 phases, because 15-unit glider spacing is narrower than the ~17-unit exclusion diameter of the crossing glider. The map is built around that fact — the stream is a wall, and the fence breach is the door."
+one-fiction-declared = "Exactly one departure from pure Life is admitted: a pre-contact kinematic overlay for the player glider. It is maintained only while the player is provably independent of the substrate (Chebyshev-3), and that criterion is documented and tested rather than hand-waved."
+negative-results-are-shipped = "verify4, 5, 6, 7 and 10 are design searches whose 'no viable candidate' output is the finding. They are kept in the tree and excluded from the cited ledger rather than deleted, so the search space that was ruled out stays visible."

@@ -1,0 +1,16 @@
+{
+  "name": "f117a-stealth-glider",
+  "version": "0.1.0",
+  "description": "Operation Nightglass — a stealth puzzle on a live Conway's Game of Life field (B3/S23).",
+  "type": "module",
+  "license": "AGPL-3.0-or-later",
+  "author": "Jonathan D.A. Jewell (hyperpolymath) <j.d.a.jewell@open.ac.uk>",
+  "private": false,
+  "scripts": {
+    "verify": "cd src && for v in verify1 verify2 verify3 verify8 verify9; do node $v.mjs; done",
+    "build": "cd src && node build.mjs && mv -f f117a-stealth-glider.html ../f117a-stealth-glider.html"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
