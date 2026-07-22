@@ -88,7 +88,7 @@ it. The solver is an *approximation* of the mission engine (it orders the
 collision and radar tests differently for speed), so it is only allowed to
 propose. The claim is the flight through the real `missionStep()`:
 
-> **LANDED at t=430, trace 0, peak exposure 7 of 8.**
+> **LANDED at t=485, trace 0, peak exposure 7 of 8.**
 
 Peak exposure 7 matters: a route that was never painted at all would satisfy
 "lands cleanly" while proving nothing about the radar.
@@ -152,7 +152,7 @@ switched off.
 
 ## C11 — the substrate is periodic from generation 0
 
-`transient = 0`, `period = 30` (the declared value), population `261..375`.
+`transient = 0`, `period = 15` (the declared value), population `198..254`.
 
 This is a precondition, not decoration. The solver indexes states by
 `t mod period`; if a transient existed, it would be searching a space that has not
