@@ -1,0 +1,114 @@
+// SPDX-License-Identifier: CC-BY-SA-4.0
+// Copyright (c) 2026 Jonathan D.A. Jewell (hyperpolymath)
+= Audit — F117A Stealth Glider
+:toc: macro
+:toclevels: 2
+
+What is *verified*, what is merely *argued*, and what is *not claimed*.
+This document exists so that nobody has to infer the difference from a green tick.
+
+toc::[]
+
+== The headline
+
+The line-of-sight mechanic is proven. *The level is not finished.*
+
+Claim C6 — the falsifier for the entire premise — is *RED*, and that is a
+measured result rather than an unstarted task. It is reported by CI on every
+push and does not gate the build while it is known-red, because a red gate that
+everyone learns to step over is worse than an honest statement of what is
+unfinished.
+
+== Verified
+
+These are discharged by a script in `src/`, runnable with plain `node`, that can
+actually fail. Where a check could plausibly be vacuous, it ships with a canary
+demonstrating it failing on purpose.
+
+[cols="1,4"]
+|===
+| C1 | `src/kernel/engine.mjs` is byte-identical to f19@9effa596, and `src/mission.mjs` is that file plus five fenced blocks. Asserted as git blob ids, so it is cryptographic and offline. Canary: a one-token edit outside a fence breaks it.
+| C2 | Supercover line of sight does not leak through a diagonal wall — 0 of 4489 cross-wall pairs. Canary: naive Bresenham leaks 1009 of 4489 through the same wall.
+| C3 | A radar does not occlude itself. Canary: without the footprint exemption it blinds itself 5/5.
+| C5 | The witness route LANDS at t=430, trace 0, peak exposure 7 of 8 — and was painted at some point, so it is not trivially safe.
+| C8 | Determinism, checked twice over: no non-determinism primitive in the four simulation modules, and two full runs hash identically across every generation.
+| C11 | The substrate is periodic from generation 0 — transient 0, period 30 as declared, population 261..375.
+| C12 | No two stamped patterns are within Chebyshev 3; everything is inside the border; the hangar zone is inside the grid; spawn is on a clean landing lane.
+|===
+
+== Red, and known
+
+=== C6 — the falsifier
+
+Fly the *same* route from every launch phase. For the level to be a phase puzzle,
+most off-phase launches must fail, and fail specifically as `PAINTED`.
+
+*Measured: 3 of 14 off-phase launches are shot down as PAINTED; peak exposure
+varies 7..8 across phases.*
+
+Two of C6's three assertions now pass — failures are dominated by radar rather
+than by terrain, and at least one launch is locked. The third does not: a
+*majority* must fail, and 3/14 is not a majority. So the radar is load-bearing
+but not yet decisive.
+
+*This is a large improvement on the first design*, and the difference is
+instructive. That design flanked an open corridor with shutter banks and
+measured *0 of 30* phases failing, with peak exposure constant at 7 — the solver
+simply routed around the banks through permanent cover. Cover beside a route you
+need not take is scenery.
+
+The fix was a *chokepoint*: a wall across the corridor with one gap, a
+short-range gate sensor watching it, and a p15 pentadecathlon shuttering the
+sight line to the gap. What remains is to make the gap the *only* survivable
+option — currently 11 of 14 phases still find a way through.
+
+The search that found this is `design/place.mjs`, which sweeps *placement*
+rather than scalars. The earlier conclusion that the level could not be made
+phase-critical was unearned: it swept `radarRange`, `LOCK` and pattern spacing
+and never moved a sensor. Geometry problems are not fixed by tuning numbers.
+
+== Argued, not verified
+
+* *That the chosen mechanic is the right translation of F-117A.* Terrain masking
+  and radar cross-section were that aircraft's actual defence, and moving cover is
+  the natural cellular-automaton reading of it. This is a design argument. It is
+  not a measurement.
+* *That "one exposed cell paints the aircraft" is the right rule.* Requiring all
+  five cells to be exposed would make the glider's own spread act as free cover.
+  The conservative rule is chosen deliberately and stated in `src/radar.mjs`; it is
+  not derived from anything.
+* *That LOCK = 8 is the right dwell.* Chosen so a one-generation flicker is
+  survivable and sustained exposure is not. `design/sweep.mjs` shows 5 and 6 make
+  the current level unsolvable; that bounds it, but does not justify 8 specifically.
+* *That the 3D form should have been rejected.* The measurement (0 spaceships from
+  180 soups per rule) is real and is landed as evidence, but "no glider ecology"
+  is an inference from it, not the measurement itself.
+
+== NOT claimed
+
+* *There is no game yet.* There is no renderer, no camera, no input handling and
+  no playable bundle. Nothing in this repository can be played. The 3D layer,
+  its inertness proof (C7) and bundle reproducibility (C10) are unlanded, and
+  their claim numbers are reserved rather than quietly reused.
+* *The level is not claimed to be good, or even finished* — see C6.
+* *No claim about performance.* `shadowMap` is O(W·H·sensors·ray) and is intended
+  to be recomputed on CA tick, not per frame. Nothing measures that yet.
+* *No claim that the solver is a second implementation of the engine.* It is an
+  approximation that orders the collision and radar tests differently for speed.
+  It may only propose; `verify-witness.mjs` flying the route through the real
+  `missionStep()` is what makes C5 a claim. If the two ever disagree, the solver
+  is wrong.
+* *No claim about `spike/`.* Those two files are provenance, landed verbatim.
+  They are not built, not linted, not imported, and their seven recorded defects
+  are not fixed in place.
+* *No security claim beyond the obvious.* This is a dependency-free static page
+  with no network access and no user data.
+
+== Deviations
+
+* *C6 is red and CI does not gate on it.* Registered here rather than silently
+  excluded. It runs on every push and reports.
+* *`spike/` is exempt from line-ending normalisation* (`.gitattributes`), because
+  `simulation.html` carries 162 CRLF terminators and `text=auto eol=lf` would
+  rewrite them, breaking the published SHA-256 digests and the byte-identical
+  claim with them.

@@ -47,8 +47,8 @@ generic template.
 - notes: This is the project's centre of gravity; every design claim is discharged there.
 
 ### ai-manifest-present
-- description: Root 0-AI-MANIFEST.a2ml must exist
-- run: test -f 0-AI-MANIFEST.a2ml
+- description: The root agent-facing documents exist
+- run: test -f README.md && test -f VERIFICATION.md && test -f AUDIT.adoc && test -f KERNEL-DIVERGENCE.md
 - severity: critical
 
 ### governance-docs
@@ -76,13 +76,13 @@ generic template.
 ## Source Structure
 
 ### core-modules-present
-- description: The four core modules and the bundler exist
-- run: test -f src/engine.mjs && test -f src/mission.mjs && test -f src/level.mjs && test -f src/ui.js && test -f src/build.mjs
+- description: The simulation modules exist (engine is VENDORED under kernel/)
+- run: test -f src/kernel/engine.mjs && test -f src/mission.mjs && test -f src/level.mjs && test -f src/radar.mjs
 - severity: critical
 
 ### cited-ledger-scripts-present
 - description: Every script cited by the verification ledger exists
-- run: test -f src/verify1.mjs && test -f src/verify2.mjs && test -f src/verify3.mjs && test -f src/verify8.mjs && test -f src/verify9.mjs
+- run: test -f src/verify-kernel-parity.mjs && test -f src/verify-los.mjs && test -f src/verify-level.mjs && test -f src/verify-determinism.mjs && test -f src/verify-witness.mjs && test -f src/verify-falsifier.mjs
 - severity: critical
 
 ### exploratory-scripts-retained
@@ -91,27 +91,28 @@ generic template.
 - severity: warning
 - notes: Their "no viable candidate" output is a recorded negative result. Keeping them keeps the ruled-out search space visible.
 
-### bundle-present
-- description: The self-contained playable bundle exists at the repository root
-- run: test -f f117a-stealth-glider.html
+### spike-provenance-intact
+- description: The v0 3D prototype is preserved verbatim with its defect record
+- run: test -f spike/world.html && test -f spike/simulation.html && test -f spike/README.md
 - severity: critical
+- notes: There is deliberately no playable bundle yet - see AUDIT.adoc 'NOT claimed'. This probe guards the provenance that DOES exist rather than asserting an artefact that does not.
 
 ### spdx-headers-on-every-source
-- description: Every src/*.mjs and src/*.js declares AGPL-3.0-or-later on its FIRST line
-- run: "! for f in src/*.mjs src/*.js; do head -1 \"$f\" | grep -q '^// SPDX-License-Identifier: AGPL-3.0-or-later$' || echo BAD; done | grep -q BAD"
+- description: Every .mjs under src/ declares AGPL-3.0-or-later on its FIRST line
+- run: "! find src -name '*.mjs' -exec head -1 {} \\; | grep -qv '^// SPDX-License-Identifier: AGPL-3.0-or-later$'"
 - severity: critical
 
 ## Design Invariants
 
 ### substrate-purity-b3s23
 - description: The engine implements B3/S23 and the level declares it in its header
-- run: test -f src/engine.mjs && grep -q 'export function step' src/engine.mjs
+- run: test -f src/kernel/engine.mjs && grep -q 'export function step' src/kernel/engine.mjs && grep -q 'n === 3 || (src\[i\] && n === 2)' src/kernel/engine.mjs
 - severity: critical
 - notes: Born on exactly 3 live neighbours, survives on 2 or 3, applied uniformly. No special-cased cells, no scripted entities.
 
 ### stamp-throws-on-out-of-bounds
 - description: stamp() throws rather than clipping or wrapping out-of-bounds writes
-- run: grep -q 'stamp out of bounds' src/engine.mjs
+- run: grep -q 'stamp out of bounds' src/kernel/engine.mjs
 - severity: critical
 - notes: Silent wrapping previously manufactured a phantom "second clean landing lane". Strictness is a correctness gate (D-06).
 
@@ -122,8 +123,8 @@ generic template.
 - notes: Relaxing this to cell-overlap makes the stream learnable by feel, converting the substrate into scenery and failing v0's premise. This is the standing falsifier (D-03).
 
 ### level-geometry-frozen
-- description: The frozen Operation Nightglass v2 geometry is intact
-- run: grep -q 'const W = 172, H = 108;' src/level.mjs && grep -q 'const hangarAt = \[86, 94\];' src/level.mjs && grep -q 'const fenceX = \[0, 8, 16, 24, 32, 36, 56, 60\];' src/level.mjs
+- description: The Operation Nightglass geometry and its measured invariants are intact
+- run: grep -q 'const W = 172, H = 108;' src/level.mjs && grep -q 'const hangarAt = \[92, 96\];' src/level.mjs && grep -q 'glidepaths: \[-10, -4, 3\]' src/level.mjs && grep -q 'radarRange = 40' src/level.mjs
 - severity: critical
 - notes: The level is the design (D-02). Any change here invalidates the entire ledger and requires a full re-run of verify1,2,3,8,9.
 
@@ -148,9 +149,15 @@ generic template.
 
 ### ci-runs-the-cited-ledger
 - description: The CI workflow actually runs the cited verification scripts
-- run: grep -q 'verify1 verify2 verify3 verify8 verify9' .github/workflows/ci.yml
+- run: grep -q 'verify-kernel-parity verify-los verify-level verify-determinism verify-witness' .github/workflows/ci.yml && grep -q 'verify-falsifier.mjs' .github/workflows/ci.yml
 - severity: critical
-- notes: A CI file that does not execute the ledger is a fake gate.
+- notes: |
+    A CI file that does not execute the ledger is a fake gate. Both halves matter.
+    The first clause pins the GATING scripts. The second pins verify-falsifier.mjs,
+    which is currently RED and runs under continue-on-error: without this clause the
+    cheapest way to make CI green would be to delete the falsifier, which is precisely
+    the failure this repository exists to avoid. When C6 goes green, fold it into the
+    first clause and drop continue-on-error from the workflow.
 
 ## Machine-Readable Structure
 

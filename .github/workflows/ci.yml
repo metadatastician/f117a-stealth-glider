@@ -7,7 +7,8 @@
 # ubuntu-latest ships Node 20 preinstalled and the project has zero
 # dependencies, so there is no setup-node and no install step. Every `uses:` is
 # pinned to a full commit SHA: the org enforces sha_pinning_required, and a tag
-# ref produces startup_failure at 0s — a check that never runs.
+# ref produces startup_failure at 0s — which reports as NO check rather than a
+# red one, so it is invisible in `gh pr checks`.
 #
 # Code scanning is NOT here: it runs via GitHub code-scanning default setup
 # (actions + javascript, extended suite, weekly). An advanced codeql.yml would
@@ -33,42 +34,60 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      # ubuntu-latest ships Node 20 preinstalled; no setup-node needed.
       - name: Node version
         run: node --version
 
-      - name: Licence headers present on every source file
+      - name: Licence headers on every source file
         run: |
           set -euo pipefail
           fail=0
-          for f in src/*.mjs src/*.js scripts/*.mjs; do
+          while IFS= read -r f; do
             if [ "$(head -1 "$f")" != "// SPDX-License-Identifier: AGPL-3.0-or-later" ]; then
               echo "::error file=$f::missing SPDX AGPL header"; fail=1
             fi
-          done
+          done < <(find src scripts design \( -name '*.mjs' -o -name '*.js' \))
           [ "$fail" = 0 ]
 
-      - name: Verification ledger (verify1,2,3,8,9 + build)
+      - name: Gating ledger (C1, C2, C3, C5, C8, C11, C12)
         working-directory: src
         run: |
           set -euo pipefail
-          for v in verify1 verify2 verify3 verify8 verify9; do
+          for v in verify-kernel-parity verify-los verify-level verify-determinism verify-witness; do
             echo "== node $v.mjs =="
             node "$v.mjs"
           done
-          echo "== node build.mjs =="
-          node build.mjs
 
-      - name: Bundle reproducibility — committed HTML matches a fresh rebuild
+      # verify-kernel-parity already proves this offline via git blob ids. This
+      # step is a second, INDEPENDENT witness computed by git itself rather than
+      # by our own reimplementation of the blob hash.
+      - name: Vendored engine blob id matches f19@9effa596
         run: |
           set -euo pipefail
-          # build.mjs (run above, from src/) wrote src/f117a-stealth-glider.html
-          if ! diff -q src/f117a-stealth-glider.html f117a-stealth-glider.html; then
-            echo "::error::committed f117a-stealth-glider.html is stale — run 'just build' and commit"
-            diff <(head -c 400 src/f117a-stealth-glider.html) <(head -c 400 f117a-stealth-glider.html) || true
+          got="$(git hash-object src/kernel/engine.mjs)"
+          want="c7a016ecd9003422bf46252a4713e69dabf266fe"
+          echo "engine.mjs blob: $got"
+          if [ "$got" != "$want" ]; then
+            echo "::error::vendored engine.mjs has diverged from f19 (want $want)"
             exit 1
           fi
-          echo "bundle is reproducible and up to date"
+
+  falsifier:
+    name: C6 falsifier (KNOWN RED - design gate)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # C6 is the falsifier for the whole premise, and it does not pass yet: the
+    # level is solvable but not phase-critical. It is run and REPORTED on every
+    # push rather than deleted or quietly excluded, because the one thing worse
+    # than an unfinished design gate is a hidden one. It does not fail the build
+    # while it is known-red — see AUDIT.adoc, "Red, and known".
+    #
+    # When it goes green: delete continue-on-error and fold it into `ledger`.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: C6 - is the substrate load-bearing?
+        working-directory: src
+        run: node verify-falsifier.mjs
 
   contracts:
     name: contractile probes
@@ -94,9 +113,6 @@ jobs:
           done < <(find . -name '*.a2ml' -not -path './.git/*')
           [ "$fail" = 0 ]
 
-      # Guards against the failure mode this repo hit on its first run: a tag
-      # ref is rejected by the org before the workflow starts, so it reports as
-      # startup_failure rather than as a red check.
       - name: Every action is pinned to a full commit SHA
         run: |
           set -euo pipefail
@@ -107,15 +123,24 @@ jobs:
           fi
           echo "all action refs are SHA-pinned"
 
-      # "All documentation filled in" is checkable: no RSR substitution token
-      # may survive anywhere in the tree.
       - name: No unsubstituted template placeholders
         run: |
           set -euo pipefail
-          # SHOUTY_SNAKE inside doubled braces. Deliberately narrower than a
-          # bare "{{": GitHub Actions expressions double braces too.
           if grep -rlE '[{]{2}[A-Z][A-Z0-9_]*[}]{2}' --exclude-dir=.git . ; then
             echo "::error::the files above still contain template placeholders"
             exit 1
           fi
           echo "no template placeholders remain"
+
+      # spike/ is provenance: byte-identical, or it is not provenance. The
+      # digests are published in spike/README.md and .gitattributes exempts the
+      # directory from eol normalisation so they survive git storage.
+      - name: v0 spike digests unchanged
+        run: |
+          set -euo pipefail
+          cat > /tmp/spike.sha <<'EOF'
+          a7689fe15d8a00957bb445d451084043377cd98421f0676eca6546dc2c93ba1a  spike/world.html
+          9756d73f4e025991955d975b8746ed70299280622b9ac516d9870fc0eb7fd1d9  spike/simulation.html
+          EOF
+          sed -i 's/^ *//' /tmp/spike.sha
+          sha256sum -c /tmp/spike.sha

@@ -4,3 +4,6 @@ _site/
 src/f117a-stealth-glider.html
 *.log
 .DS_Store
+
+# Claude Code worktrees — never part of the repo.
+.claude/worktrees/
