@@ -1,0 +1,37 @@
+# SPDX-License-Identifier: MPL-2.0
+# Copyright (c) 2026 Jonathan D.A. Jewell (hyperpolymath) <j.d.a.jewell@open.ac.uk>
+#
+# f117a-stealth-glider.launcher.a2ml — per-app launcher config for F117a Stealth Glider.
+# Compliant with launcher-standard.a2ml v0.3.0
+
+[project]
+name         = "f117a-stealth-glider"
+display      = "F117a Stealth Glider"
+description  = "Stealth game"
+categories   = ["Game"]
+version      = "0.1.0"
+license      = "MPL-2.0"
+
+[repo]
+path = ""
+
+[runtime]
+kind = "server-url"
+port = 3001
+url  = "http://localhost:3001"
+startup-command-search = [
+    "{repo-dir}/node_modules/.bin/serve",
+    "npx serve",
+    "serve",
+]
+pid-file = "${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}}/f117a-stealth-glider.pid"
+log-file = "${XDG_STATE_HOME:-$HOME/.local/state}/f117a-stealth-glider/game.log"
+wait-for-url-timeout-seconds = 15
+
+[version-output]
+first-line-format = "f117a-stealth-glider {version} ({build-sha-short}) [{platform}]"
+example = "f117a-stealth-glider 0.1.0 (abc1234) [linux-x86_64]"
+exit-code = 0
+
+[icon]
+source = "{repo-dir}/assets/icon-256.png"
