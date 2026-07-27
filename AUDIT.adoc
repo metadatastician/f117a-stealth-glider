@@ -43,7 +43,7 @@ demonstrating it failing on purpose.
 Fly the *same* route from every launch phase. For the level to be a phase puzzle,
 most off-phase launches must fail, and fail specifically as `PAINTED`.
 
-*Measured: 3 of 14 off-phase launches are shot down as PAINTED; peak exposure
+*Measured: 4 of 14 off-phase launches are shot down as PAINTED; peak exposure
 varies 7..8 across phases.*
 
 Two of C6's three assertions now pass — failures are dominated by radar rather
@@ -66,6 +66,21 @@ The search that found this is `design/place.mjs`, which sweeps *placement*
 rather than scalars. The earlier conclusion that the level could not be made
 phase-critical was unearned: it swept `radarRange`, `LOCK` and pattern spacing
 and never moved a sensor. Geometry problems are not fixed by tuning numbers.
+
+Two further findings bound what remains:
+
+* *The wall had to be a wall.* It spanned ~50 cells of a line whose in-bounds
+  length is ~106, leaving open map beyond both ends. The route flew round it, so
+  the shutter was guarding a path nobody had to take.
+* *Tangency beats coverage.* A 72-position sweep of the shutter shows a
+  pentadecathlon placed squarely on the gate-to-gap sight line masking the gap at
+  every phase — 15/15 land, peak exposure flat at 7..7, the automaton
+  contributing nothing. Grazing the ray at [68,68] leaves only its extended
+  phases occluding: 4/15 shot down, peak 7..8.
+
+So the mechanism is understood and the direction is right; the magnitude is not
+there. Untried levers: a second gate sensor onto the same gap (safe only when
+BOTH rays are blocked), a narrower gap, and a shorter-period shutter.
 
 == Argued, not verified
 

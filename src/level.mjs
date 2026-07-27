@@ -103,11 +103,18 @@ function bank(x, y, n, gap, kinds) {
  * the aircraft dies within Chebyshev 2 of any live cell, so a passable gap
  * needs roughly 7 clear cells. Only the declared gap is passable.
  */
-function wall(cx, cy, n, gapAt, gapWide = 2) {
+function wall(cx, cy, W, H, gapWide = 1, step = 5) {
   const out = [];
-  for (let k = -n; k <= n; k++) {
-    if (k >= gapAt && k < gapAt + gapWide) continue;   // the one way through
-    out.push([P.block, cx + k * 5, cy - k * 5]);
+  // Walk the line (cx+k*step, cy-k*step) in BOTH directions until it leaves the
+  // grid. A fixed half-width is what made the first chokepoint fake: it spanned
+  // 50 cells of a line whose in-bounds length is about 106, so there was open
+  // map beyond both ends and the solver simply flew around. A gap is only a
+  // chokepoint if there is no way past the ends.
+  for (let k = -60; k <= 60; k++) {
+    if (k >= 0 && k < gapWide) continue;               // the one way through
+    const x = cx + k * step, y = cy - k * step;
+    if (x < 2 || y < 2 || x > W - 4 || y > H - 4) continue;
+    out.push([P.block, x, y]);
   }
   return out;
 }
@@ -141,14 +148,34 @@ export function buildLevel(opts = {}) {
   // --- THE CHOKEPOINT. The corridor is y = x + 4; the wall crosses it at
   // (chokeX, chokeX + 4) and the gap is the only way south.
   const {
-    chokeX = 56, shutterAt = [65, 66], gateSensor = [76, 74], wallN = 5,
-    gateRange = 20,
+    chokeX = 56, shutterAt = [68, 68], gateSensor = [76, 74], wallN = 5,
+    gateRange = 20, gapWide = 1,
+    // A SECOND sight line onto the same gap. With one emitter the gap is safe
+    // whenever its single ray is blocked, which is most phases; with two the gap
+    // is safe only when BOTH are blocked, which is far fewer. This is the lever
+    // that turns "the radar can kill you" into "the radar kills you unless you
+    // read the phase".
+    gate2 = null, gate2Range = 22, shutter2At = null,
   } = opts;
-  const choke = wall(chokeX, chokeX + 4, wallN, 0, 1);
+  const choke = wall(chokeX, chokeX + 4, W, H, gapWide);
 
-  // The shutter: a p15 pentadecathlon on the sight line between the gate sensor
-  // and the gap, so the gap is masked at some phases and open at others.
-  const shutter = [[OSC.penta, shutterAt[0], shutterAt[1]]];
+  // The shutter: a p15 pentadecathlon GRAZING the sight line between the gate
+  // sensor and the gap.
+  //
+  // Tangency is deliberate and measured. A 72-point sweep of shutter positions
+  // shows the difference starkly: placed squarely ON the ray (e.g. [64,64]) it
+  // masks the gap at every phase — 15/15 launches land and peak exposure is a
+  // flat 7..7, i.e. the automaton contributes nothing. Moved to graze the ray at
+  // [68,68], only its extended phases occlude: 4/15 launches are shot down and
+  // peak exposure varies 7..8.
+  //
+  // So the direction of the hypothesis is confirmed — grazing beats covering —
+  // but the magnitude is not yet enough for C6, which needs a majority. See
+  // AUDIT.adoc.
+  const shutter = [
+    [OSC.penta, shutterAt[0], shutterAt[1]],
+    ...(shutter2At ? [[OSC.penta, shutter2At[0], shutter2At[1]]] : []),
+  ];
 
   // --- still-life terrain: collision hazard, and permanent cover. Kept sparse:
   // permanent cover that is too generous makes the moving cover irrelevant.
@@ -164,7 +191,7 @@ export function buildLevel(opts = {}) {
   // --- sensors. RDR-GATE watches the chokepoint gap specifically; the others
   // deny the flanks so the gap cannot simply be walked around.
   const sensors = withSensors ? [
-    { name: 'RDR-1', cells: P.beehive.map(([x, y]) => [x + 96, y + 14]) },
+    { name: 'RDR-1', cells: P.beehive.map(([x, y]) => [x + 88, y + 8]) },
     { name: 'RDR-2', cells: P.beehive.map(([x, y]) => [x + 14, y + 74]) },
     { name: 'RDR-3', cells: P.beehive.map(([x, y]) => [x + 140, y + 66]) },
     // RDR-GATE has its OWN, short range. At the shared range it covered the
@@ -175,6 +202,10 @@ export function buildLevel(opts = {}) {
       name: 'RDR-GATE', range: gateRange,
       cells: P.beehive.map(([x, y]) => [x + gateSensor[0], y + gateSensor[1]]),
     },
+    ...(gate2 ? [{
+      name: 'RDR-GATE2', range: gate2Range,
+      cells: P.beehive.map(([x, y]) => [x + gate2[0], y + gate2[1]]),
+    }] : []),
   ] : [];
 
   const stamps = [
@@ -232,13 +263,13 @@ export function buildLevel(opts = {}) {
     // silently produce either a walkover or an impossibility.
     witness: [
       [0, 1, 1], [84, 1, -1], [88, 1, 1], [100, 1, -1],
-      [104, 1, 1], [176, -1, 1], [180, 1, 1], [196, -1, 1],
-      [208, 1, 1], [216, -1, 1], [224, 1, 1], [228, -1, 1],
-      [232, 1, 1], [236, -1, 1], [240, 1, 1], [244, -1, 1],
-      [252, 1, 1], [260, -1, 1], [264, 1, 1], [268, -1, 1],
-      [272, 1, 1], [280, -1, 1], [284, 1, 1], [300, -1, 1],
-      [304, 1, 1], [368, 1, -1], [372, 1, 1], [376, 1, -1],
-      [380, 1, 1], [384, 1, -1], [412, 1, 1],
+      [104, 1, 1], [176, -1, 1], [180, 1, 1], [204, -1, 1],
+      [224, 1, 1], [228, -1, 1], [232, 1, 1], [236, -1, 1],
+      [240, 1, 1], [244, -1, 1], [252, 1, 1], [260, -1, 1],
+      [264, 1, 1], [268, -1, 1], [272, 1, 1], [280, -1, 1],
+      [284, 1, 1], [300, -1, 1], [304, 1, 1], [368, 1, -1],
+      [372, 1, 1], [376, 1, -1], [380, 1, 1], [384, 1, -1],
+      [412, 1, 1],
     ],
   };
 }
