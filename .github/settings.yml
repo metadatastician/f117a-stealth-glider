@@ -7,14 +7,20 @@
 # applied by the probot/settings app when changes are pushed to the default
 # branch. Install the app at: https://github.com/apps/settings
 #
-# Repository settings — configured for paint-type.
+# Repository settings — configured for f117a-stealth-glider.
+#
+# CAUTION: `repository.name` below RENAMES the repository when probot/settings
+# is installed and this lands on the default branch. This file arrived from an
+# estate sweep still declaring name: "paint-type", which would have renamed this
+# repo onto a DIFFERENT, existing repository. The app is not currently installed
+# on the org, so it never fired — but the value must always match this repo.
 
 # ─── Repository Settings ───────────────────────────────────────────────────────
 
 repository:
-  name: "paint-type"
-  description: "Cross-platform open-source image editor — capable enough for real work, simple enough to reach for without thinking"
-  homepage: "https://github.com/metadatastician/paint-type"
+  name: "f117a-stealth-glider"
+  description: "Operation Nightglass — a stealth puzzle on a live Conway's Game of Life field, where cover moves."
+  homepage: "https://github.com/metadatastician/f117a-stealth-glider"
   private: false
   has_issues: true
   has_projects: true

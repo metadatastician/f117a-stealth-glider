@@ -1,116 +1,120 @@
-# Clone the repository
-git clone https://github.com/hyperpolymath/squisher-corpus.git
-cd squisher-corpus
+<!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
+<!-- Copyright (c) 2026 Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk> -->
 
-# Using Nix (recommended for reproducibility)
-nix develop
+# Contributing to F117A Stealth Glider
 
-# Or using toolbox/distrobox
-toolbox create squisher-corpus-dev
-toolbox enter squisher-corpus-dev
-# Install dependencies manually
+Thank you for considering a contribution. This document is short, because the
+project is small — but please read the section on **design invariants**, because
+this project can be broken in a way that leaves every test green.
 
-# Verify setup
-just check   # or: cargo check / mix compile / etc.
-just test    # Run test suite
+## Getting set up
+
+There is nothing to install.
+
+```bash
+git clone https://github.com/metadatastician/f117a-stealth-glider
+cd f117a-stealth-glider
+
+just              # list every recipe
+just test         # the full gate: ledger + rebuild + reproducibility diff
+just contracts    # run the contractile probes
 ```
 
-### Repository Structure
-```
-squisher-corpus/
-├── src/                 # Source code (Perimeter 1-2)
-├── lib/                 # Library code (Perimeter 1-2)
-├── extensions/          # Extensions (Perimeter 2)
-├── plugins/             # Plugins (Perimeter 2)
-├── tools/               # Tooling (Perimeter 2)
-├── docs/                # Documentation (Perimeter 3)
-│   ├── architecture/    # ADRs, specs (Perimeter 2)
-│   └── proposals/       # RFCs (Perimeter 3)
-├── examples/            # Examples (Perimeter 3)
-├── spec/                # Spec tests (Perimeter 3)
-├── tests/               # Test suite (Perimeter 2-3)
-├── .well-known/         # Protocol files (Perimeter 1-3)
-├── .github/             # GitHub config (Perimeter 1)
-│   ├── ISSUE_TEMPLATE/
-│   └── workflows/
-├── CHANGELOG.md
-├── CODE_OF_CONDUCT.md
-├── CONTRIBUTING.md      # This file
-├── GOVERNANCE.md
-├── LICENSE
-├── MAINTAINERS.md
-├── README.adoc
-├── SECURITY.md
-├── flake.nix            # Nix flake (Perimeter 1)
-└── Justfile             # Task runner (Perimeter 1)
+You need **Node ≥ 18** and, optionally, [`just`](https://github.com/casey/just).
+Without `just`, every script runs directly:
+
+```bash
+cd src && node verify8.mjs
 ```
 
----
+Toolchain versions are pinned in `mise.toml` if you use
+[mise](https://mise.jdx.dev): `mise trust && mise install`.
 
-## How to Contribute
+To play, open `f117a-stealth-glider.html` in a browser. No server needed.
 
-### Reporting Bugs
+## The one thing to understand first
 
-**Before reporting**:
-1. Search existing issues
-2. Check if it's already fixed in `main`
-3. Determine which perimeter the bug affects
+This project makes a falsifiable claim: **the cellular automaton is a genuine
+antagonist, not scenery.** The level is meant to be unsolvable by feel and
+solvable only by reading the automaton's phase and geometry.
 
-**When reporting**:
+That claim is easy to destroy with a change that looks like an improvement.
+Widening the contact rule, nudging a lane offset, or adding a forgiving
+"near-miss" window each make the game feel better and each quietly remove the
+reason the game exists. So:
 
-Use the [bug report template](.github/ISSUE_TEMPLATE/bug_report.md) and include:
+> **If a route fails verification, redesign the crossing or record the negative
+> result. Do not tune the rule until the test passes.**
 
-- Clear, descriptive title
-- Environment details (OS, versions, toolchain)
-- Steps to reproduce
-- Expected vs actual behaviour
-- Logs, screenshots, or minimal reproduction
+The invariants that carry this are listed in
+[GOVERNANCE.adoc](GOVERNANCE.adoc#invariants) and enforced as CI probes in
+[`Mustfile.a2ml`](.machine_readable/contractiles/must/Mustfile.a2ml). Changing
+one requires a decision record in
+[`META.a2ml`](.machine_readable/descriptiles/META.a2ml).
 
-### Suggesting Features
+## Evidence, not assertion
 
-**Before suggesting**:
-1. Check the [roadmap](ROADMAP.md) if available
-2. Search existing issues and discussions
-3. Consider which perimeter the feature belongs to
+**A claim without a runnable script is not a result.**
 
-**When suggesting**:
+Every row in [VERIFICATION.md](VERIFICATION.md) cites a script that runs with
+plain `node`. Accordingly:
 
-Use the [feature request template](.github/ISSUE_TEMPLATE/feature_request.md) and include:
+- Adding a claim means adding the script that discharges it.
+- Changing behaviour means re-running the affected scripts **and pasting the
+  output into the pull request** — not asserting that they would pass.
+- Claims are quantified over **all 30 launch phases**, never sampled. A result
+  from one phase is an anecdote.
 
-- Problem statement (what pain point does this solve?)
-- Proposed solution
-- Alternatives considered
-- Which perimeter this affects
+If a script crashes, that is a **harness bug**, not a finding — fix the harness.
+If a script runs to completion and reports "no viable candidate", that **is** a
+finding; record it. `verify4`, `5`, `6`, `7` and `10` are exactly this: design
+searches that found nothing, kept in the tree so the ruled-out space stays
+visible. Please don't delete them.
 
-### Your First Contribution
+One cautionary tale, because it shaped the codebase: `stamp()` once absorbed
+out-of-bounds writes silently, and a sweep consequently reported a second clean
+landing lane that did not exist. The claim survived review because the harness
+was *lying* rather than *failing*. `stamp()` now throws. If your sweep needs
+negative coordinates, enlarge the grid and co-shift the whole configuration —
+Life is translation-invariant away from borders, so the measured *relative* lane
+is preserved.
 
-Look for issues labelled:
+## Making a change
 
-- [`good first issue`](https://github.com/hyperpolymath/squisher-corpus/labels/good%20first%20issue) — Simple Perimeter 3 tasks
-- [`help wanted`](https://github.com/hyperpolymath/squisher-corpus/labels/help%20wanted) — Community help needed
-- [`documentation`](https://github.com/hyperpolymath/squisher-corpus/labels/documentation) — Docs improvements
-- [`perimeter-3`](https://github.com/hyperpolymath/squisher-corpus/labels/perimeter-3) — Community sandbox scope
+1. Open an issue first for anything beyond a typo or an obvious bug.
+2. Branch from `main`.
+3. Match the surrounding style. There is no linter and no formatter — the code
+   is compact, comments explain *why* rather than *what*, and that is the
+   standard to match.
+4. Keep the first line of every `src/*.mjs` and `src/*.js` exactly:
+   `// SPDX-License-Identifier: AGPL-3.0-or-later`. CI checks this.
+5. If you touched `src/`, run `just build` and commit the regenerated
+   `f117a-stealth-glider.html`. CI compares it byte-for-byte.
+6. Run `just test` **and** `just contracts`. Both must be green.
+7. Sign off your commits: `git commit -s` (DCO 1.1).
 
----
+## Pull requests
 
-## Development Workflow
+Fill in the pull request template. It asks which ledger claims your change
+affects and for the output of the scripts you ran — that is the part reviewers
+actually need.
 
-### Branch Naming
-```
-docs/short-description       # Documentation (P3)
-test/what-added              # Test additions (P3)
-feat/short-description       # New features (P2)
-fix/issue-number-description # Bug fixes (P2)
-refactor/what-changed        # Code improvements (P2)
-security/what-fixed          # Security fixes (P1-2)
-```
+CI runs the cited ledger, the licence-header check, the contractile probes, and
+the bundle-reproducibility diff. All must pass.
 
-### Commit Messages
+## Adding dependencies
 
-We follow [Conventional Commits](https://www.conventionalcommits.org/):
-```
-<type>(<scope>): <description>
+Please don't. Zero dependencies is a design property, and there is a CI probe
+that fails the build if `dependencies` or `devDependencies` appears in
+`package.json`. If you have a case that genuinely needs one, open an issue
+proposing a decision record that supersedes `D-08`.
 
-[optional body]
+## Code of Conduct
 
-[optional footer]
+By participating you agree to the [Code of Conduct](CODE_OF_CONDUCT.md).
+
+## Licensing
+
+Contributions are accepted under the **Developer Certificate of Origin 1.1**
+(`git commit -s`) and licensed `AGPL-3.0-or-later` for code, `MPL-2.0` for
+`.a2ml` metadata, `CC-BY-SA-4.0` for documentation.
