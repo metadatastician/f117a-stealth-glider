@@ -128,6 +128,12 @@ generic template.
 - severity: critical
 - notes: The level is the design (D-02). Any change here invalidates the entire ledger and requires a full re-run of `just verify` (all twelve claims) — and the geometry is one-cell knife-edged, so "invalidates" is literal rather than cautious.
 
+### shadow-map-not-recomputed-per-frame
+- description: The renderer recomputes the radar shadow on CA tick, never inside the frame loop
+- run: "! sed -n '/function frame(/,/^  }/p' src/ui.js | grep -q 'shadowMap('"
+- severity: critical
+- notes: shadowMap is O(W*H*sensors*ray) and MEASURES 23.5 ms on this level — a single call already exceeds a 16.7 ms frame budget. radar.mjs has always carried the warning; nothing enforced it. ui.js memoises by substrate phase (only 15 distinct maps exist, C11), which C4 asserts is sound. This probe fails if a future edit moves the call into the render path.
+
 ### metadata-describes-this-repository
 - description: The machine-readable tree cites only files that exist, and only this level's vocabulary
 - run: node scripts/metadata-citations.mjs

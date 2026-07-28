@@ -123,8 +123,16 @@ existing sensor is what shipped.
   judgements; `just play` is the probe.
 * *The level is not claimed to be good.* C6 makes it phase-critical — a
   measured statement about geometry, not about whether it is any fun to play.
-* *No claim about performance.* `shadowMap` is O(W·H·sensors·ray) and is intended
-  to be recomputed on CA tick, not per frame. Nothing measures that yet.
+* *Performance is measured for the one hot path, and not claimed beyond it.*
+  `shadowMap` is O(W·H·sensors·ray) and *measures 23.5 ms* on this level —
+  more than a 16.7 ms frame budget, and about 70% of a core at 30 generations
+  per second. It is therefore memoised by substrate phase: the level is
+  periodic from generation 0 with period 15, so only fifteen distinct shadow
+  maps exist while the world is pure substrate, and the per-tick cost becomes
+  an array index (0.0002 ms). C4 asserts the property the cache rests on, and
+  a contractile probe fails if the call moves into the frame loop. Nothing
+  measures end-to-end frame rate, draw-list cost, or behaviour on low-end
+  hardware.
 * *No claim that the solver is a second implementation of the engine.* It is an
   approximation that orders the collision and radar tests differently for speed.
   It may only propose; `verify-witness.mjs` flying the route through the real

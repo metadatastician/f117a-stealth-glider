@@ -28,7 +28,7 @@
 
 import { buildLevel } from './level.mjs';
 import { createMission, ambientStep } from './mission.mjs';
-import { prepareSensors, paintedBy, LOCK } from './radar.mjs';
+import { prepareSensors, paintedBy, shadowMap, LOCK } from './radar.mjs';
 
 // Measured 2026-07-28 at the C6-green geometry (gate (79,73) range 23, twin
 // shutters [68,68] + [66,79]) via design/measure.mjs.
@@ -97,6 +97,39 @@ ok(lethal > 0,
   `at least one cell can accumulate LOCK consecutively (${lethal}) — the radar has teeth`);
 ok(never > 0,
   `cover exists: ${never} cells are painted at no phase`);
+
+// The whole-map shadow is a function of SUBSTRATE PHASE ALONE.
+//
+// This is a corollary of C11 (periodic from generation 0) applied to the
+// radar, and it is asserted here because the renderer BANKS on it: shadowMap
+// costs 23.5 ms on this level — more than a 16.7 ms frame budget, and about
+// 70% of a core at 30 generations per second — so src/ui.js memoises it by
+// phase and turns the dominant per-tick cost into an array index. That cache
+// is sound only while this holds. If a future level acquires a transient, or
+// a pattern that never repeats, the cache would silently serve a stale map of
+// where the radar can see; this check is what makes that failure loud.
+//
+// Scope is exact: the claim is about the PURE substrate. Once the aircraft is
+// spliced into the world on contact, the world is no longer the substrate and
+// the renderer bypasses the cache for the rest of the mission.
+{
+  const m = createMission(buildLevel());
+  const byPhase = new Array(P).fill(null);
+  let repeats = 0, drift = 0;
+  for (let t = 0; t < P * 6; t++) {
+    const ph = m.t % P;
+    const fresh = shadowMap(m.world, W, H, m.radar);
+    if (!byPhase[ph]) byPhase[ph] = fresh;
+    else {
+      repeats++;
+      for (let i = 0; i < fresh.length; i++) if (fresh[i] !== byPhase[ph][i]) { drift++; break; }
+    }
+    ambientStep(m);
+  }
+  ok(drift === 0 && repeats > 0,
+    `the radar shadow is a function of substrate phase alone `
+    + `(${repeats} repeat(s) across ${P} phases, ${drift} mismatch(es)) — the renderer's phase cache is sound`);
+}
 
 const measured = { cells: corridor.length, always, never, dependent, lethal, survivable };
 const drift = Object.keys(DECLARED).filter((k) => DECLARED[k] !== measured[k]);
