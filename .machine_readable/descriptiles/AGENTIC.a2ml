@@ -28,9 +28,11 @@ can-create-files = true
 #   a route. Relaxing it to cell-overlap makes the stream learnable by feel,
 #   which converts the substrate into scenery and fails v0's premise. This is
 #   the project's standing falsifier, and it is a design failure, not a fix.
-# - Never re-derive the stream no-go lemma. It is CLOSED: 0/30 clean crossings,
-#   cause is geometry (15-unit spacing vs ~17-unit exclusion diameter), not
-#   phase. See verify8.mjs and VERIFICATION.md claim #4.
+# - Never re-derive a question STATE.a2ml [settled-questions] records as
+#   closed. Each one cites a script in THIS repository: phase-criticality is
+#   C6 (verify-falsifier.mjs), the 2D-world ruling is C9
+#   (verify-3d-rule-search.mjs), the second-gate-sensor sweep is
+#   design/place.mjs. Reopen only if the cited script now disagrees.
 # - Never relax `stamp` to clip or wrap on out-of-bounds. It throws on purpose;
 #   silent wrapping previously manufactured a phantom clean landing lane (D-06).
 #   Sweeps needing negative lanes must enlarge the grid and co-shift the whole
@@ -38,13 +40,15 @@ can-create-files = true
 #   measured RELATIVE lane is preserved.
 # - Never commit a stale f117a-stealth-glider.html. It must always equal a fresh
 #   `just build`; CI asserts byte-identity.
-# - Never delete the exploratory scripts (verify4,5,6,7,10). Their "no viable
-#   candidate" output is a recorded negative result, not a broken test.
+# - Never delete the design tools under design/. Their "no viable candidate"
+#   output is a recorded negative result, not a broken test: 2,016 swept
+#   second-gate configurations produced zero viable, which is how that
+#   mechanism was ruled out.
 # - Never change the licence. All code is AGPL-3.0-or-later; the .a2ml metadata
 #   set is MPL-2.0. Staying copyleft is deliberate.
 # - Never commit secrets or credentials.
 # - Never place state/metadata in the repository root — it belongs under
-#   .machine_readable/ (the root carries only 0-AI-MANIFEST.a2ml + k9iser.toml).
+#   .machine_readable/ (this repo carries no root manifest file of its own).
 # - Never add a runtime dependency without an explicit decision record. Zero
 #   dependencies is a design property, not an accident (D-08).
 # - Never claim a verification result without running the script. "Installed and
@@ -63,7 +67,8 @@ release-claim-requires-hard-pass = true
 ledger-claims-require-named-script = true   # every VERIFICATION.md row cites a runnable script
 
 [automation-hooks]
-# on-enter:  Read 0-AI-MANIFEST.a2ml, then 6a2/STATE.a2ml, then VERIFICATION.md.
+# on-enter:  Read .machine_readable/descriptiles/STATE.a2ml, then VERIFICATION.md,
+#            then AUDIT.adoc for what is NOT claimed.
 # on-change: If src/ changed, run `just test` (ledger + rebuild + reproducibility diff).
 #            If a claim changed, update VERIFICATION.md in the same commit.
 #            If .machine_readable/ changed, run `just contracts`.

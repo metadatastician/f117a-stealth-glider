@@ -22,19 +22,19 @@ because the failure genuinely occurred and the recovery was genuinely applied.
 - class: harness
 - description: A lane sweep stamps a pattern at a negative coordinate and throws `stamp out of bounds`
 - injection_probe: "true"
-- recovery_probe: "cd src && node verify3.mjs >/dev/null 2>&1 && node verify9.mjs >/dev/null 2>&1"
+- recovery_probe: "cd src && node verify-level.mjs >/dev/null 2>&1"
 - expected_recovery_time_seconds: 30
-- status: verified
-- notes: REAL, and it happened. verify3 and verify9 both crashed at the most-negative lanes. The recovery is to enlarge the grid and co-shift glider AND eater by a constant — Life is translation-invariant away from borders, so the measured RELATIVE lane is preserved. The recovery is NEVER to relax `stamp`, because silent wrapping is what manufactured the phantom clean landing lane in the first place.
+- status: inherited-not-exercised-here
+- notes: REAL, and it happened UPSTREAM in f19, whose lane sweeps crashed at the most-negative lanes. It is recorded because the vendored kernel still throws for this reason and a future lane sweep here would hit it identically; it has not been exercised in this repository, and saying so is the point of the status field. The recovery is to enlarge the grid and co-shift glider AND eater by a constant — Life is translation-invariant away from borders, so the measured RELATIVE lane is preserved. The recovery is NEVER to relax `stamp`, because silent wrapping is what manufactured the phantom clean landing lane in the first place.
 
 ### phantom-result-from-silent-clipping
 - class: correctness
 - description: An out-of-bounds write is silently absorbed and produces a fabricated positive result
-- injection_probe: "grep -q 'stamp out of bounds' src/engine.mjs"
-- recovery_probe: "cd src && node verify3.mjs 2>&1 | grep -qi 'clean'"
+- injection_probe: "grep -q 'stamp out of bounds' src/kernel/engine.mjs"
+- recovery_probe: "cd src && node verify-witness.mjs >/dev/null 2>&1"
 - expected_recovery_time_seconds: 30
-- status: verified
-- notes: This is why stamp throws (D-06). A claim of a "second clean landing lane" survived review once because the harness was lying rather than failing. Fail-loud beats fail-quiet.
+- status: inherited-not-exercised-here
+- notes: This is why stamp throws (D-06). Upstream, a claim of a "second clean landing lane" survived review because the harness was lying rather than failing. The same class bit THIS repository differently: a hangar zone extending one row past the grid made every landing read CRASH_LANDING, because off-grid reads return undefined and undefined is never 0. Fail-loud beats fail-quiet, and `- injection_probe:` is itself not a key the runner executes, so this drill is documentation until someone runs it by hand. Fail-loud beats fail-quiet.
 
 ### stale-bundle-shipped
 - class: distribution
