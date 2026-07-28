@@ -40,7 +40,7 @@ proposes corrective actions. Advisory — it warns and trends, it does not block
 - tolerance: 0 claims citing a missing script, a transcript, or "see above"
 - corrective: Write the script, or restate the claim as an argued disclosure
 - severity: advisory
-- notes: Claim #3 was once cited to a transcript rather than a script; verify3.mjs now discharges it.
+- notes: Every claim row in VERIFICATION.md cites a named script under src/ that runs with plain `node`. C4, C7, C9 and C10 were held as RESERVED numbers rather than quietly reused while their scripts did not exist; they landed with the game layer.
 
 ### ci-runs-what-is-cited
 - description: The CI ledger and the VERIFICATION.md citations do not diverge
@@ -65,8 +65,8 @@ proposes corrective actions. Advisory — it warns and trends, it does not block
 
 ### settled-questions-stay-settled
 - description: Closed questions are not silently reopened
-- tolerance: 0 new work re-deriving the stream no-go lemma or re-testing overlap-only contact
-- corrective: Point the work at STATE.a2ml [settled-questions] and stop
+- tolerance: 0 new work re-deriving a question STATE.a2ml [settled-questions] records as closed — phase-criticality (C6), the 3D-world ruling (C9), the second-gate-sensor sweep, or overlap-only contact
+- corrective: Read STATE.a2ml [settled-questions], run the script it cites, and only reopen if that script now disagrees with it
 - severity: advisory
 
 ### readme-ledger-agreement

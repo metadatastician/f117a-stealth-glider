@@ -11,24 +11,51 @@ verify:
     #!/usr/bin/env bash
     set -euo pipefail
     cd src
-    for v in verify-kernel-parity verify-los verify-level verify-determinism verify-witness; do
+    for v in verify-kernel-parity verify-los verify-level verify-corridor verify-determinism verify-witness verify-falsifier verify-renderer verify-3d-rule-search; do
         echo "== node $v.mjs =="
         node "$v.mjs"
     done
 
-# C6, the falsifier for the whole premise. CURRENTLY RED, deliberately.
-# Not part of `verify` while it is known-red — see AUDIT.adoc. It is run and
-# reported by CI so it cannot quietly rot.
-falsifier:
-    @cd src && node verify-falsifier.mjs || true
+# Build the shipped single-file bundle (C10). build.mjs syntax-checks the
+# exact shipped script and replays the witness on the transformed core.
+build:
+    cd src && node build.mjs && mv -f f117a-stealth-glider.html ../
 
-# Same, but red is fatal. Use this when working ON the falsifier.
-falsifier-strict:
+# The full gate: ledger, then prove the committed bundle is byte-identical
+# to a fresh rebuild. A stale bundle is a shipped artefact nobody verified.
+# (Compared with cmp against the root copy, not via git — git diff is silent
+# about untracked files, which is exactly the case that must fail.)
+test: verify
+    #!/usr/bin/env bash
+    set -euo pipefail
+    (cd src && node build.mjs >/dev/null)
+    if cmp -s src/f117a-stealth-glider.html f117a-stealth-glider.html; then
+        rm -f src/f117a-stealth-glider.html
+        echo "OK: bundle reproducible, ledger green"
+    else
+        rm -f src/f117a-stealth-glider.html
+        echo "STALE: committed f117a-stealth-glider.html differs from a fresh rebuild — run 'just build' and commit"; exit 1
+    fi
+
+# Open the game.
+play:
+    xdg-open f117a-stealth-glider.html 2>/dev/null || open f117a-stealth-glider.html
+
+# C6, the falsifier for the whole premise, on its own. GREEN, and part of
+# `verify` — kept as a separate recipe because it is the one to re-run in a
+# loop while tuning level geometry.
+falsifier:
     cd src && node verify-falsifier.mjs
 
 # The level's instrument panel: periodicity, exposure, cover.
 measure:
     node design/measure.mjs
+
+# Every oscillator's period measured in isolation, and PERIOD checked to be
+# the lcm of the ones the level places. Covers what C11 structurally cannot:
+# the oscillators OSC defines but the level does not place.
+period:
+    node design/period.mjs
 
 # Search the state space for a witness route.
 solve:
@@ -52,6 +79,5 @@ contracts-list:
     node scripts/contractiles.mjs --list
 
 # Everything CI gates on.
-ci: verify contracts
-    @echo "OK: gating ledger and contractiles green"
-    @echo "NOTE: C6 (falsifier) is known-red — run 'just falsifier'"
+ci: test contracts
+    @echo "OK: gating ledger, bundle reproducibility and contractiles green"

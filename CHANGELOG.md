@@ -7,7 +7,66 @@ Copyright (c) 2026 Jonathan D.A. Jewell (hyperpolymath)
 
 Including what is *not* finished, and what was retracted.
 
-## [Unreleased] — Operation Nightglass
+## [Unreleased] — the game, and the last four claims (2026-07-28)
+
+### Added
+- **The game.** `src/render3d.mjs` — a pure, clock-free, import-free chase
+  camera and draw-list renderer; the flight model (PID controller + elevon
+  mixer) is adapted from `spike/simulation.html`, the un-regressed prototype,
+  and spike defects 4/5/7 are fixed by construction (one axis convention, no
+  camera collision, per-panel aircraft projection). `src/ui.js` — the DOM
+  shell: 3D chase view, TAB tactical map, exposure/paint/trace HUD, p15 phase
+  dial, briefing/ledger/debrief cards including the PAINTED debrief.
+  `src/build.mjs` — the bundler; one committed self-contained
+  `f117a-stealth-glider.html` (~75 KB, offline, no dependencies).
+  `ARCHITECTURE.md` — the layering. `pages.yml` returns (it was removed while
+  there was no bundle to deploy): publishes the committed, verified bundle.
+- **C4** (`src/verify-corridor.mjs`): the corridor metric promoted from
+  `design/measure.mjs` into the gating ledger — structural gates (phase-
+  dependent cells exist, a run reaches LOCK, cover exists) plus pinned counts
+  (31 always / 42 never / 8 dependent / 36 lethal / 3 survivable of 81).
+- **C7** (`src/verify-renderer.mjs`): the witness flown with and without the
+  full presentation path hashes identically at all 469 generations; canary
+  proves a mutating renderer is caught; render3d.mjs has no clock, no
+  randomness and no imports.
+- **C9** (`src/verify-3d-rule-search.mjs`): the planning probe landed as a
+  permanent test — 180 seeded soups per rule on a 24³ torus, 0 translating
+  patterns in Bays 5766 and 4555; deterministic by seeded PRNG.
+- **C10** (`src/build.mjs` + `just test` + CI): bundle byte-reproducibility,
+  with the transformed core re-proved to fly the witness at every build.
+- `just build / test / play`; the gating ledger and CI now run all twelve
+  claims; no claim numbers remain reserved.
+
+## [Unreleased] — C6 green: the level earns its premise (2026-07-28)
+
+### Changed
+- **C6, the falsifier, is GREEN and gates the build.** Measured: 14 of 14
+  off-phase launches of the witness are PAINTED, the on-phase flight lands with
+  trace 0, and the exhaustive search finds no route in the state space that
+  stays below exposure 7. Geometry: gate sensor (76,74)→(79,73), range 20→23,
+  and a second pentadecathlon shutter at (66,79) across the gate-to-egress
+  rays. Witness regenerated (21 turns, lands t=469).
+- **The C6 assertions were tightened first, then the level made to pass them.**
+  The majority clause now asserts `painted > n/2` (the old `landed <= n/2` was
+  satisfiable with 4/14 painted); a fourth, solver-relative assertion requires
+  that no route exists that never reaches exposure LOCK-1 — added after
+  measurement found a peak-4 zigzag landing at all 15 phases by hugging the
+  gate's range circle and draining the dwell counter between dips.
+- `design/place.mjs` and `design/sweep.mjs` falsifiers now tally off-phase
+  launches only (the on-phase flight is reported separately) and use the same
+  painted-majority verdict as the ledger.
+- CI: the standalone known-red `falsifier` job (`continue-on-error`) is gone;
+  `verify-falsifier` runs inside the gating `ledger` job, per that job's own
+  exit note. `just verify` includes it; `just falsifier` remains as the
+  tuning loop.
+- Ledger docs rewritten for the green state; AUDIT's stale C11 row corrected
+  (period 15, population 210..294 — it still said period 30).
+
+### Measured, not shipped
+- A second gate *sensor* (the "untried lever" in the red-era notes): swept
+  2,016 configurations — zero viable. The second *shutter* is what worked.
+
+## [Earlier unreleased state] — Operation Nightglass
 
 ### Added
 - `src/radar.mjs` — supercover line of sight, sensor footprint exemption, exposure dwell.

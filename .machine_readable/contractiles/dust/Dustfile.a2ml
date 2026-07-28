@@ -47,7 +47,7 @@ drift — none of which block a build.
 - description: No stray STATE/META/ECOSYSTEM copies in the repository root
 - run: test ! -f STATE.a2ml && test ! -f META.a2ml && test ! -f ECOSYSTEM.a2ml
 - severity: warning
-- notes: The authoritative copies live under .machine_readable/descriptiles/. The root carries only 0-AI-MANIFEST.a2ml and k9iser.toml.
+- notes: The authoritative copies live under .machine_readable/descriptiles/. This repo carries no root manifest file of its own.
 
 ### no-superseded-6a2-directory
 - description: The superseded 6a2/ directory name is not present alongside descriptiles/

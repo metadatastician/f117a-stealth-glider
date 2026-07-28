@@ -330,7 +330,7 @@ To stay informed about security updates:
 
 ## Security Best Practices
 
-When using F117a Stealth Glider, we recommend:
+When using F117A Stealth Glider, we recommend:
 
 ### General
 
@@ -381,7 +381,7 @@ This security policy may be updated from time to time. Significant changes will 
 
 ---
 
-*Thank you for helping keep F117a Stealth Glider and its users safe.* 🛡️
+*Thank you for helping keep F117A Stealth Glider and its users safe.* 🛡️
 
 ---
 

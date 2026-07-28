@@ -14,14 +14,20 @@ import { buildLevel } from '../src/level.mjs';
 import { createMission, missionStep, ambientStep } from '../src/mission.mjs';
 import { solve } from './solver.mjs';
 
+// Off-phase launches ONLY (off = 1..period-1) — the population the ledger's
+// verify-falsifier.mjs asserts over. The on-phase flight is reported
+// separately: it is supposed to land, so counting it among the survivors
+// flattered every config by one launch.
 function falsifier(mk, witness) {
-  const out = { LANDED: 0, PAINTED: 0, other: 0, peaks: [] };
+  const out = { onPhase: null, LANDED: 0, PAINTED: 0, other: 0, peaks: [], n: 0 };
   const L0 = mk();
+  out.n = L0.period - 1;
   for (let off = 0; off < L0.period; off++) {
     const M = createMission(mk());
     const turns = new Map(witness.map(([t, hx, hy]) => [t, [hx, hy]]));
     for (let k = 0; k < off; k++) ambientStep(M);
     for (let t = 0; t < 3000 && !M.result; t++) missionStep(M, turns.get(t) ?? null);
+    if (off === 0) { out.onPhase = M.result; continue; }
     if (M.result === 'LANDED') out.LANDED++;
     else if (M.result === 'PAINTED') out.PAINTED++;
     else out.other++;
@@ -42,9 +48,11 @@ for (const range of [40, 42, 44, 46, 50, 54, 58]) {
       continue;
     }
     const f = falsifier(mk, r.turns);
-    const verdict = f.PAINTED === 0 ? 'radar decorative'
-      : f.LANDED === 0 ? 'witness itself fails - bad route'
-        : (f.PAINTED > f.other && f.LANDED <= L.period / 2) ? '*** PHASE-CRITICAL ***'
+    // C6 means "a MAJORITY of off-phase launches fail as PAINTED": painted >
+    // n/2 over the 14 off-phase flights, with the on-phase flight landing.
+    const verdict = f.onPhase !== 'LANDED' ? `route dies on-phase (${f.onPhase})`
+      : f.PAINTED === 0 ? 'radar decorative'
+        : (f.PAINTED > f.n / 2) ? '*** PHASE-CRITICAL ***'
           : 'partial';
     console.log(
       String(range).padStart(5), String(lock).padStart(4),

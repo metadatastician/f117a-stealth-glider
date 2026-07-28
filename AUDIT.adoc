@@ -11,13 +11,18 @@ toc::[]
 
 == The headline
 
-The line-of-sight mechanic is proven. *The level is not finished.*
+The line-of-sight mechanic is proven, and the level now earns its premise:
+claim C6 — the falsifier for the entire premise — is *GREEN*, measured, and
+gates the build.
 
-Claim C6 — the falsifier for the entire premise — is *RED*, and that is a
-measured result rather than an unstarted task. It is reported by CI on every
-push and does not gate the build while it is known-red, because a red gate that
-everyone learns to step over is worse than an honest statement of what is
-unfinished.
+It was red from this repository's creation until the level geometry was made
+to deserve otherwise, and the assertions were *tightened* before the level was
+made to pass them (see the falsifier section below).
+
+And the game now exists: a chase-camera 3D layer over the same 2D Conway
+world, a tactical map, a single self-contained playable bundle. Every claim
+number once reserved for it — C4 (corridor), C7 (renderer inertness), C9
+(3D rule search), C10 (bundle reproducibility) — landed with it and gates.
 
 == Verified
 
@@ -30,42 +35,65 @@ demonstrating it failing on purpose.
 | C1 | `src/kernel/engine.mjs` is byte-identical to f19@9effa596, and `src/mission.mjs` is that file plus five fenced blocks. Asserted as git blob ids, so it is cryptographic and offline. Canary: a one-token edit outside a fence breaks it.
 | C2 | Supercover line of sight does not leak through a diagonal wall — 0 of 4489 cross-wall pairs. Canary: naive Bresenham leaks 1009 of 4489 through the same wall.
 | C3 | A radar does not occlude itself. Canary: without the footprint exemption it blinds itself 5/5.
-| C5 | The witness route LANDS at t=430, trace 0, peak exposure 7 of 8 — and was painted at some point, so it is not trivially safe.
+| C4 | The nominal corridor's exposure is phase-shaped and pinned: 31 always / 42 never / 8 phase-dependent of 81 cells, 36 with a consecutive run >= LOCK. Structural gates plus exact declared counts.
+| C5 | The witness route LANDS at t=469, trace 0, peak exposure 7 of 8 — and was painted at some point, so it is not trivially safe.
+| C6 | The falsifier: 14 of 14 off-phase launches of the witness are PAINTED, the on-phase flight lands, and the exhaustive search finds no route that stays below exposure 7. The level is solvable only by reading phase.
+| C7 | The renderer and camera are inert: the witness flown with and without the full presentation path hashes identically at all 469 generations. Canary: a mutating renderer is caught. render3d.mjs has no clock, no randomness, no imports.
 | C8 | Determinism, checked twice over: no non-determinism primitive in the four simulation modules, and two full runs hash identically across every generation.
-| C11 | The substrate is periodic from generation 0 — transient 0, period 30 as declared, population 261..375.
+| C9 | 3D Life has no glider ecology: 180 seeded soups per rule on a 24^3 torus, 0 translating patterns in Bays 5766 and 4555. The planning probe, landed as a permanent test.
+| C10 | The shipped bundle is byte-reproducible at every build, and the transformed core is re-proved to fly the witness (LANDED, trace 0, never locked) at build time.
+| C11 | The substrate is periodic from generation 0 — transient 0, period 15 as declared, population 210..294.
 | C12 | No two stamped patterns are within Chebyshev 3; everything is inside the border; the hangar zone is inside the grid; spawn is on a clean landing lane.
 |===
 
-== Red, and known
+== The falsifier: red, then earned
 
-=== C6 — the falsifier
+=== C6
 
 Fly the *same* route from every launch phase. For the level to be a phase puzzle,
 most off-phase launches must fail, and fail specifically as `PAINTED`.
 
-*Measured: 3 of 14 off-phase launches are shot down as PAINTED; peak exposure
-varies 7..8 across phases.*
+*Measured now: 14 of 14 off-phase launches are shot down as PAINTED; the
+on-phase flight lands with trace 0; and the exhaustive search finds no route
+anywhere in the state space that stays below exposure 7.*
 
-Two of C6's three assertions now pass — failures are dominated by radar rather
-than by terrain, and at least one launch is locked. The third does not: a
-*majority* must fail, and 3/14 is not a majority. So the radar is load-bearing
-but not yet decisive.
+The path from 0/30 to that measurement is the audit trail, because each step
+closed a distinct way the substrate could have been scenery:
 
-*This is a large improvement on the first design*, and the difference is
-instructive. That design flanked an open corridor with shutter banks and
-measured *0 of 30* phases failing, with peak exposure constant at 7 — the solver
-simply routed around the banks through permanent cover. Cover beside a route you
-need not take is scenery.
+* *The wall had to be a wall.* The first chokepoint spanned ~50 cells of a line
+  whose in-bounds length is ~106, leaving open map beyond both ends. The route
+  flew round it, so the shutter was guarding a path nobody had to take. (0/30
+  with peak exposure constant at 7 — the automaton contributed nothing.)
+* *Tangency beats coverage.* A 72-position sweep of the shutter shows a
+  pentadecathlon placed squarely on the gate-to-gap sight line masking the gap at
+  every phase — 15/15 land, peak flat at 7..7. Grazing the ray at [68,68] leaves
+  only its extended phases occluding: 4/14.
+* *The sensor had to sit where the route is exposed.* An exposure diagnostic
+  showed every launch phase peaking at 7 or 8 of `LOCK` 8 — one dwell generation
+  decides every flight. A 507-point placement sweep moved the gate sensor from
+  (76,74) to (79,73): 14/14 on the witness.
+* *The witness was not allowed to be the loophole.* The witness-scoped
+  assertions cannot see a different route that lands at every phase, and one
+  existed, measured: a zigzag hugging the gate's range circle, dipping into the
+  disc for 3–4 generations and draining the dwell counter between dips — peak
+  exposure 4, landing at all 15 phases. C6 gained a fourth, solver-relative
+  assertion (the same search that proposed the witness must find *no* route
+  below exposure `LOCK-1`), and sealing it took gate range 23 plus a second
+  pentadecathlon at (66,79) across the gate-to-egress rays — a one-cell optimum:
+  (67,79) measures 1/14, (66,80) 4/14, (66,79) 14/14 with the escape gone.
 
-The fix was a *chokepoint*: a wall across the corridor with one gap, a
-short-range gate sensor watching it, and a p15 pentadecathlon shuttering the
-sight line to the gap. What remains is to make the gap the *only* survivable
-option — currently 11 of 14 phases still find a way through.
+The assertions were tightened before the level was made to pass them: the
+majority clause previously accepted `landed <= n/2` (satisfiable with 4 of 14
+painted), and there was no no-escape clause at all. The searches that found the
+geometry are `design/place.mjs` (placement, not scalars — the earlier
+conclusion that the level could not be made phase-critical had swept only
+`radarRange`, `LOCK` and spacing, and never moved a sensor) and its pipeline
+re-used over sensor position, range, and the second shutter.
 
-The search that found this is `design/place.mjs`, which sweeps *placement*
-rather than scalars. The earlier conclusion that the level could not be made
-phase-critical was unearned: it swept `radarRange`, `LOCK` and pattern spacing
-and never moved a sensor. Geometry problems are not fixed by tuning numbers.
+Of the levers the red ledger listed as untried, the second gate *sensor* was
+swept — 2,016 configurations — and measured dead: every candidate collided,
+broke periodicity, or sealed the map at all phases. The second *shutter* on the
+existing sensor is what shipped.
 
 == Argued, not verified
 
@@ -80,17 +108,21 @@ and never moved a sensor. Geometry problems are not fixed by tuning numbers.
 * *That LOCK = 8 is the right dwell.* Chosen so a one-generation flicker is
   survivable and sustained exposure is not. `design/sweep.mjs` shows 5 and 6 make
   the current level unsolvable; that bounds it, but does not justify 8 specifically.
-* *That the 3D form should have been rejected.* The measurement (0 spaceships from
-  180 soups per rule) is real and is landed as evidence, but "no glider ecology"
-  is an inference from it, not the measurement itself.
+* *That the 3D form should have been rejected.* The measurement is now a
+  permanent gating test (C9: 0 spaceships from 180 seeded soups per rule), but
+  "no glider ecology" remains an INFERENCE from it — a directed search finds
+  Bays's gliders where soups do not. What C9 verifies is exactly the soup
+  statement; the design conclusion drawn from it lives here, one shelf down.
 
 == NOT claimed
 
-* *There is no game yet.* There is no renderer, no camera, no input handling and
-  no playable bundle. Nothing in this repository can be played. The 3D layer,
-  its inertness proof (C7) and bundle reproducibility (C10) are unlanded, and
-  their claim numbers are reserved rather than quietly reused.
-* *The level is not claimed to be good, or even finished* — see C6.
+* *The game is not claimed to be balanced or finished as a GAME.* It is
+  playable — chase camera, tactical map, HUD, one committed bundle — and its
+  presentation layer is proven inert (C7), but nothing measures whether the
+  difficulty curve, camera feel or readability are any good. Those are design
+  judgements; `just play` is the probe.
+* *The level is not claimed to be good.* C6 makes it phase-critical — a
+  measured statement about geometry, not about whether it is any fun to play.
 * *No claim about performance.* `shadowMap` is O(W·H·sensors·ray) and is intended
   to be recomputed on CA tick, not per frame. Nothing measures that yet.
 * *No claim that the solver is a second implementation of the engine.* It is an
@@ -106,8 +138,8 @@ and never moved a sensor. Geometry problems are not fixed by tuning numbers.
 
 == Deviations
 
-* *C6 is red and CI does not gate on it.* Registered here rather than silently
-  excluded. It runs on every push and reports.
+* *(closed)* C6 ran red under `continue-on-error` from creation until the level
+  geometry earned it; it now gates the build from inside the `ledger` job.
 * *`spike/` is exempt from line-ending normalisation* (`.gitattributes`), because
   `simulation.html` carries 162 CRLF terminators and `text=auto eol=lf` would
   rewrite them, breaking the published SHA-256 digests and the byte-identical
