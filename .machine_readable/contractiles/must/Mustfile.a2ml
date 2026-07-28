@@ -149,15 +149,18 @@ generic template.
 
 ### ci-runs-the-cited-ledger
 - description: The CI workflow actually runs the cited verification scripts
-- run: grep -q 'verify-kernel-parity verify-los verify-level verify-determinism verify-witness' .github/workflows/ci.yml && grep -q 'verify-falsifier.mjs' .github/workflows/ci.yml
+- run: grep -q 'verify-kernel-parity verify-los verify-level verify-determinism verify-witness verify-falsifier' .github/workflows/ci.yml && ! grep -q 'continue-on-error' .github/workflows/ci.yml
 - severity: critical
 - notes: |
     A CI file that does not execute the ledger is a fake gate. Both halves matter.
-    The first clause pins the GATING scripts. The second pins verify-falsifier.mjs,
-    which is currently RED and runs under continue-on-error: without this clause the
-    cheapest way to make CI green would be to delete the falsifier, which is precisely
-    the failure this repository exists to avoid. When C6 goes green, fold it into the
-    first clause and drop continue-on-error from the workflow.
+    The first clause pins the GATING scripts, now including verify-falsifier (C6
+    went green and was folded in, exactly as this probe's earlier notes said to).
+    The second clause forbids continue-on-error anywhere in the workflow: while C6
+    was red it ran under that flag deliberately and visibly, but now that every
+    claim gates, the cheapest way to make a red claim "green" again would be to
+    demote it back — which is precisely the failure this repository exists to
+    avoid. This probe failed the moment the fold-in happened and was updated with
+    it, which is the probe doing its job.
 
 ## Machine-Readable Structure
 

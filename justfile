@@ -11,19 +11,15 @@ verify:
     #!/usr/bin/env bash
     set -euo pipefail
     cd src
-    for v in verify-kernel-parity verify-los verify-level verify-determinism verify-witness; do
+    for v in verify-kernel-parity verify-los verify-level verify-determinism verify-witness verify-falsifier; do
         echo "== node $v.mjs =="
         node "$v.mjs"
     done
 
-# C6, the falsifier for the whole premise. CURRENTLY RED, deliberately.
-# Not part of `verify` while it is known-red — see AUDIT.adoc. It is run and
-# reported by CI so it cannot quietly rot.
+# C6, the falsifier for the whole premise, on its own. GREEN, and part of
+# `verify` — kept as a separate recipe because it is the one to re-run in a
+# loop while tuning level geometry.
 falsifier:
-    @cd src && node verify-falsifier.mjs || true
-
-# Same, but red is fatal. Use this when working ON the falsifier.
-falsifier-strict:
     cd src && node verify-falsifier.mjs
 
 # The level's instrument panel: periodicity, exposure, cover.
@@ -53,5 +49,4 @@ contracts-list:
 
 # Everything CI gates on.
 ci: verify contracts
-    @echo "OK: gating ledger and contractiles green"
-    @echo "NOTE: C6 (falsifier) is known-red — run 'just falsifier'"
+    @echo "OK: gating ledger (incl. C6) and contractiles green"
