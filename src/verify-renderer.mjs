@@ -96,6 +96,48 @@ const evilDiffers = evil.hashes.some((h, i) => h !== plain.hashes[i]);
 ok(evilDiffers,
   'canary: a deliberately mutating renderer IS caught by the same comparison');
 
+// --- the camera is STABLE across turns ---------------------------------------
+//
+// Not an inertness claim — it lives here because this is the camera's harness.
+// It is a regression guard on a MEASURED bug: pressing any direction key threw
+// the view into a spin, 1135 degrees of yaw in a single frame, because a
+// glider's heading changes instantly at phase 0 and the PID pursuit saw a step
+// setpoint (derivative kick). The witness route turns 21 times, so flying it is
+// a fair exercise of exactly that path.
+//
+// The bound is on the RATE, not the per-frame step, so it holds at any frame
+// rate: a fix that merely hid the spin at 60 fps would fail at 144.
+{
+  const RATE_LIMIT = 2.7;          // rad/sec, just above the renderer's own clamp
+  const DIST_LIMIT = 3 * 13;       // 3x the chase distance: overshoot, not runaway
+  let worstRate = 0, worstDist = 0;
+  for (const fps of [30, 60, 144]) {
+    const L = buildLevel();
+    const M = createMission(L);
+    const cam = createCamera(L);
+    const turns = new Map(L.witness.map(([t, hx, hy]) => [t, [hx, hy]]));
+    const perGen = Math.max(1, Math.round(fps / 16));
+    let prevYaw = cam.yaw;
+    for (let t = 0; t < GENS && !M.result; t++) {
+      missionStep(M, turns.get(t) ?? null);
+      for (let f = 0; f < perGen; f++) {
+        stepCamera(cam, M.player.anchor, M.player.heading, 1 / fps);
+        let d = cam.yaw - prevYaw;
+        while (d > Math.PI) d -= 2 * Math.PI;
+        while (d < -Math.PI) d += 2 * Math.PI;
+        prevYaw = cam.yaw;
+        worstRate = Math.max(worstRate, Math.abs(d) * fps);
+        worstDist = Math.max(worstDist,
+          Math.hypot(cam.pos[0] - M.player.anchor[0], cam.pos[1] - M.player.anchor[1]));
+      }
+    }
+  }
+  ok(worstRate <= RATE_LIMIT && worstDist <= DIST_LIMIT,
+    `the camera stays stable through all 21 witness turns at 30/60/144 fps `
+    + `(peak ${(worstRate * 180 / Math.PI).toFixed(0)} deg/sec, `
+    + `peak ${worstDist.toFixed(1)} cells from the aircraft)`);
+}
+
 // --- the pure layer gets no clock and no randomness ---------------------------
 const banned = [
   [/\bMath\s*\.\s*random\b/, 'Math.random'],
