@@ -52,18 +52,24 @@ function transientOf(mk) {
   return 999;
 }
 
+// Off-phase launches ONLY (off = 1..period-1), the same population
+// verify-falsifier.mjs asserts over. The first version of this tallied off=0
+// as well, so `landed` mixed the on-phase launch — which is SUPPOSED to land —
+// into the failure statistic, and a config could grade one launch better than
+// the ledger would ever measure it.
 function falsify(mk, witness) {
   const L0 = mk();
-  let landed = 0, painted = 0, other = 0; const peaks = [];
+  let landed = 0, painted = 0, other = 0, onPhase = null; const peaks = [];
   for (let off = 0; off < L0.period; off++) {
     const M = createMission(mk());
     const turns = new Map(witness.map(([t, hx, hy]) => [t, [hx, hy]]));
     for (let k = 0; k < off; k++) ambientStep(M);
     for (let t = 0; t < 3000 && !M.result; t++) missionStep(M, turns.get(t) ?? null);
+    if (off === 0) { onPhase = M.result; continue; }
     if (M.result === 'LANDED') landed++; else if (M.result === 'PAINTED') painted++; else other++;
     peaks.push(M.peakExposure);
   }
-  return { landed, painted, other, lo: Math.min(...peaks), hi: Math.max(...peaks), n: L0.period };
+  return { onPhase, landed, painted, other, lo: Math.min(...peaks), hi: Math.max(...peaks), n: L0.period - 1 };
 }
 
 // Candidate ring around the gap. The gap sits at (chokeX, chokeX+4); the wall
@@ -111,7 +117,12 @@ console.log(`tried ${tried}  rejected ${JSON.stringify(why)}  viable ${results.l
 results.sort((a, b) => (b.painted - a.painted) || (a.landed - b.landed));
 console.log('chokeX gate2       shutter2    turns | landed painted other peak    verdict');
 for (const r of results.slice(0, 12)) {
-  const verdict = (r.landed <= r.n / 2 && r.painted > r.other && r.landed > 0) ? '*** C6 GREEN ***'
+  // C6's statement is "a MAJORITY of off-phase launches fail as PAINTED" —
+  // that is painted > n/2, not landed <= n/2. The landed form permits exactly
+  // half landing with painted as low as 4, which satisfies no reading of
+  // "majority". The on-phase launch must LAND or the config is not a level.
+  const verdict = (r.onPhase === 'LANDED' && r.painted > r.n / 2) ? '*** C6 GREEN ***'
+    : r.onPhase !== 'LANDED' ? `route dies on-phase (${r.onPhase})`
     : r.painted === 0 ? 'decorative' : `partial (${r.painted}/${r.n})`;
   console.log(
     String(r.chokeX).padStart(6), `[${r.gate2}]`.padEnd(11), `[${r.shutter2At}]`.padEnd(11),

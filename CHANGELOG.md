@@ -7,7 +7,36 @@ Copyright (c) 2026 Jonathan D.A. Jewell (hyperpolymath)
 
 Including what is *not* finished, and what was retracted.
 
-## [Unreleased] — Operation Nightglass
+## [Unreleased] — C6 green: the level earns its premise (2026-07-28)
+
+### Changed
+- **C6, the falsifier, is GREEN and gates the build.** Measured: 14 of 14
+  off-phase launches of the witness are PAINTED, the on-phase flight lands with
+  trace 0, and the exhaustive search finds no route in the state space that
+  stays below exposure 7. Geometry: gate sensor (76,74)→(79,73), range 20→23,
+  and a second pentadecathlon shutter at (66,79) across the gate-to-egress
+  rays. Witness regenerated (21 turns, lands t=469).
+- **The C6 assertions were tightened first, then the level made to pass them.**
+  The majority clause now asserts `painted > n/2` (the old `landed <= n/2` was
+  satisfiable with 4/14 painted); a fourth, solver-relative assertion requires
+  that no route exists that never reaches exposure LOCK-1 — added after
+  measurement found a peak-4 zigzag landing at all 15 phases by hugging the
+  gate's range circle and draining the dwell counter between dips.
+- `design/place.mjs` and `design/sweep.mjs` falsifiers now tally off-phase
+  launches only (the on-phase flight is reported separately) and use the same
+  painted-majority verdict as the ledger.
+- CI: the standalone known-red `falsifier` job (`continue-on-error`) is gone;
+  `verify-falsifier` runs inside the gating `ledger` job, per that job's own
+  exit note. `just verify` includes it; `just falsifier` remains as the
+  tuning loop.
+- Ledger docs rewritten for the green state; AUDIT's stale C11 row corrected
+  (period 15, population 210..294 — it still said period 30).
+
+### Measured, not shipped
+- A second gate *sensor* (the "untried lever" in the red-era notes): swept
+  2,016 configurations — zero viable. The second *shutter* is what worked.
+
+## [Earlier unreleased state] — Operation Nightglass
 
 ### Added
 - `src/radar.mjs` — supercover line of sight, sensor footprint exemption, exposure dwell.

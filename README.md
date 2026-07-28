@@ -37,42 +37,43 @@ Two independent ways to lose:
 
 A trace-0 flight down an exposed corridor is still a dead flight.
 
-## Status: mechanic proven, level not finished
+## Status: mechanic proven, level phase-critical, game not built
 
-This is honest rather than modest. Of eight ledger claims, **seven are green and
-one is red — and the red one is the falsifier for the whole premise.**
+Of eight ledger claims, **all eight are green — including C6, the falsifier for
+the whole premise**, which was red from this repository's creation until the
+level geometry earned it.
 
-> **C6.** Fly the same route from every launch phase. **4 of 14 off-phase
-> launches are shot down as PAINTED**, and peak exposure varies 7..8 across
-> phases. Two of C6's three assertions pass: the failures are dominated by
-> radar rather than terrain. The third still fails — a *majority* must die, and
-> 4/14 is not a majority.
+> **C6.** Fly the same route from every launch phase. **14 of 14 off-phase
+> launches are shot down as PAINTED**, the on-phase flight lands with trace 0,
+> and the exhaustive search finds **no route in the whole state space that
+> stays below exposure 7**. The level is solvable only by reading phase.
 
-So the radar is no longer decoration, but the level is not yet a phase puzzle
-either. Getting here took replacing the flanking shutter banks with a
-**chokepoint**: a wall across the corridor with a single gap, watched by a
-short-range gate sensor, with a p15 pentadecathlon shuttering the sight line to
-that gap. Cover beside a route you need not take is scenery; cover over the only
-way through is a puzzle. The earlier design had 0/30 phases fail with peak
-exposure constant at 7 — the route ignored the shutters entirely.
+The gate got *stronger* before the level passed it. The majority assertion was
+tightened to say what its sentence says (`painted > n/2`; the old form accepted
+half the launches landing). And C6 gained a fourth assertion, because the
+witness-scoped ones could not see a hole that measurement found: a zigzag route
+hugging the gate sensor's range circle, dipping in for 3–4 generations and
+letting the exposure counter drain between dips — peak exposure 4, landing at
+every phase with no phase-reading at all. Every flyable route now grazes one
+generation from LOCK; the only freedom left is *when*, and that is the game.
 
-Two measurements pin what is left to do. First, the wall had to *be* a wall: it
-originally spanned ~50 cells of a line whose in-bounds length is ~106, so the
-route simply flew round the end and the shutter was guarding an optional path.
-Second, shutter **tangency** matters more than shutter presence — a 72-position
-sweep shows a pentadecathlon squarely on the sight line masking the gap at
-*every* phase (15/15 land, peak flat at 7..7), while the same oscillator moved
-to graze the ray occludes only on its extended phases (4/15 shot down, peak
-7..8). Grazing beats covering; it is simply not yet decisive enough.
+What closed it, each step measured (full history in the ledger): the wall had
+to *be* a wall (0/30 → the chokepoint); shutter **tangency** beats coverage
+(4/14 — squarely on the ray masks at every phase, grazing occludes only in
+extended phases); the gate sensor moved three cells to where the route is
+actually exposed (14/14 on the witness); and a **second pentadecathlon** at
+(66,79) plus gate range 23 sealed the peak-4 escape — a one-cell optimum whose
+neighbours measure 1/14 and 4/14.
 
-It is reported, not hidden, and it does not gate the build while it is known-red.
+C6 now gates the build with the rest of the ledger. What does not exist yet is
+the *game*: no renderer, camera, input or bundle (C7, C10 reserved).
 See [`VERIFICATION.md`](./VERIFICATION.md) and [`AUDIT.adoc`](./AUDIT.adoc).
 
 ## Run it
 
 ```bash
-just verify      # the gating ledger (C1,C2,C3,C5,C8,C11,C12)
-just falsifier   # C6 — currently RED, deliberately
+just verify      # the gating ledger (C1,C2,C3,C5,C6,C8,C11,C12)
+just falsifier   # C6 on its own — the loop to re-run while tuning geometry
 just measure     # the level's instrument panel
 just solve       # search for a witness route
 just sweep       # scalar sweep: range x LOCK
