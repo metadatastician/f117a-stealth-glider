@@ -49,14 +49,29 @@ jobs:
           done < <(find src scripts design \( -name '*.mjs' -o -name '*.js' \))
           [ "$fail" = 0 ]
 
-      - name: Gating ledger (C1, C2, C3, C5, C6, C8, C11, C12)
+      - name: Gating ledger (C1..C12, complete)
         working-directory: src
         run: |
           set -euo pipefail
-          for v in verify-kernel-parity verify-los verify-level verify-determinism verify-witness verify-falsifier; do
+          for v in verify-kernel-parity verify-los verify-level verify-corridor verify-determinism verify-witness verify-falsifier verify-renderer verify-3d-rule-search; do
             echo "== node $v.mjs =="
             node "$v.mjs"
           done
+
+      # C10: the committed bundle must be byte-identical to a fresh rebuild.
+      # build.mjs itself syntax-checks the shipped script and replays the
+      # witness on the transformed core, so this step also re-proves the
+      # shipped artefact completable.
+      - name: Bundle reproducibility (C10) — committed HTML matches a fresh rebuild
+        run: |
+          set -euo pipefail
+          (cd src && node build.mjs >/dev/null)
+          if ! cmp -s src/f117a-stealth-glider.html f117a-stealth-glider.html; then
+            echo "::error::committed f117a-stealth-glider.html is stale — run 'just build' and commit"
+            exit 1
+          fi
+          rm -f src/f117a-stealth-glider.html
+          echo "bundle reproducible"
 
       # verify-kernel-parity already proves this offline via git blob ids. This
       # step is a second, INDEPENDENT witness computed by git itself rather than

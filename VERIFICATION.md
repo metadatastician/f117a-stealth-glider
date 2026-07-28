@@ -6,26 +6,31 @@ Copyright (c) 2026 Jonathan D.A. Jewell (hyperpolymath)
 # Verification ledger
 
 Every claim below cites a script you can run with plain `node`. No dependencies,
-no framework. `just verify` runs the gating set — all eight claims, including
+no framework. `just verify` runs the gating set — all twelve claims, including
 [C6](#c6--falsifier--green), the falsifier for the whole premise, which was
 known-red until the level geometry was made to earn it. The history of that red,
 and what closed it, is kept below and in [`AUDIT.adoc`](./AUDIT.adoc).
+`just test` additionally proves the committed bundle byte-identical to a fresh
+rebuild (C10).
 
 | # | Claim | Script | Status |
 |---|---|---|---|
 | C1 | The reused f19 kernel is provably the f19 kernel | `src/verify-kernel-parity.mjs` | green |
 | C2 | Supercover LOS never leaks through a diagonal wall; LOS is symmetric | `src/verify-los.mjs` | green |
 | C3 | A radar does not occlude itself | `src/verify-los.mjs` | green |
+| C4 | The shadow is load-bearing on the nominal corridor, and its shape is pinned | `src/verify-corridor.mjs` | green |
 | C5 | The witness route lands, trace 0, never locked | `src/verify-witness.mjs` | green |
 | C6 | **Falsifier: the level is solvable only by reading phase** | `src/verify-falsifier.mjs` | green |
+| C7 | The renderer and camera are inert — provably spectators | `src/verify-renderer.mjs` | green |
 | C8 | The simulation is deterministic | `src/verify-determinism.mjs` | green |
+| C9 | 3D Life has no glider ecology — the third dimension stays in the camera | `src/verify-3d-rule-search.mjs` | green |
+| C10 | The shipped bundle is byte-reproducible and re-proved completable at build | `src/build.mjs` + CI diff | green |
 | C11 | The substrate is periodic from generation 0 | `src/verify-level.mjs` | green |
 | C12 | No two stamped patterns can react | `src/verify-level.mjs` | green |
 
-C4, C7, C9 and C10 are reserved for work not yet landed: the corridor
-phase-dependence metric currently lives in `design/measure.mjs` rather than in
-the gating ledger, and the 3D renderer, its inertness proof and the bundle do
-not exist yet. They are listed in `AUDIT.adoc` under *not claimed*.
+No claim numbers are reserved any more: C4, C7, C9 and C10 — held open while
+the corridor metric lived only in `design/measure.mjs` and the renderer,
+inertness proof and bundle did not exist — landed with the game layer.
 
 ---
 
@@ -74,6 +79,24 @@ effect, switched off. It looked like a balance problem rather than a bug, which
 is why it is pinned here with a canary showing the sensor blinding itself 5/5
 without the exemption. The exemption is also shown to be scoped — foreign cover
 still blocks.
+
+## C4 — the shadow is load-bearing
+
+`node src/verify-corridor.mjs`
+
+Walk the nominal corridor — the diagonal flown with no input — and classify
+each of its 81 cells over one full substrate period, using the same supercover
+LOS the mission uses. Three structural facts must hold: **phase-dependent
+cells exist** (8 — the cells that are the game), **at least one cell's longest
+consecutive painted run reaches `LOCK`** (36 do — the radar has teeth; exposure
+decays one per clean generation, so a flickering cell can never kill), and
+**cover exists** (42 cells are painted at no phase).
+
+The counts are then pinned as declared values, C11-style: 31 always / 42 never
+/ 8 phase-dependent, 36 lethal, 3 survivable. Any geometry change that shifts
+them without re-measuring turns this claim red — which is the point. The
+computation is the gating subset of `design/measure.mjs`, the instrument panel
+the level is tuned against.
 
 ## C5 — the witness route
 
@@ -156,6 +179,25 @@ swept (2,016 configurations) and measured **dead** — every candidate collided,
 broke periodicity, or sealed the map at all phases. The second *shutter* on the
 existing sensor is what shipped.
 
+## C7 — the renderer and camera are inert
+
+`node src/verify-renderer.mjs`
+
+C8 excludes the presentation layer from its banned-primitive scope "because
+claim C7 proves they cannot influence the mission outcome, not merely because
+they are awkward". This is that proof, and it is a measurement: **fly the
+committed witness twice — headless, and with the full camera-pursuit,
+shadow-map and draw-list path invoked every generation — and require every
+generation's world to hash identically and the outcomes to match.** 469
+generations, byte-identical.
+
+Ships with a canary (a deliberately mutating renderer must be caught by the
+same comparison — it is), plus two structural fences: `render3d.mjs` contains
+none of C8's nondeterminism primitives (the frame clock lives in `ui.js`,
+*above* the proven line), and `render3d.mjs` imports **nothing** — mission
+state arrives as arguments, so the layering is visible in the import graph
+rather than asserted in prose. See `ARCHITECTURE.md`.
+
 ## C8 — determinism
 
 Two independent checks, because either alone is weak: no non-determinism
@@ -172,6 +214,41 @@ The scope is deliberately the four *simulation* modules, not all of `src/`. The
 first draft globbed the directory and produced two false positives — this file's
 own pattern list, and a comment in `verify-los.mjs`. A check that cries wolf gets
 switched off.
+
+## C9 — 3D Life has no glider ecology
+
+`node src/verify-3d-rule-search.mjs`
+
+The world stays 2D and literally Conway because this measurement said it must:
+**180 seeded random soups per rule on a 24³ torus, up to 160 generations each,
+produce 0 translating patterns** in Bays 5766 and in 4555 — the rule
+`spike/world.html` actually implemented while calling itself Conway. Spaceship
+detection is exact normalised-shape repeat plus anchor displacement, with
+torus-wrap handled by empty-gap rebasing.
+
+Two honesty notes are part of the claim. Soups are seeded from a fixed-seed
+xorshift — a verification script with `Math.random` in it is a different
+measurement every run, i.e. not a measurement. And the soup is a dense 10³
+block at ~1/3 fill: scattered sparse seeding is vacuous for rules whose births
+need 5–6 neighbours (everything dies on tick one and any rule "passes").
+Bays's gliders exist — from *directed* search, which is the point: an ecology
+you must construct by hand is not an ecology, and a soup-seeded 3D world has
+no players. The three dimensions moved to the camera instead (C7).
+
+## C10 — the bundle is reproducible
+
+`src/build.mjs`, gated by `just test` and CI.
+
+The shipped `f117a-stealth-glider.html` is a mechanical concatenation of
+`kernel/engine.mjs + radar.mjs + mission.mjs + level.mjs + render3d.mjs +
+ui.js` — imports stripped, exports unwrapped, CSS inlined — into one
+self-contained file that runs offline from a `file://` URL. Every build runs
+two checks: `node --check` on the exact script text that ships, and a smoke
+flight of the committed witness through the **transformed** core (must LAND,
+trace 0, never locked) — so the strip/concat transform sits inside the
+verified perimeter rather than being trusted. `just test` and CI then require
+the committed bundle to be **byte-identical** to a fresh rebuild: the shipped
+file is an artefact of the audited sources, not a sibling of them.
 
 ## C11 — the substrate is periodic from generation 0
 

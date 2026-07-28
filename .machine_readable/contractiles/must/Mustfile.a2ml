@@ -149,7 +149,7 @@ generic template.
 
 ### ci-runs-the-cited-ledger
 - description: The CI workflow actually runs the cited verification scripts
-- run: grep -q 'verify-kernel-parity verify-los verify-level verify-determinism verify-witness verify-falsifier' .github/workflows/ci.yml && ! grep -q 'continue-on-error' .github/workflows/ci.yml
+- run: grep -q 'verify-kernel-parity verify-los verify-level verify-corridor verify-determinism verify-witness verify-falsifier verify-renderer verify-3d-rule-search' .github/workflows/ci.yml && ! grep -q 'continue-on-error' .github/workflows/ci.yml
 - severity: critical
 - notes: |
     A CI file that does not execute the ledger is a fake gate. Both halves matter.
