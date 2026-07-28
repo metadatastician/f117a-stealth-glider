@@ -51,6 +51,12 @@ falsifier:
 measure:
     node design/measure.mjs
 
+# Every oscillator's period measured in isolation, and PERIOD checked to be
+# the lcm of the ones the level places. Covers what C11 structurally cannot:
+# the oscillators OSC defines but the level does not place.
+period:
+    node design/period.mjs
+
 # Search the state space for a witness route.
 solve:
     node design/solve.mjs

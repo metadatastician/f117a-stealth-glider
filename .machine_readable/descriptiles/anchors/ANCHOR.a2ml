@@ -33,8 +33,8 @@ owns = [
   "The contact criterion: Chebyshev-3 is exact independence; the shipped contact rule is Chebyshev radius 2.",
   "The single admitted fiction: a pre-contact kinematic overlay for the player glider, valid only while the player is provably independent of the substrate.",
   "Player identity by counterfactual shadow — the player is the glider ABSENT from a shadow world stepped without them.",
-  "The frozen Operation Nightglass v2 geometry in src/level.mjs.",
-  "The stream no-go lemma and its cause (geometry, not phase).",
+  "The Operation Nightglass geometry in src/level.mjs — one-cell knife-edged.",
+  "That the level is phase-critical, and that no sub-LOCK route exists (C6).",
 ]
 
 may-not-be-redefined = [
@@ -55,7 +55,7 @@ smoke-test-command = [
 ]
 
 success-criteria = [
-  "The cited verification ledger (verify1, 2, 3, 8, 9) runs green.",
+  "The gating ledger — all twelve claims, C1-C12 — runs green.",
   "build.mjs replays the witness on the transformed core and reports LANDED with trace 0.",
   "The committed f117a-stealth-glider.html is byte-identical to a fresh rebuild.",
   "No critical contractile breach.",
@@ -83,4 +83,4 @@ notes = "There are no satellites today. A second level or an alternative fronten
 verification-ledger = "VERIFICATION.md"
 decision-records = ".machine_readable/descriptiles/META.a2ml"
 frozen-level = "src/level.mjs"
-substrate = "src/engine.mjs"
+substrate = "src/kernel/engine.mjs"

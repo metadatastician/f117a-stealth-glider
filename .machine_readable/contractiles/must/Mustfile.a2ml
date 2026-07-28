@@ -41,7 +41,7 @@ generic template.
 - severity: critical
 
 ### verification-ledger-present
-- description: VERIFICATION.md — the 11-claim ledger — must exist
+- description: VERIFICATION.md — the 12-claim ledger (C1-C12) — must exist
 - run: test -f VERIFICATION.md
 - severity: critical
 - notes: This is the project's centre of gravity; every design claim is discharged there.
@@ -82,20 +82,20 @@ generic template.
 
 ### cited-ledger-scripts-present
 - description: Every script cited by the verification ledger exists
-- run: test -f src/verify-kernel-parity.mjs && test -f src/verify-los.mjs && test -f src/verify-level.mjs && test -f src/verify-determinism.mjs && test -f src/verify-witness.mjs && test -f src/verify-falsifier.mjs
+- run: test -f src/verify-kernel-parity.mjs && test -f src/verify-los.mjs && test -f src/verify-level.mjs && test -f src/verify-corridor.mjs && test -f src/verify-determinism.mjs && test -f src/verify-witness.mjs && test -f src/verify-falsifier.mjs && test -f src/verify-renderer.mjs && test -f src/verify-3d-rule-search.mjs
 - severity: critical
 
-### exploratory-scripts-retained
-- description: The exploratory design searches are retained, not deleted
-- run: test -f src/verify4.mjs && test -f src/verify5.mjs && test -f src/verify6.mjs && test -f src/verify7.mjs && test -f src/verify10.mjs
+### design-tools-retained
+- description: The design searches are retained, not deleted
+- run: test -f design/measure.mjs && test -f design/period.mjs && test -f design/solve.mjs && test -f design/sweep.mjs && test -f design/place.mjs
 - severity: warning
-- notes: Their "no viable candidate" output is a recorded negative result. Keeping them keeps the ruled-out search space visible.
+- notes: A "no viable candidate" output is a recorded negative result — design/place.mjs swept 2,016 second-gate-sensor configurations and found zero viable, which is how that mechanism was ruled out. Keeping these keeps the ruled-out search space visible and re-runnable. design/period.mjs exists because src/level.mjs cited it before it did.
 
 ### spike-provenance-intact
 - description: The v0 3D prototype is preserved verbatim with its defect record
 - run: test -f spike/world.html && test -f spike/simulation.html && test -f spike/README.md
 - severity: critical
-- notes: There is deliberately no playable bundle yet - see AUDIT.adoc 'NOT claimed'. This probe guards the provenance that DOES exist rather than asserting an artefact that does not.
+- notes: The prototypes are landed verbatim as provenance with their seven measured defects recorded in spike/README.md. Defects 4, 5 and 7 (axis disagreement, sign-broken collision, vanishing aircraft) are fixed by construction in src/render3d.mjs; defects 1, 2 and 3 are the ARCHITECTURE, and are why the substrate is 2D and deterministic.
 
 ### spdx-headers-on-every-source
 - description: Every .mjs under src/ declares AGPL-3.0-or-later on its FIRST line
@@ -120,13 +120,19 @@ generic template.
 - description: The shipped contact rule remains Chebyshev radius 2
 - run: grep -q 'nearWorld(M, cells, 2)' src/mission.mjs
 - severity: critical
-- notes: Relaxing this to cell-overlap makes the stream learnable by feel, converting the substrate into scenery and failing v0's premise. This is the standing falsifier (D-03).
+- notes: Chebyshev 3 is the exact independence criterion — while the aircraft keeps it, "not being in the world" and "being in it" are provably indistinguishable. Relaxing this to cell-overlap makes the route learnable by feel, converting the substrate into scenery and failing the premise. This is the standing falsifier (D-03).
 
 ### level-geometry-frozen
 - description: The Operation Nightglass geometry and its measured invariants are intact
 - run: grep -q 'const W = 172, H = 108;' src/level.mjs && grep -q 'const hangarAt = \[92, 96\];' src/level.mjs && grep -q 'glidepaths: \[-10, -4, 3\]' src/level.mjs && grep -q 'radarRange = 40' src/level.mjs
 - severity: critical
-- notes: The level is the design (D-02). Any change here invalidates the entire ledger and requires a full re-run of verify1,2,3,8,9.
+- notes: The level is the design (D-02). Any change here invalidates the entire ledger and requires a full re-run of `just verify` (all twelve claims) — and the geometry is one-cell knife-edged, so "invalidates" is literal rather than cautious.
+
+### metadata-describes-this-repository
+- description: The machine-readable tree cites only files that exist, and only this level's vocabulary
+- run: node scripts/metadata-citations.mjs
+- severity: critical
+- notes: This repository was scaffolded by copying f19-stealth-glider and the .machine_readable tree arrived describing f19's GAME — another game's gun as this level's primitive, the wrong spawn and hangar, and a [settled-questions] block recording another repository's rulings as closed here, with two more files pointing agents at it as authority. None of it could fail: the stale statements sat behind `tolerance:`, `injection_probe:` and drill-only `recovery_probe:` fields the runner does not execute. This probe is executable and critical. Deliberate contrast statements opt out per line with a greppable marker (see the header of scripts/metadata-citations.mjs), which never exempts a dead path.
 
 ### zero-runtime-dependencies
 - description: package.json declares no dependencies or devDependencies
