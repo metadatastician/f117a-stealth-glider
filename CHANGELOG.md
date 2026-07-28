@@ -7,6 +7,36 @@ Copyright (c) 2026 Jonathan D.A. Jewell (hyperpolymath)
 
 Including what is *not* finished, and what was retracted.
 
+## [Unreleased] — the game, and the last four claims (2026-07-28)
+
+### Added
+- **The game.** `src/render3d.mjs` — a pure, clock-free, import-free chase
+  camera and draw-list renderer; the flight model (PID controller + elevon
+  mixer) is adapted from `spike/simulation.html`, the un-regressed prototype,
+  and spike defects 4/5/7 are fixed by construction (one axis convention, no
+  camera collision, per-panel aircraft projection). `src/ui.js` — the DOM
+  shell: 3D chase view, TAB tactical map, exposure/paint/trace HUD, p15 phase
+  dial, briefing/ledger/debrief cards including the PAINTED debrief.
+  `src/build.mjs` — the bundler; one committed self-contained
+  `f117a-stealth-glider.html` (~75 KB, offline, no dependencies).
+  `ARCHITECTURE.md` — the layering. `pages.yml` returns (it was removed while
+  there was no bundle to deploy): publishes the committed, verified bundle.
+- **C4** (`src/verify-corridor.mjs`): the corridor metric promoted from
+  `design/measure.mjs` into the gating ledger — structural gates (phase-
+  dependent cells exist, a run reaches LOCK, cover exists) plus pinned counts
+  (31 always / 42 never / 8 dependent / 36 lethal / 3 survivable of 81).
+- **C7** (`src/verify-renderer.mjs`): the witness flown with and without the
+  full presentation path hashes identically at all 469 generations; canary
+  proves a mutating renderer is caught; render3d.mjs has no clock, no
+  randomness and no imports.
+- **C9** (`src/verify-3d-rule-search.mjs`): the planning probe landed as a
+  permanent test — 180 seeded soups per rule on a 24³ torus, 0 translating
+  patterns in Bays 5766 and 4555; deterministic by seeded PRNG.
+- **C10** (`src/build.mjs` + `just test` + CI): bundle byte-reproducibility,
+  with the transformed core re-proved to fly the witness at every build.
+- `just build / test / play`; the gating ledger and CI now run all twelve
+  claims; no claim numbers remain reserved.
+
 ## [Unreleased] — C6 green: the level earns its premise (2026-07-28)
 
 ### Changed

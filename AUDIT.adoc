@@ -17,8 +17,12 @@ gates the build.
 
 It was red from this repository's creation until the level geometry was made
 to deserve otherwise, and the assertions were *tightened* before the level was
-made to pass them (see the falsifier section below). There is still no playable
-game — no renderer, camera, input or bundle; C7 and C10 stay reserved.
+made to pass them (see the falsifier section below).
+
+And the game now exists: a chase-camera 3D layer over the same 2D Conway
+world, a tactical map, a single self-contained playable bundle. Every claim
+number once reserved for it — C4 (corridor), C7 (renderer inertness), C9
+(3D rule search), C10 (bundle reproducibility) — landed with it and gates.
 
 == Verified
 
@@ -31,9 +35,13 @@ demonstrating it failing on purpose.
 | C1 | `src/kernel/engine.mjs` is byte-identical to f19@9effa596, and `src/mission.mjs` is that file plus five fenced blocks. Asserted as git blob ids, so it is cryptographic and offline. Canary: a one-token edit outside a fence breaks it.
 | C2 | Supercover line of sight does not leak through a diagonal wall — 0 of 4489 cross-wall pairs. Canary: naive Bresenham leaks 1009 of 4489 through the same wall.
 | C3 | A radar does not occlude itself. Canary: without the footprint exemption it blinds itself 5/5.
+| C4 | The nominal corridor's exposure is phase-shaped and pinned: 31 always / 42 never / 8 phase-dependent of 81 cells, 36 with a consecutive run >= LOCK. Structural gates plus exact declared counts.
 | C5 | The witness route LANDS at t=469, trace 0, peak exposure 7 of 8 — and was painted at some point, so it is not trivially safe.
 | C6 | The falsifier: 14 of 14 off-phase launches of the witness are PAINTED, the on-phase flight lands, and the exhaustive search finds no route that stays below exposure 7. The level is solvable only by reading phase.
+| C7 | The renderer and camera are inert: the witness flown with and without the full presentation path hashes identically at all 469 generations. Canary: a mutating renderer is caught. render3d.mjs has no clock, no randomness, no imports.
 | C8 | Determinism, checked twice over: no non-determinism primitive in the four simulation modules, and two full runs hash identically across every generation.
+| C9 | 3D Life has no glider ecology: 180 seeded soups per rule on a 24^3 torus, 0 translating patterns in Bays 5766 and 4555. The planning probe, landed as a permanent test.
+| C10 | The shipped bundle is byte-reproducible at every build, and the transformed core is re-proved to fly the witness (LANDED, trace 0, never locked) at build time.
 | C11 | The substrate is periodic from generation 0 — transient 0, period 15 as declared, population 210..294.
 | C12 | No two stamped patterns are within Chebyshev 3; everything is inside the border; the hangar zone is inside the grid; spawn is on a clean landing lane.
 |===
@@ -100,16 +108,19 @@ existing sensor is what shipped.
 * *That LOCK = 8 is the right dwell.* Chosen so a one-generation flicker is
   survivable and sustained exposure is not. `design/sweep.mjs` shows 5 and 6 make
   the current level unsolvable; that bounds it, but does not justify 8 specifically.
-* *That the 3D form should have been rejected.* The measurement (0 spaceships from
-  180 soups per rule) is real and is landed as evidence, but "no glider ecology"
-  is an inference from it, not the measurement itself.
+* *That the 3D form should have been rejected.* The measurement is now a
+  permanent gating test (C9: 0 spaceships from 180 seeded soups per rule), but
+  "no glider ecology" remains an INFERENCE from it — a directed search finds
+  Bays's gliders where soups do not. What C9 verifies is exactly the soup
+  statement; the design conclusion drawn from it lives here, one shelf down.
 
 == NOT claimed
 
-* *There is no game yet.* There is no renderer, no camera, no input handling and
-  no playable bundle. Nothing in this repository can be played. The 3D layer,
-  its inertness proof (C7) and bundle reproducibility (C10) are unlanded, and
-  their claim numbers are reserved rather than quietly reused.
+* *The game is not claimed to be balanced or finished as a GAME.* It is
+  playable — chase camera, tactical map, HUD, one committed bundle — and its
+  presentation layer is proven inert (C7), but nothing measures whether the
+  difficulty curve, camera feel or readability are any good. Those are design
+  judgements; `just play` is the probe.
 * *The level is not claimed to be good.* C6 makes it phase-critical — a
   measured statement about geometry, not about whether it is any fun to play.
 * *No claim about performance.* `shadowMap` is O(W·H·sensors·ray) and is intended

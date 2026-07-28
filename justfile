@@ -11,10 +11,35 @@ verify:
     #!/usr/bin/env bash
     set -euo pipefail
     cd src
-    for v in verify-kernel-parity verify-los verify-level verify-determinism verify-witness verify-falsifier; do
+    for v in verify-kernel-parity verify-los verify-level verify-corridor verify-determinism verify-witness verify-falsifier verify-renderer verify-3d-rule-search; do
         echo "== node $v.mjs =="
         node "$v.mjs"
     done
+
+# Build the shipped single-file bundle (C10). build.mjs syntax-checks the
+# exact shipped script and replays the witness on the transformed core.
+build:
+    cd src && node build.mjs && mv -f f117a-stealth-glider.html ../
+
+# The full gate: ledger, then prove the committed bundle is byte-identical
+# to a fresh rebuild. A stale bundle is a shipped artefact nobody verified.
+# (Compared with cmp against the root copy, not via git — git diff is silent
+# about untracked files, which is exactly the case that must fail.)
+test: verify
+    #!/usr/bin/env bash
+    set -euo pipefail
+    (cd src && node build.mjs >/dev/null)
+    if cmp -s src/f117a-stealth-glider.html f117a-stealth-glider.html; then
+        rm -f src/f117a-stealth-glider.html
+        echo "OK: bundle reproducible, ledger green"
+    else
+        rm -f src/f117a-stealth-glider.html
+        echo "STALE: committed f117a-stealth-glider.html differs from a fresh rebuild — run 'just build' and commit"; exit 1
+    fi
+
+# Open the game.
+play:
+    xdg-open f117a-stealth-glider.html 2>/dev/null || open f117a-stealth-glider.html
 
 # C6, the falsifier for the whole premise, on its own. GREEN, and part of
 # `verify` — kept as a separate recipe because it is the one to re-run in a
@@ -48,5 +73,5 @@ contracts-list:
     node scripts/contractiles.mjs --list
 
 # Everything CI gates on.
-ci: verify contracts
-    @echo "OK: gating ledger (incl. C6) and contractiles green"
+ci: test contracts
+    @echo "OK: gating ledger, bundle reproducibility and contractiles green"

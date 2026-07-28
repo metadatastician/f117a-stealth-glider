@@ -37,11 +37,15 @@ Two independent ways to lose:
 
 A trace-0 flight down an exposed corridor is still a dead flight.
 
-## Status: mechanic proven, level phase-critical, game not built
+## Status: playable, and every claim gates
 
-Of eight ledger claims, **all eight are green — including C6, the falsifier for
-the whole premise**, which was red from this repository's creation until the
-level geometry earned it.
+Of twelve ledger claims, **all twelve are green — including C6, the falsifier
+for the whole premise**, which was red from this repository's creation until
+the level geometry earned it. The game exists: a chase-camera 3D view over the
+same 2D Conway world (TAB for the tactical map), an exposure HUD, and one
+self-contained `f117a-stealth-glider.html` you can open from disk — built by
+`just build`, proven byte-reproducible at every CI run (C10), with the whole
+presentation layer proven unable to touch the mission (C7).
 
 > **C6.** Fly the same route from every launch phase. **14 of 14 off-phase
 > launches are shot down as PAINTED**, the on-phase flight lands with trace 0,
@@ -65,14 +69,20 @@ actually exposed (14/14 on the witness); and a **second pentadecathlon** at
 (66,79) plus gate range 23 sealed the peak-4 escape — a one-cell optimum whose
 neighbours measure 1/14 and 4/14.
 
-C6 now gates the build with the rest of the ledger. What does not exist yet is
-the *game*: no renderer, camera, input or bundle (C7, C10 reserved).
-See [`VERIFICATION.md`](./VERIFICATION.md) and [`AUDIT.adoc`](./AUDIT.adoc).
+C6 now gates the build with the rest of the ledger — and the once-reserved
+claim numbers landed with the game layer: C4 pins the corridor's phase-shaped
+danger, C7 proves the renderer a spectator, C9 lands the 3D-rule-search that
+ruled the world stays 2D, C10 makes the shipped bundle an artefact of the
+audited sources. See [`VERIFICATION.md`](./VERIFICATION.md),
+[`AUDIT.adoc`](./AUDIT.adoc) and [`ARCHITECTURE.md`](./ARCHITECTURE.md).
 
 ## Run it
 
 ```bash
-just verify      # the gating ledger (C1,C2,C3,C5,C6,C8,C11,C12)
+just play        # open the game (or just open f117a-stealth-glider.html)
+just build       # rebuild the single-file bundle from src/ (C10)
+just verify      # the gating ledger — all twelve claims
+just test        # ledger + bundle byte-reproducibility
 just falsifier   # C6 on its own — the loop to re-run while tuning geometry
 just measure     # the level's instrument panel
 just solve       # search for a witness route
