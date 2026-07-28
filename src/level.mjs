@@ -148,30 +148,39 @@ export function buildLevel(opts = {}) {
   // --- THE CHOKEPOINT. The corridor is y = x + 4; the wall crosses it at
   // (chokeX, chokeX + 4) and the gap is the only way south.
   const {
-    chokeX = 56, shutterAt = [68, 68], gateSensor = [76, 74], wallN = 5,
-    gateRange = 20, gapWide = 1,
-    // A SECOND sight line onto the same gap. With one emitter the gap is safe
-    // whenever its single ray is blocked, which is most phases; with two the gap
-    // is safe only when BOTH are blocked, which is far fewer. This is the lever
-    // that turns "the radar can kill you" into "the radar kills you unless you
-    // read the phase".
-    gate2 = null, gate2Range = 22, shutter2At = null,
+    chokeX = 56, shutterAt = [68, 68], gateSensor = [79, 73], wallN = 5,
+    gateRange = 23, gapWide = 1,
+    // gate2 was the hypothesis of a SECOND emitter — two sight lines onto the
+    // gap, safe only when both are blocked. It measured DEAD: a 2,016-config
+    // sweep of second-emitter positions produced zero viable levels (every
+    // candidate collided, broke periodicity, or sealed the map at all phases).
+    // What worked instead is a second SHUTTER on the one emitter — see below.
+    // The option is kept because the sweep that killed it is not in this file.
+    gate2 = null, gate2Range = 22, shutter2At = [66, 79],
   } = opts;
   const choke = wall(chokeX, chokeX + 4, W, H, gapWide);
 
-  // The shutter: a p15 pentadecathlon GRAZING the sight line between the gate
-  // sensor and the gap.
+  // TWO shutters, one emitter, both GRAZING — and every number here is a
+  // measurement (design/place.mjs pipeline; see verify-falsifier.mjs).
   //
-  // Tangency is deliberate and measured. A 72-point sweep of shutter positions
-  // shows the difference starkly: placed squarely ON the ray (e.g. [64,64]) it
-  // masks the gap at every phase — 15/15 launches land and peak exposure is a
-  // flat 7..7, i.e. the automaton contributes nothing. Moved to graze the ray at
-  // [68,68], only its extended phases occlude: 4/15 launches are shot down and
-  // peak exposure varies 7..8.
+  // Tangency first. A pentadecathlon squarely ON a sight line (e.g. [64,64])
+  // masks it at every phase — 15/15 launches land, peak exposure a flat 7..7,
+  // the automaton contributes nothing. Grazing at [68,68], only its extended
+  // phases occlude, and detection becomes phase-dependent. That got C6 from
+  // 0/30 to 4/14. Not a majority.
   //
-  // So the direction of the hypothesis is confirmed — grazing beats covering —
-  // but the magnitude is not yet enough for C6, which needs a majority. See
-  // AUDIT.adoc.
+  // The second penta, [66,79], exists to close a HOLE rather than to add
+  // cover. With the gate at range 22 the solver found a phase-invariant
+  // escape: a zigzag hugging the range circle on the egress leg, dipping into
+  // the disc for 3-4 generations and letting the dwell counter drain between
+  // dips — peak exposure 4, landing at all 15 phases without reading the
+  // substrate at all. Range 23 closes the duck cells; alone that seals the
+  // level shut at every phase, so [66,79] lies across the gate-to-egress rays
+  // and its extended phases re-open the crossing. The pair is a one-cell
+  // optimum: [67,79] measures 1/14 painted, [66,80] measures 4/14, and
+  // [66,79] measures 14/14 with the on-phase flight landing — while the
+  // exhaustive search finds NO route anywhere that stays below exposure 7
+  // (C6's fourth assertion).
   const shutter = [
     [OSC.penta, shutterAt[0], shutterAt[1]],
     ...(shutter2At ? [[OSC.penta, shutter2At[0], shutter2At[1]]] : []),
@@ -198,6 +207,17 @@ export function buildLevel(opts = {}) {
     // whole ingress and killed the aircraft 20 cells before the wall, which
     // makes the approach the puzzle instead of the gate. A short range is what
     // localises the threat to the chokepoint, where the shutter can modulate it.
+    //
+    // Its position and range are MEASURED, not chosen, and the level balances
+    // on them. An exposure diagnostic showed every launch phase peaking at 7
+    // or 8 of LOCK=8 — one dwell generation decides every flight — and at this
+    // range (23) the sensor no longer even sees the gap (distance 28.7): the
+    // decisive zone is the EGRESS corridor, where the route skirts the range
+    // disc. (79,73)/23 with the twin shutters above gives 14/14 off-phase
+    // PAINTED, an on-phase landing, and no sub-LOCK route in the whole state
+    // space; the old (76,74)/20 measured 4/14 and admitted a peak-4 escape.
+    // Nudging this sensor without re-running design/place.mjs and the C6
+    // falsifier will silently produce a walkover or an impossibility.
     {
       name: 'RDR-GATE', range: gateRange,
       cells: P.beehive.map(([x, y]) => [x + gateSensor[0], y + gateSensor[1]]),
@@ -256,20 +276,20 @@ export function buildLevel(opts = {}) {
     // the flight, not the search.
     //
     // The radar range this route depends on is knife-edged, and that is
-    // measured: design/sweep.mjs shows range <=36 solvable with ONE turn (the
-    // radar is then decoration), 38 and 40 playable, and >=42 unsolvable. 40 is
-    // chosen as the richest playable setting — 12 turns, 23 corridor cells able
-    // to reach LOCK. Changing radarRange without re-running the sweep will
-    // silently produce either a walkover or an impossibility.
+    // measured: design/sweep.mjs over 21 (range, LOCK) combinations finds
+    // EXACTLY ONE solvable — range 40, LOCK 8 — and that one is phase-critical
+    // (0/14 off-phase land). Range >=42 is unsolvable; LOCK 5 or 6 at range 40
+    // is unsolvable too, which is the no-escape property (C6's fourth
+    // assertion) seen from the other side. Changing radarRange without
+    // re-running the sweep will silently produce either a walkover or an
+    // impossibility.
     witness: [
       [0, 1, 1], [84, 1, -1], [88, 1, 1], [100, 1, -1],
       [104, 1, 1], [176, -1, 1], [180, 1, 1], [204, -1, 1],
-      [224, 1, 1], [228, -1, 1], [232, 1, 1], [236, -1, 1],
-      [240, 1, 1], [244, -1, 1], [252, 1, 1], [260, -1, 1],
-      [264, 1, 1], [268, -1, 1], [272, 1, 1], [280, -1, 1],
-      [284, 1, 1], [300, -1, 1], [304, 1, 1], [368, 1, -1],
-      [372, 1, 1], [376, 1, -1], [380, 1, 1], [384, 1, -1],
-      [412, 1, 1],
+      [224, 1, 1], [228, -1, 1], [236, 1, 1], [240, -1, 1],
+      [244, 1, 1], [252, -1, 1], [256, 1, 1], [264, -1, 1],
+      [268, 1, 1], [280, -1, 1], [284, 1, 1], [368, 1, -1],
+      [396, 1, 1],
     ],
   };
 }
