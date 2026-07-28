@@ -2,6 +2,7 @@ node_modules/
 /tmp/
 _site/
 src/f117a-stealth-glider.html
+src/.tmp/
 *.log
 .DS_Store
 
