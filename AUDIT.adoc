@@ -43,6 +43,7 @@ demonstrating it failing on purpose.
 | C9 | 3D Life has no glider ecology: 180 seeded soups per rule on a 24^3 torus, 0 translating patterns in Bays 5766 and 4555. The planning probe, landed as a permanent test.
 | C10 | The shipped bundle is byte-reproducible at every build, and the transformed core is re-proved to fly the witness (LANDED, trace 0, never locked) at build time.
 | C11 | The substrate is periodic from generation 0 — transient 0, period 15 as declared, population 210..294.
+| C13 | No launch beat is a dead end: solving from all 15 launch beats and flying each proposed route through the real engine gives 15/15 LANDED, trace 0, in 21/22/23/25 turns. With C6 this reads: phase-reading is mandatory AND always sufficient.
 | C12 | No two stamped patterns are within Chebyshev 3; everything is inside the border; the hangar zone is inside the grid; spawn is on a clean landing lane.
 |===
 
