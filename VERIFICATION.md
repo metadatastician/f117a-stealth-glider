@@ -92,6 +92,14 @@ consecutive painted run reaches `LOCK`** (36 do — the radar has teeth; exposur
 decays one per clean generation, so a flickering cell can never kill), and
 **cover exists** (42 cells are painted at no phase).
 
+C4 also asserts a property the *renderer* banks on: **the whole-map radar
+shadow is a function of substrate phase alone.** Walk six full periods and every
+repeated phase must produce a byte-identical map (75 repeats, 0 mismatches).
+`shadowMap` costs 23.5 ms — more than a 60 fps frame budget — so `ui.js`
+memoises it by phase, which is sound only while this holds. If a future level
+acquired a transient, the cache would silently serve a stale map of *where the
+radar can see*; this is what makes that loud.
+
 The counts are then pinned as declared values, C11-style: 31 always / 42 never
 / 8 phase-dependent, 36 lethal, 3 survivable. Any geometry change that shifts
 them without re-measuring turns this claim red — which is the point. The
@@ -190,6 +198,15 @@ committed witness twice — headless, and with the full camera-pursuit,
 shadow-map and draw-list path invoked every generation — and require every
 generation's world to hash identically and the outcomes to match.** 469
 generations, byte-identical.
+
+C7 also carries a **camera stability guard**, which is a regression test rather
+than an inertness claim. It exists because of a bug found in play: pressing any
+direction key threw the view into a spin — **1135 degrees of yaw in a single
+frame** — because a glider's heading changes instantly at phase 0 and the PID
+pursuit saw a step setpoint (derivative kick). The guard flies the witness, which
+turns 21 times, at 30, 60 and 144 fps and bounds the angular **rate** rather than
+the per-frame step, so a fix that merely looked smooth at 60 fps would still fail
+at 144. Canary-tested: reverting the fix reports 25,901 deg/sec and goes red.
 
 Ships with a canary (a deliberately mutating renderer must be caught by the
 same comparison — it is), plus two structural fences: `render3d.mjs` contains
