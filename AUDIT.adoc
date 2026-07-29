@@ -35,10 +35,10 @@ demonstrating it failing on purpose.
 | C1 | `src/kernel/engine.mjs` is byte-identical to f19@9effa596, and `src/mission.mjs` is that file plus five fenced blocks. Asserted as git blob ids, so it is cryptographic and offline. Canary: a one-token edit outside a fence breaks it.
 | C2 | Supercover line of sight does not leak through a diagonal wall — 0 of 4489 cross-wall pairs. Canary: naive Bresenham leaks 1009 of 4489 through the same wall.
 | C3 | A radar does not occlude itself. Canary: without the footprint exemption it blinds itself 5/5.
-| C4 | The nominal corridor's exposure is phase-shaped and pinned: 31 always / 42 never / 8 phase-dependent of 81 cells, 36 with a consecutive run >= LOCK. Structural gates plus exact declared counts.
+| C4 | The nominal corridor's exposure is phase-shaped and pinned: 31 always / 42 never / 8 phase-dependent of 81 cells, 36 with a consecutive run >= LOCK. Structural gates plus exact declared counts. Also: the whole-map shadow is a function of substrate phase alone (75 repeats, 0 mismatches) — the property the renderer's phase cache rests on.
 | C5 | The witness route LANDS at t=469, trace 0, peak exposure 7 of 8 — and was painted at some point, so it is not trivially safe.
 | C6 | The falsifier: 14 of 14 off-phase launches of the witness are PAINTED, the on-phase flight lands, and the exhaustive search finds no route that stays below exposure 7. The level is solvable only by reading phase.
-| C7 | The renderer and camera are inert: the witness flown with and without the full presentation path hashes identically at all 469 generations. Canary: a mutating renderer is caught. render3d.mjs has no clock, no randomness, no imports.
+| C7 | The renderer and camera are inert: the witness flown with and without the full presentation path hashes identically at all 469 generations. Canary: a mutating renderer is caught. render3d.mjs has no clock, no randomness, no imports. Carries a camera-stability regression guard (<= 2.7 rad/sec across 21 turns at 30/60/144 fps), canary-tested at 25,901 deg/sec.
 | C8 | Determinism, checked twice over: no non-determinism primitive in the four simulation modules, and two full runs hash identically across every generation.
 | C9 | 3D Life has no glider ecology: 180 seeded soups per rule on a 24^3 torus, 0 translating patterns in Bays 5766 and 4555. The planning probe, landed as a permanent test.
 | C10 | The shipped bundle is byte-reproducible at every build, and the transformed core is re-proved to fly the witness (LANDED, trace 0, never locked) at build time.

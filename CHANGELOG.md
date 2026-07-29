@@ -7,6 +7,41 @@ Copyright (c) 2026 Jonathan D.A. Jewell (hyperpolymath)
 
 Including what is *not* finished, and what was retracted.
 
+## [Unreleased] — play-driven fixes (2026-07-28)
+
+### Fixed
+- **The camera spun on every turn.** Reported from play: any direction key threw
+  the view into "an erratic shit show, flashing rapidly different angles".
+  Reproduced as **1135 degrees of yaw in a single frame** — derivative kick, because
+  a glider's heading changes instantly at phase 0 and the PID pursuit saw a step
+  setpoint. Fixed by easing the commanded direction and clamping acceleration,
+  velocity, yaw rate and dt. Now ~150 deg/sec regardless of frame rate. C7 carries
+  the regression guard, canary-tested at 25,901 deg/sec.
+- **The radar shadow was recomputed every CA tick at 23.5 ms a call** — more than a
+  60 fps frame budget, ~70% of a core at speed 3. Memoised by substrate phase:
+  only 15 distinct maps exist (C11), so the cost becomes an array index
+  (0.0002 ms). C4 asserts the property the cache rests on; a contractile probe
+  fails if the call moves into the frame loop.
+- **GitHub Pages had never been enabled**, so the restored `pages.yml` deployed
+  into a 404. Enabled with `build_type: workflow`; the live site is byte-identical
+  to the committed bundle.
+
+### Added
+- `design/period.mjs` — the tool `src/level.mjs` already cited but which did not
+  exist. Measures every oscillator's period in isolation (C11 is blind to the three
+  the level does not place) and performs the `lcm` arithmetic the PERIOD comment
+  only stated in prose.
+- `scripts/metadata-citations.mjs` — a critical probe: every `src/` and `design/`
+  path cited anywhere in `.machine_readable/` must exist, and another level's
+  vocabulary fails. It found 27 dead paths and 45 foreign references.
+
+### Changed
+- **The machine-readable tree described the wrong game.** Nine files still carried
+  f19's level — a Gosper gun as this level's primitive, the wrong spawn and hangar,
+  and a `[settled-questions]` block recording f19's rulings as closed here. None of
+  it could fail a check, because the fields it sat behind (`tolerance:`,
+  `injection_probe:`, drill-only `recovery_probe:`) are not executed by the runner.
+
 ## [Unreleased] — the game, and the last four claims (2026-07-28)
 
 ### Added

@@ -7,6 +7,9 @@
 **Operation Nightglass** — a stealth puzzle on a live Conway's Game of Life field,
 where what hides you is a cell standing between you and the radar.
 
+**[▶ Play it](https://metadatastician.github.io/f117a-stealth-glider/)** —
+one self-contained file, no dependencies, runs offline.
+
 </div>
 
 ---
@@ -88,7 +91,14 @@ just measure     # the level's instrument panel
 just solve       # search for a witness route
 just sweep       # scalar sweep: range x LOCK
 just place       # PLACEMENT sweep: chokepoint, shutter and sensor positions
+just period      # every oscillator's period, measured in isolation
+just contracts   # the contractile probes
+just ci          # everything CI gates on
 ```
+
+Controls: **←↑↓→ / WASD** steer (turns latch on beat 1) · **ENTER** launch ·
+**TAB** chase camera / tactical map · **SPACE** hold · **1/2/3** speed ·
+**H** the in-game honesty ledger.
 
 Node ≥ 18. No dependencies — there is nothing to install. Without `just`, every
 script runs directly: `cd src && node verify-los.mjs`.
@@ -132,6 +142,7 @@ glider.
 |---|---|
 | [`VERIFICATION.md`](./VERIFICATION.md) | The ledger. Every claim cites a script you can run. **Start here.** |
 | [`AUDIT.adoc`](./AUDIT.adoc) | What is verified, what is argued, and what is **not** claimed. |
+| [`ARCHITECTURE.md`](./ARCHITECTURE.md) | The layers, and why the world is 2D while the camera is 3D. |
 | [`KERNEL-DIVERGENCE.md`](./KERNEL-DIVERGENCE.md) | Exactly how this reuses f19's kernel, and how that is enforced. |
 | [`spike/README.md`](./spike/README.md) | The 3D prototype, and its seven defects with line cites. |
 
