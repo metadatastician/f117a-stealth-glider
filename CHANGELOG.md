@@ -9,6 +9,15 @@ Including what is *not* finished, and what was retracted.
 
 ## [Unreleased] — play-driven fixes (2026-07-28)
 
+### Added
+- **C13 — no launch beat is a dead end** (`src/verify-beats.mjs`). Prompted by a
+  question that exposed a gap: C6 measures the SAME route flown from every phase
+  (14 of 15 die — the falsifier working), and nothing measured whether *some*
+  route exists from each beat. It does: **15 of 15 launch beats LAND with trace 0**,
+  in 21/22/23/25 turns — different routes, asserted to be distinct. Phase-reading
+  is mandatory (C6) and always sufficient (C13). `design/solver.mjs` gained a
+  `startPhase` option to make the question askable at all.
+
 ### Fixed
 - **The camera spun on every turn.** Reported from play: any direction key threw
   the view into "an erratic shit show, flashing rapidly different angles".

@@ -62,7 +62,13 @@ export function solve(L, buildFn, opts = {}) {
   };
 
   const startH = HEADINGS.indexOf(L.spawnHeading.join(','));
-  const start = idx(L.spawn[0], L.spawn[1], startH, 0, 0);
+  // The substrate phase AT LAUNCH. The player chooses when to press go, and the
+  // automaton has been running the whole time, so a launch at generation t
+  // begins at phase t mod P. Defaulting to 0 answers "is there a route if you
+  // launch on the beat"; sweeping it answers the far more interesting question
+  // of whether EVERY launch beat has a route of its own — see design/beats.mjs.
+  const startPhase = ((opts.startPhase ?? 0) % P + P) % P;
+  const start = idx(L.spawn[0], L.spawn[1], startH, startPhase, 0);
   seen[start] = 1;
 
   let frontier = [start], goal = -1, depth = 0, visited = 1;

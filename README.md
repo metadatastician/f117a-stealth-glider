@@ -42,7 +42,7 @@ A trace-0 flight down an exposed corridor is still a dead flight.
 
 ## Status: playable, and every claim gates
 
-Of twelve ledger claims, **all twelve are green — including C6, the falsifier
+Of thirteen ledger claims, **all thirteen are green — including C6, the falsifier
 for the whole premise**, which was red from this repository's creation until
 the level geometry earned it. The game exists: a chase-camera 3D view over the
 same 2D Conway world (TAB for the tactical map), an exposure HUD, and one
@@ -54,6 +54,11 @@ presentation layer proven unable to touch the mission (C7).
 > launches are shot down as PAINTED**, the on-phase flight lands with trace 0,
 > and the exhaustive search finds **no route in the whole state space that
 > stays below exposure 7**. The level is solvable only by reading phase.
+>
+> **C13.** And yet **all 15 launch beats are playable** — solving from each one
+> and flying the result through the real engine gives 15/15 landed, trace 0, in
+> 21/22/23/25 turns. A *canned* route dies off-phase; a *steered* one never has
+> to. Reading the automaton is mandatory **and always sufficient**.
 
 The gate got *stronger* before the level passed it. The majority assertion was
 tightened to say what its sentence says (`painted > n/2`; the old form accepted
@@ -84,7 +89,8 @@ audited sources. See [`VERIFICATION.md`](./VERIFICATION.md),
 ```bash
 just play        # open the game (or just open f117a-stealth-glider.html)
 just build       # rebuild the single-file bundle from src/ (C10)
-just verify      # the gating ledger — all twelve claims
+just verify      # the gating ledger — the fast set
+just beats       # C13 — every launch beat is playable (~80s)
 just test        # ledger + bundle byte-reproducibility
 just falsifier   # C6 on its own — the loop to re-run while tuning geometry
 just measure     # the level's instrument panel
