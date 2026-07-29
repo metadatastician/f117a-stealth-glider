@@ -93,6 +93,19 @@ jobs:
   # A contractile probe (ci-runs-the-cited-ledger) now forbids reintroducing
   # a fail-allowed job here.
 
+  beats:
+    name: C13 - no launch beat is a dead end
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Its own job purely for RUNTIME: 15 full state-space searches plus 15
+    # flights is ~80s, which does not belong in the fast local ledger loop.
+    # It gates like everything else here.
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: C13 - every launch beat admits a route
+        working-directory: src
+        run: node verify-beats.mjs
+
   contracts:
     name: contractile probes
     runs-on: ubuntu-latest
