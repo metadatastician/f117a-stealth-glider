@@ -47,6 +47,12 @@ play:
 falsifier:
     cd src && node verify-falsifier.mjs
 
+# C13 — no launch beat is a dead end. Solves the level from all 15 launch
+# beats and flies each proposed route through the real engine. ~80s, so it is
+# a separate CI job rather than part of the fast `verify` loop.
+beats:
+    cd src && node verify-beats.mjs
+
 # The level's instrument panel: periodicity, exposure, cover.
 measure:
     node design/measure.mjs

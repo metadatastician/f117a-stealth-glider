@@ -19,7 +19,7 @@ type = "game"
 last-updated = "2026-07-28"
 branch = "main"
 build-status = "green"
-test-status = "12-claim ledger (C1-C12), all green and all GATING in CI on every push; plus bundle byte-reproducibility and 63 contractile probes. `just ci` runs the lot."
+test-status = "13-claim ledger (C1-C13), all green and all GATING in CI on every push; plus bundle byte-reproducibility and 65 contractile probes. C13 is a separate CI job purely for runtime (~80s). `just ci` runs the fast set; `just beats` runs C13."
 
 [project-context]
 description = "A stealth puzzle played on a live Conway's Game of Life field (B3/S23). The player flies a single glider across a hostile cellular-automaton airspace to a hangar without ever contacting the substrate's live cells — and without being SEEN. Threat is radar: sensors cast supercover line-of-sight across the corridor, and the only cover that moves is the automaton itself, so staying hidden means reading the substrate's phase. Every threat is a real Life pattern evolving deterministically, not a scripted sprite."
@@ -31,7 +31,7 @@ module-system = "esm"
 runtime = "node >= 18 (verification) / any modern browser (play)"
 dependencies = "none"
 depends-on = []
-distribution = "single self-contained f117a-stealth-glider.html at the repo root; published to GitHub Pages from the committed, verified artefact"
+distribution = "single self-contained f117a-stealth-glider.html at the repo root; published to GitHub Pages from the committed, verified artefact. LIVE: https://metadatastician.github.io/f117a-stealth-glider/ — Pages had never been enabled on the repo, which is why the deploy 404d rather than the workflow being wrong."
 
 [level]
 # src/level.mjs is the single source of truth — this mirrors it, it does not
@@ -65,8 +65,8 @@ engine = { percent = 100, notes = "src/kernel/engine.mjs — VENDORED VERBATIM f
 mission = { percent = 100, notes = "src/mission.mjs — DECLARED FORK of f19's mission core plus five fenced blocks carrying the radar channel. C1 strips the fences and requires the remainder to hash to blob 30f93a70." }
 radar = { percent = 100, notes = "src/radar.mjs — supercover LOS, sensor self-occlusion exemption, exposure dwell, shadowMap. C2 and C3, both canary-tested." }
 level = { percent = 100, notes = "src/level.mjs — Operation Nightglass geometry. Knife-edged: the gate sensor and shutter positions are one-cell optima found by sweep, not chosen." }
-render3d = { percent = 100, notes = "src/render3d.mjs — pure chase camera + draw list. No DOM, no clock, no randomness, no imports. C7 proves it cannot influence the mission." }
-ui = { percent = 90, notes = "src/ui.js — browser render, input and HUD only; carries no gameplay truth. Owns the repository's only frame clock, legitimate because C7 fences the layer below it." }
+render3d = { percent = 100, notes = "src/render3d.mjs — pure chase camera + draw list. No DOM, no clock, no randomness, no imports. C7 proves it cannot influence the mission, and carries a stability guard after a play-reported bug: a step setpoint on every turn drove the PID into derivative kick, 1135 degrees of yaw in ONE frame. Commanded direction is now eased and every rate is clamped; the guard bounds the RATE at 30/60/144 fps so a 60-fps-only fix cannot pass." }
+ui = { percent = 90, notes = "src/ui.js — browser render, input and HUD only; carries no gameplay truth. Owns the repository's only frame clock, legitimate because C7 fences the layer below it. Memoises the radar shadow BY SUBSTRATE PHASE: shadowMap costs 23.5 ms, more than a 60 fps frame, and only 15 distinct maps exist (C11), so the per-tick cost becomes an array index." }
 verification = { percent = 100, notes = "12-claim ledger C1-C12 in VERIFICATION.md, every claim a named script under src/, all gating." }
 bundle = { percent = 100, notes = "src/build.mjs emits the self-contained HTML, syntax-checks the shipped script and replays the witness on the TRANSFORMED core; CI asserts byte-identity with the committed file (C10)." }
 
@@ -79,6 +79,8 @@ resolved = [
   { question = "Should the world be a 3D automaton so the player is a genuine 3D spaceship?", answer = "No. The third dimension moves to the camera.", evidence = "src/verify-3d-rule-search.mjs (C9)", cause = "3D Life has no glider ECOLOGY: 180 seeded soups per rule on a 24^3 torus produce 0 translating patterns in Bays 5766 and in 4555. Bays's gliders exist only from directed search, and an ecology you must construct by hand is not an ecology." },
   { question = "Would a SECOND gate sensor onto the gap make the level phase-critical?", answer = "No — measured dead.", evidence = "design/place.mjs pipeline, 2,016 configurations", cause = "Every candidate collided, broke periodicity, or sealed the map at all phases. A second SHUTTER on the existing sensor is what worked instead." },
   { question = "May the renderer use a frame clock, when C8 bans clocks from the simulation?", answer = "Yes, above the C7 line.", evidence = "src/verify-renderer.mjs (C7)", cause = "The witness flown with and without the entire presentation path hashes identically at all 469 generations, with a canary proving a mutating renderer is caught. The exclusion is earned by proof, not granted by convenience." },
+  { question = "Does C6 mean only ONE launch beat is playable?", answer = "NO — and the confusion was real enough to become a claim.", evidence = "src/verify-beats.mjs (C13)", cause = "C6 flies the SAME committed route from all 15 phases and 14 die, which is the falsifier working: a canned route must not survive phase drift. But a player steers rather than replaying a recording. Solving from every beat and flying each proposed route through the real engine gives 15 of 15 LANDED, trace 0, in 21/22/23/25 turns — different routes, so not one route in disguise. Phase-reading is mandatory (C6) and always sufficient (C13). Do NOT re-tune the level to make one route survive more beats: that is C6 going red." },
+  { question = "May the renderer CACHE the radar shadow instead of recomputing it?", answer = "Yes, keyed by substrate phase — and the key is asserted, not assumed.", evidence = "src/verify-corridor.mjs (C4)", cause = "shadowMap costs 23.5 ms per call, more than a 60 fps frame budget and about 70% of a core at 30 generations per second. The substrate is periodic from generation 0 with period 15, so only fifteen distinct shadow maps exist while the world is pure substrate. C4 walks six periods and requires byte-identical repeats; the cache is bypassed once the aircraft is spliced into the world, because then the phase no longer identifies it." },
   { question = "Should the contact rule be relaxed from Chebyshev 2 to cell-overlap?", answer = "No — that trips the standing falsifier inherited from f19.", evidence = "Design invariant; src/mission.mjs nearWorld(M, cells, 2)", cause = "Chebyshev 3 is the exact independence criterion: while the aircraft keeps it, 'not being in the world' and 'being in it' are provably indistinguishable. Relaxing it makes the route learnable by feel, which turns the substrate back into scenery." },
 ]
 
@@ -92,7 +94,8 @@ remaining = [
 [route-to-next]
 remaining = [
   { item = "A second level, to prove the engine and the grammar generalise beyond one frozen geometry", priority = "high" },
-  { item = "Playtest the camera and HUD for readability — nothing measures whether the game is any good, only that it is honest", priority = "high" },
+  { item = "Playtest for FEEL, not for solvability — the solvability question is now closed by C13. Open: whether the camera ease reads as sluggish, and whether speed 3 makes the single decisive dwell generation unreactable", priority = "high" },
+  { item = "Playtest continues. First pass found a real bug (camera derivative kick, fixed). Still unmeasured: whether a human can fly a 21-turn route with turns latching on specific beats, and whether speed 3 makes the decisive single dwell generation unreactable", priority = "high" },
   { item = "Promote design/place.mjs's sweep pipeline into a reusable level-search harness", priority = "medium" },
   { item = "Measure shadowMap's per-tick cost against a frame budget; AUDIT records that nothing does yet", priority = "low" },
 ]
