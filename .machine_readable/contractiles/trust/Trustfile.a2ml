@@ -53,7 +53,7 @@ destroy the project's entire premise without breaking anything visible.
 
 #### no-network-calls-at-runtime
 - description: The game makes no network requests — it is a single self-contained file
-- run: "! grep -rlE '\\b(fetch|XMLHttpRequest|WebSocket|import\\(|require\\()' src/*.mjs src/ui.js 2>/dev/null | head -1 | grep -q ."
+- run: "! grep -rlE '\\b(fetch|XMLHttpRequest|WebSocket|import\\(|require\\()' src/*.mjs src/kernel/*.mjs src/ui.js 2>/dev/null | head -1 | grep -q ."
 - severity: critical
 - notes: The shipped bundle must run offline from a file:// URL with no external fetches.
 
@@ -120,5 +120,5 @@ destroy the project's entire premise without breaking anything visible.
   - .machine_readable/contractiles/
   - .github/CODEOWNERS
   - src/level.mjs          # frozen geometry — the design itself (D-02)
-  - src/engine.mjs         # the B3/S23 substrate; changes invalidate the whole ledger
+  - src/kernel/engine.mjs  # the VENDORED B3/S23 substrate; no local change is ever permitted (C1)
   - VERIFICATION.md        # claims may only change alongside a re-run of their script

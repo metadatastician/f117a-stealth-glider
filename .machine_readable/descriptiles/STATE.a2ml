@@ -3,73 +3,99 @@
 #
 # Current project state, phase, and route to the next milestone.
 # Machine-readable snapshot; keep in sync with README.md and VERIFICATION.md.
+#
+# This file described the WRONG GAME until 2026-07-28. The repository was
+# scaffolded by copying f19-stealth-glider, and this snapshot arrived carrying
+# that repository's level, threats, scripts and settled questions. Nothing
+# could catch it: the probe that claimed to guard it had only a prose
+# `tolerance:` field, which the contractile runner does not execute.
+# scripts/metadata-citations.mjs now checks this file mechanically — every
+# source path it cites must exist, and another level's vocabulary fails.
 
 [metadata]
 project = "F117A Stealth Glider"
 version = "0.1.0"
 type = "game"
-last-updated = "2026-07-22"
+last-updated = "2026-07-28"
 branch = "main"
 build-status = "green"
-test-status = "cited ledger (verify1,2,3,8,9 + build) green in CI on every push; exploratory scripts 4,5,6,7,10 run only via `just verify-all`"
+test-status = "13-claim ledger (C1-C13), all green and all GATING in CI on every push; plus bundle byte-reproducibility and 65 contractile probes. C13 is a separate CI job purely for runtime (~80s). `just ci` runs the fast set; `just beats` runs C13."
 
 [project-context]
-description = "A stealth puzzle played on a live Conway's Game of Life field (B3/S23). The player flies a single glider across a hostile cellular-automaton airspace to a hangar without ever contacting the substrate's live cells. Every threat is a real Life pattern evolving deterministically — a Gosper gun firing a period-30 glider stream, eaters, and still-life terrain — not a scripted sprite."
+description = "A stealth puzzle played on a live Conway's Game of Life field (B3/S23). The player flies a single glider across a hostile cellular-automaton airspace to a hangar without ever contacting the substrate's live cells — and without being SEEN. Threat is radar: sensors cast supercover line-of-sight across the corridor, and the only cover that moves is the automaton itself, so staying hidden means reading the substrate's phase. Every threat is a real Life pattern evolving deterministically, not a scripted sprite."
 subtitle = "Operation Nightglass"
-tagline = "The substrate is the enemy."
+tagline = "The substrate is the enemy — and the only cover."
 substrate = "B3/S23"
 language = "javascript"
 module-system = "esm"
 runtime = "node >= 18 (verification) / any modern browser (play)"
 dependencies = "none"
 depends-on = []
-distribution = "single self-contained f117a-stealth-glider.html at the repo root"
+distribution = "single self-contained f117a-stealth-glider.html at the repo root; published to GitHub Pages from the committed, verified artefact. LIVE: https://metadatastician.github.io/f117a-stealth-glider/ — Pages had never been enabled on the repo, which is why the deploy 404d rather than the workflow being wrong."
 
 [level]
-# src/level.mjs is FROZEN — this mirrors it, it does not override it.
-name = "Operation Nightglass v2"
+# src/level.mjs is the single source of truth — this mirrors it, it does not
+# override it. Every value below is asserted by a contractile `- run:` grep or
+# by claim C12, so a drift here fails rather than misleads.
+name = "Operation Nightglass"
 width = 172
 height = 108
-spawn = "[8, 16] heading [1, 1] (SE)"
-hangar = "[86, 94]"
-fence-row = "y = 54, posts at x = 0, 8, 16, 24, 32, 36, 56, 60"
-breach = "anchors 44..47 — the passable columns are exactly 40..51 (verify9)"
-stream-lane = 14
-gun-box = "[0, 0, 40, 13] (Gosper gun)"
-clean-glidepath = "-8 (the single clean SE landing lane; verify3)"
+spawn = "[12, 16] heading [1, 1] (SE)"
+hangar = "[92, 96] (sym-4 eater1)"
+corridor = "y = x + 4, from [12,16] to [92,96]"
+chokepoint = "wall() across the corridor at chokeX = 56, 2x2 blocks stepped 5 along (1,-1), spanning the full in-bounds line, with a single 1-wide gap"
+shutters = "two pentadecathlons at [68,68] and [66,79] — the second seals the sub-LOCK escape route"
+sensors = "RDR-1 [88,8], RDR-2 [14,74], RDR-3 [140,66] at radarRange 40; RDR-GATE [79,73] at its own range 23"
+clean-glidepaths = "[-10, -4, 3] — measured, 3 of 21 lanes land cleanly; spawn sits on lane -4"
+period = "15 (lcm of p15 pentadecathlon and p3 pulsar), transient 0 — C11"
+lock = "8 (exposure dwell; +1 painted, -1 clean)"
+# f19-contrast: there is deliberately no Gosper gun in this level.
+# A gun's 347-generation transient would destroy C11's transient-0 property,
+# on which the solver's `phase = t mod P` indexing and therefore C6 both rest.
+# f19-contrast: see the block titled WHY NO GOSPER GUN in src/level.mjs.
 
 [roadmap]
-phases = "v0 Nightglass > v1 searchlight gate > v2 sealed barrier > multi-level campaign"
-current-phase = "v0 Nightglass"
-phase-goal = "One complete, fully verified level whose substrate is provably load-bearing: unsolvable by feel, solvable by reading the automaton."
-phase-status = "complete and verified — the level ships, the ledger is green, the central geometric question is closed."
+phases = "v0 Nightglass (level + ledger) > v1 playable (renderer, camera, bundle) > v2 second level > multi-level campaign"
+current-phase = "v1 playable"
+phase-goal = "One complete, fully verified level whose substrate is provably load-bearing — unsolvable by feel, solvable by reading the automaton — and a playable artefact whose presentation layer provably cannot touch the mission."
+phase-status = "complete and verified. C6 (the falsifier) is green at 14/14 off-phase PAINTED with no sub-LOCK route anywhere in the state space; the game ships as one reproducible bundle; all twelve claims gate CI."
 
 [component-status]
-engine = { percent = 90, notes = "src/engine.mjs — B3/S23 step, RLE, 8 symmetries, bounds-checked stamp, pattern library, empirically derived glider kinematics, shadow-filtered findGlider. Stable; changes here invalidate the whole ledger." }
-mission = { percent = 85, notes = "src/mission.mjs — player overlay, Chebyshev contact rule, sensors, trace accounting frozen at the hangar threshold, ambient stepping after mission end." }
-level = { percent = 100, notes = "src/level.mjs — FROZEN. Operation Nightglass v2 geometry; the single source of truth." }
-ui = { percent = 70, notes = "src/ui.js — browser render + input only; carries no gameplay truth." }
-verification = { percent = 95, notes = "11-claim ledger in VERIFICATION.md; verify1,2,3,8,9 + build cited and CI-enforced." }
-bundle = { percent = 100, notes = "src/build.mjs emits the self-contained HTML and replays the witness on the transformed core; CI asserts byte-identity with the committed file." }
+engine = { percent = 100, notes = "src/kernel/engine.mjs — VENDORED VERBATIM from f19@9effa596, blob c7a016ec. No local changes are permitted; fix upstream and re-vendor. C1 asserts it as a git blob id, offline." }
+mission = { percent = 100, notes = "src/mission.mjs — DECLARED FORK of f19's mission core plus five fenced blocks carrying the radar channel. C1 strips the fences and requires the remainder to hash to blob 30f93a70." }
+radar = { percent = 100, notes = "src/radar.mjs — supercover LOS, sensor self-occlusion exemption, exposure dwell, shadowMap. C2 and C3, both canary-tested." }
+level = { percent = 100, notes = "src/level.mjs — Operation Nightglass geometry. Knife-edged: the gate sensor and shutter positions are one-cell optima found by sweep, not chosen." }
+render3d = { percent = 100, notes = "src/render3d.mjs — pure chase camera + draw list. No DOM, no clock, no randomness, no imports. C7 proves it cannot influence the mission, and carries a stability guard after a play-reported bug: a step setpoint on every turn drove the PID into derivative kick, 1135 degrees of yaw in ONE frame. Commanded direction is now eased and every rate is clamped; the guard bounds the RATE at 30/60/144 fps so a 60-fps-only fix cannot pass." }
+ui = { percent = 90, notes = "src/ui.js — browser render, input and HUD only; carries no gameplay truth. Owns the repository's only frame clock, legitimate because C7 fences the layer below it. Memoises the radar shadow BY SUBSTRATE PHASE: shadowMap costs 23.5 ms, more than a 60 fps frame, and only 15 distinct maps exist (C11), so the per-tick cost becomes an array index." }
+verification = { percent = 100, notes = "12-claim ledger C1-C12 in VERIFICATION.md, every claim a named script under src/, all gating." }
+bundle = { percent = 100, notes = "src/build.mjs emits the self-contained HTML, syntax-checks the shipped script and replays the witness on the TRANSFORMED core; CI asserts byte-identity with the committed file (C10)." }
 
 [settled-questions]
-# Recorded here because they are CLOSED. Do not re-derive them.
+# Recorded here because they are CLOSED, with the evidence that closed them.
+# Every citation below is to a script in THIS repository that you can run.
 resolved = [
-  { question = "Is a p30 glider stream crossable at all under this geometry?", answer = "No — 0/30 clean crossings at every launch phase.", evidence = "src/verify8.mjs, VERIFICATION.md claim #4", cause = "Geometry, not phase: 15-unit glider spacing against a ~17-unit exclusion diameter, so no phase-gap is ever wide enough. Under a true cell-overlap rule with no proximity radius, 21/30 phases overlap outright and the remaining 9 pass only at Chebyshev-1, an adjacency that annihilates on the next generation." },
-  { question = "Should the contact rule be relaxed to overlap-only to make the crossing passable?", answer = "No — that trips the standing falsifier.", evidence = "Design invariant; see 0-AI-MANIFEST.a2ml", cause = "Overlap-only makes the crossing learnable by feel, which converts the substrate into scenery and fails v0's premise. The route goes AROUND the stream instead." },
-  { question = "How many clean eater1 landing lanes exist?", answer = "Exactly one (lambda = 0).", evidence = "src/verify3.mjs, VERIFICATION.md claim #3", cause = "An earlier out-of-bounds `stamp` bug wrapped silently and produced a phantom second lane. `stamp` now throws; the corrected sweep shows one." },
+  { question = "Is the level phase-critical, or is the radar scenery?", answer = "Phase-critical, measured.", evidence = "src/verify-falsifier.mjs (C6)", cause = "The witness flown at all 14 off-phase launches dies PAINTED 14 times while the on-phase flight lands with trace 0; and an exhaustive search over (anchor, heading, phase, exposure) finds NO route that stays below exposure LOCK-1. Every flyable line grazes one generation from death, so the only freedom is WHEN." },
+  { question = "Was it enough to prove the SHIPPED ROUTE dies off-phase?", answer = "No — and that gap was real.", evidence = "src/verify-falsifier.mjs fourth assertion", cause = "Witness-scoped assertions cannot see a DIFFERENT route that lands at every phase. One existed: a zigzag hugging the gate sensor's range circle, dipping in for 3-4 generations and draining the dwell counter between dips, peak exposure 4, landing at all 15 phases. Sealing it took gate range 23 plus a second shutter at [66,79]." },
+  { question = "Should the world be a 3D automaton so the player is a genuine 3D spaceship?", answer = "No. The third dimension moves to the camera.", evidence = "src/verify-3d-rule-search.mjs (C9)", cause = "3D Life has no glider ECOLOGY: 180 seeded soups per rule on a 24^3 torus produce 0 translating patterns in Bays 5766 and in 4555. Bays's gliders exist only from directed search, and an ecology you must construct by hand is not an ecology." },
+  { question = "Would a SECOND gate sensor onto the gap make the level phase-critical?", answer = "No — measured dead.", evidence = "design/place.mjs pipeline, 2,016 configurations", cause = "Every candidate collided, broke periodicity, or sealed the map at all phases. A second SHUTTER on the existing sensor is what worked instead." },
+  { question = "May the renderer use a frame clock, when C8 bans clocks from the simulation?", answer = "Yes, above the C7 line.", evidence = "src/verify-renderer.mjs (C7)", cause = "The witness flown with and without the entire presentation path hashes identically at all 469 generations, with a canary proving a mutating renderer is caught. The exclusion is earned by proof, not granted by convenience." },
+  { question = "Does C6 mean only ONE launch beat is playable?", answer = "NO — and the confusion was real enough to become a claim.", evidence = "src/verify-beats.mjs (C13)", cause = "C6 flies the SAME committed route from all 15 phases and 14 die, which is the falsifier working: a canned route must not survive phase drift. But a player steers rather than replaying a recording. Solving from every beat and flying each proposed route through the real engine gives 15 of 15 LANDED, trace 0, in 21/22/23/25 turns — different routes, so not one route in disguise. Phase-reading is mandatory (C6) and always sufficient (C13). Do NOT re-tune the level to make one route survive more beats: that is C6 going red." },
+  { question = "May the renderer CACHE the radar shadow instead of recomputing it?", answer = "Yes, keyed by substrate phase — and the key is asserted, not assumed.", evidence = "src/verify-corridor.mjs (C4)", cause = "shadowMap costs 23.5 ms per call, more than a 60 fps frame budget and about 70% of a core at 30 generations per second. The substrate is periodic from generation 0 with period 15, so only fifteen distinct shadow maps exist while the world is pure substrate. C4 walks six periods and requires byte-identical repeats; the cache is bypassed once the aircraft is spliced into the world, because then the phase no longer identifies it." },
+  { question = "Should the contact rule be relaxed from Chebyshev 2 to cell-overlap?", answer = "No — that trips the standing falsifier inherited from f19.", evidence = "Design invariant; src/mission.mjs nearWorld(M, cells, 2)", cause = "Chebyshev 3 is the exact independence criterion: while the aircraft keeps it, 'not being in the world' and 'being in it' are provably indistinguishable. Relaxing it makes the route learnable by feel, which turns the substrate back into scenery." },
 ]
 
 [open-decisions]
 remaining = [
-  { item = "Whether v1 introduces the queen-bee-shuttle searchlight gate or the sealed-barrier layout first", resolve-by = "start of v1", notes = "Both were scoped in design and are already ruled in; period-thinning was explored and abandoned." },
+  { item = "Whether the second level reuses the chokepoint-and-shutter grammar or looks for a different phase mechanism", resolve-by = "start of v2", notes = "The current level's parameters are one-cell optima; whether that fragility is inherent to the grammar or an artefact of this geometry is unknown." },
   { item = "Whether level content should be split out of src/level.mjs into a data file under a content licence (CC-BY-SA-4.0)", resolve-by = "when a second level exists", notes = "Today the level is code and is AGPL like everything else, so no content licence is vendored." },
+  { item = "Whether LOCK = 8 is justified specifically, rather than merely bounded", resolve-by = "when a second level exists", notes = "design/sweep.mjs shows LOCK 5 and 6 make this level unsolvable, which bounds it from below. AUDIT.adoc carries this as argued, not verified." },
 ]
 
 [route-to-next]
 remaining = [
-  { item = "Design v1's gate (searchlight or sealed barrier) against the same standing falsifier", priority = "high" },
-  { item = "Promote the exploratory design-search scripts (verify4,5,6,7,10) into a reusable level-search harness", priority = "medium" },
-  { item = "Add an in-game phase readout so the player can read the automaton without counting ticks by hand", priority = "medium" },
-  { item = "Second level, to prove the engine generalises beyond one frozen geometry", priority = "medium" },
+  { item = "A second level, to prove the engine and the grammar generalise beyond one frozen geometry", priority = "high" },
+  { item = "Playtest for FEEL, not for solvability — the solvability question is now closed by C13. Open: whether the camera ease reads as sluggish, and whether speed 3 makes the single decisive dwell generation unreactable", priority = "high" },
+  { item = "Playtest continues. First pass found a real bug (camera derivative kick, fixed). Still unmeasured: whether a human can fly a 21-turn route with turns latching on specific beats, and whether speed 3 makes the decisive single dwell generation unreactable", priority = "high" },
+  { item = "Promote design/place.mjs's sweep pipeline into a reusable level-search harness", priority = "medium" },
+  { item = "Measure shadowMap's per-tick cost against a frame budget; AUDIT records that nothing does yet", priority = "low" },
 ]

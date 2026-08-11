@@ -27,10 +27,17 @@ rebuild (C10).
 | C10 | The shipped bundle is byte-reproducible and re-proved completable at build | `src/build.mjs` + CI diff | green |
 | C11 | The substrate is periodic from generation 0 | `src/verify-level.mjs` | green |
 | C12 | No two stamped patterns can react | `src/verify-level.mjs` | green |
+| C13 | No launch beat is a dead end — every one admits a route | `src/verify-beats.mjs` | green |
 
 No claim numbers are reserved any more: C4, C7, C9 and C10 — held open while
 the corridor metric lived only in `design/measure.mjs` and the renderer,
-inertness proof and bundle did not exist — landed with the game layer.
+inertness proof and bundle did not exist — landed with the game layer. C13 was
+added afterwards, when a question about C6 revealed that nothing measured the
+other half of the story.
+
+C13 runs ~80 seconds (fifteen full state-space searches plus fifteen flights),
+so it is a separate CI job rather than part of the fast `just verify` loop. It
+gates like everything else; `just beats` runs it.
 
 ---
 
@@ -91,6 +98,14 @@ cells exist** (8 — the cells that are the game), **at least one cell's longest
 consecutive painted run reaches `LOCK`** (36 do — the radar has teeth; exposure
 decays one per clean generation, so a flickering cell can never kill), and
 **cover exists** (42 cells are painted at no phase).
+
+C4 also asserts a property the *renderer* banks on: **the whole-map radar
+shadow is a function of substrate phase alone.** Walk six full periods and every
+repeated phase must produce a byte-identical map (75 repeats, 0 mismatches).
+`shadowMap` costs 23.5 ms — more than a 60 fps frame budget — so `ui.js`
+memoises it by phase, which is sound only while this holds. If a future level
+acquired a transient, the cache would silently serve a stale map of *where the
+radar can see*; this is what makes that loud.
 
 The counts are then pinned as declared values, C11-style: 31 always / 42 never
 / 8 phase-dependent, 36 lethal, 3 survivable. Any geometry change that shifts
@@ -191,12 +206,48 @@ shadow-map and draw-list path invoked every generation — and require every
 generation's world to hash identically and the outcomes to match.** 469
 generations, byte-identical.
 
+C7 also carries a **camera stability guard**, which is a regression test rather
+than an inertness claim. It exists because of a bug found in play: pressing any
+direction key threw the view into a spin — **1135 degrees of yaw in a single
+frame** — because a glider's heading changes instantly at phase 0 and the PID
+pursuit saw a step setpoint (derivative kick). The guard flies the witness, which
+turns 21 times, at 30, 60 and 144 fps and bounds the angular **rate** rather than
+the per-frame step, so a fix that merely looked smooth at 60 fps would still fail
+at 144. Canary-tested: reverting the fix reports 25,901 deg/sec and goes red.
+
 Ships with a canary (a deliberately mutating renderer must be caught by the
 same comparison — it is), plus two structural fences: `render3d.mjs` contains
 none of C8's nondeterminism primitives (the frame clock lives in `ui.js`,
 *above* the proven line), and `render3d.mjs` imports **nothing** — mission
 state arrives as arguments, so the layering is visible in the import graph
 rather than asserted in prose. See `ARCHITECTURE.md`.
+
+## C13 — no launch beat is a dead end
+
+`node src/verify-beats.mjs` (or `just beats`)
+
+**C6 is easy to misread, and this is the claim that stops the misreading.**
+
+C6 flies the *same committed route* from all fifteen substrate phases and finds
+that fourteen die. That is the falsifier working: a canned route must not
+survive phase drift, or the automaton is scenery and the game is a memory test.
+
+It does **not** mean "you may only launch on one beat". A player does not replay
+a recording; they steer. So the question that decides whether the level is
+*playable* rather than merely *provable* is a different one — **from how many
+launch beats does SOME route exist?**
+
+Measured, solving from every beat and flying each proposed route through the
+real `missionStep`:
+
+> **15 of 15 launch beats admit a route that LANDS with trace 0**, in 21, 22,
+> 23 or 25 turns depending on the beat, every one grazing peak exposure 7 of 8.
+
+The route lengths differ, which is the second assertion: they are not one route
+in disguise. Reading the automaton is therefore **mandatory** (C6) and **always
+sufficient** (C13). A player who presses ENTER at an awkward moment has a harder
+route, not a lost game — the level never punishes them before they have done
+anything wrong, which would be unfair rather than hard.
 
 ## C8 — determinism
 

@@ -14,12 +14,14 @@ purpose = "A stealth puzzle whose enemy is a cellular automaton. The player flie
 scope = "One complete, fully verified level (Operation Nightglass v0). Deliberately small: the point is that the substrate is provably load-bearing, demonstrated once and rigorously, rather than sprawled across many levels."
 
 [architecture]
-substrate = "src/engine.mjs — B3/S23 core: bounded grid, step, RLE, the 8 symmetries, bounds-checked stamp, named pattern library, empirically derived glider kinematics, shadow-filtered findGlider."
+substrate = "src/kernel/engine.mjs — VENDORED VERBATIM from f19; B3/S23 core: bounded grid, step, RLE, the 8 symmetries, bounds-checked stamp, named pattern library, empirically derived glider kinematics, shadow-filtered findGlider."
 mission = "src/mission.mjs — player overlay, Chebyshev contact rule, sensors, trace accounting, hangar splice, ambient stepping."
-level = "src/level.mjs — FROZEN Operation Nightglass v2 geometry; single source of truth."
-presentation = "src/ui.js — browser render and input; no gameplay truth."
+level = "src/level.mjs — Operation Nightglass geometry; single source of truth. Knife-edged: gate sensor and shutter positions are one-cell optima found by sweep."
+radar = "src/radar.mjs — supercover line of sight, sensor self-occlusion exemption, exposure dwell, shadow map."
+renderer = "src/render3d.mjs — pure chase camera and draw list; no DOM, no clock, no randomness, no imports. Proven inert by C7."
+presentation = "src/ui.js — browser render, input and HUD; no gameplay truth. Owns the only frame clock in the repository."
 distribution = "src/build.mjs -> f117a-stealth-glider.html, a single self-contained file with no dependencies."
-verification = "src/verify1..10.mjs + VERIFICATION.md — 11 claims, each discharged by a named script."
+verification = "src/verify-*.mjs + VERIFICATION.md — 12 claims (C1-C12), each discharged by a named script, all gating."
 
 [dependencies]
 runtime = []
@@ -30,7 +32,9 @@ notes = "Zero dependencies by design (D-08). Node >= 18 for the verification scr
 projects = [
   { name = "IDApTIK", relationship = "sibling", notes = "The estate's other game, also under metadatastician. Shares the governance and machine-readable conventions, no code." },
   { name = "Conway's Game of Life (B3/S23)", relationship = "substrate", notes = "Not a dependency — the rule itself, implemented from scratch in engine.mjs." },
-  { name = "Gosper glider gun", relationship = "level-primitive", notes = "The period-30 stream generator that forms the impassable eastern border. Verified to emit one isolated SE glider every 30 generations on lane 14." },
+  { name = "Pentadecathlon (p15)", relationship = "level-primitive", notes = "The shutter oscillator. Two of them graze the gate sensor's sight lines, opening and closing the only survivable crossing on a 15-beat cycle. Period measured in isolation by design/period.mjs." },
+  { name = "Pulsar (p3)", relationship = "level-primitive", notes = "The other placed oscillator; with the pentadecathlon it sets the substrate period to lcm(3,15) = 15 (C11)." },
+  { name = "Eater 1 (sym-4)", relationship = "level-primitive", notes = "The hangar. Absorbs an arriving SE glider cleanly on exactly 3 of 21 measured approach lanes." },
 ]
 
 [boundaries]

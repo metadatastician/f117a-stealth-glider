@@ -1024,6 +1024,35 @@ const BACK = 13, UP = 9, FLY_Z = 2.0;
 const NEAR = 0.5;               // camera-space clip plane (cells)
 const FOV = 1.15;               // vertical field of view, radians
 
+// --- limits, and why they exist -------------------------------------------
+//
+// MEASURED BUG, fixed here: pressing any direction key threw the view into a
+// spin — 1135 degrees of yaw in a SINGLE frame, flying the witness route.
+//
+// The cause is derivative kick, the classic failure of a PID given a step
+// setpoint. A glider's heading changes INSTANTLY at phase 0, so on a turn:
+//   * wantYaw steps by ~90 degrees, and
+//   * the chase point swings to the other side of the aircraft — `want` moves
+//     by up to 2*BACK = 26 cells between one frame and the next.
+// The derivative term is (error - prevError)/dt, so at 60 fps that step is
+// multiplied by ~60. The controller commands an enormous rate, overshoots,
+// the error flips sign, and it oscillates: the view flashes between angles.
+//
+// The controllers themselves are NOT the bug and are left faithful to
+// spike/simulation.html. The fix is to stop handing them a discontinuity —
+// an airframe's COMMANDED attitude does not teleport either — and to bound
+// what they can ask for. TURN_SMOOTH eases the commanded direction; the MAX_*
+// clamps mean that even an unforeseen step cannot produce a spin. dt is
+// clamped too, because at very high frame rates a small dt inflates every
+// derivative.
+const TURN_SMOOTH = 3.5;        // 1/sec — commanded direction easing
+const MAX_ACC = 140;            // cells/sec^2
+const MAX_VEL = 45;             // cells/sec
+const MAX_YAW_RATE = 2.6;       // rad/sec — about 150 deg/sec
+const MAX_DT = 1 / 30;          // sec — bound the derivative at any frame rate
+
+const clamp = (v, lo, hi) => (v < lo ? lo : v > hi ? hi : v);
+
 function createCamera(L) {
   const [sx, sy] = L.spawn;
   const [hx, hy] = L.spawnHeading;
@@ -1036,6 +1065,9 @@ function createCamera(L) {
     roll: 0,
     // pursuit state
     vel: [0, 0, 0],
+    // The COMMANDED direction, eased toward the glider's actual heading. The
+    // glider turns in one tick; the camera's idea of "behind" does not.
+    dir: [hx / n, hy / n],
     // controllers: position pursuit per axis, yaw pursuit, and the mixer
     // shaping the visible attitude. Gains tuned for the glider's 1 cell per
     // 4 generations pace at the shipped speeds; deterministic by construction.
@@ -1064,9 +1096,17 @@ function angDiff(a, b) {
  * target: [x, y] glider anchor (cells); heading: [hx, hy] current heading.
  */
 function stepCamera(cam, target, heading, dt) {
-  if (dt <= 0) return cam;
+  if (!(dt > 0)) return cam;
+  dt = Math.min(dt, MAX_DT);
   const n = Math.hypot(heading[0], heading[1]) || 1;
-  const dir = [heading[0] / n, heading[1] / n];
+  // Ease the COMMANDED direction toward the actual heading rather than
+  // snapping to it. This is what keeps a step out of the controllers: see the
+  // derivative-kick note above the constants.
+  const k = Math.min(1, TURN_SMOOTH * dt);
+  cam.dir[0] += (heading[0] / n - cam.dir[0]) * k;
+  cam.dir[1] += (heading[1] / n - cam.dir[1]) * k;
+  const dn = Math.hypot(cam.dir[0], cam.dir[1]) || 1;
+  const dir = [cam.dir[0] / dn, cam.dir[1] / dn];
   const want = [
     target[0] + 0.5 - dir[0] * BACK,
     target[1] + 0.5 - dir[1] * BACK,
@@ -1074,20 +1114,21 @@ function stepCamera(cam, target, heading, dt) {
   ];
   // PID pursuit -> acceleration, integrated with damping. The damping factor
   // is what keeps the discrete 4-generation hops of the glider from arriving
-  // in the camera as kicks.
+  // in the camera as kicks; the clamps keep any residual step from becoming
+  // a spin.
   const acc = [
-    cam.pidX.compute(want[0], cam.pos[0], dt),
-    cam.pidY.compute(want[1], cam.pos[1], dt),
-    cam.pidZ.compute(want[2], cam.pos[2], dt),
+    clamp(cam.pidX.compute(want[0], cam.pos[0], dt), -MAX_ACC, MAX_ACC),
+    clamp(cam.pidY.compute(want[1], cam.pos[1], dt), -MAX_ACC, MAX_ACC),
+    clamp(cam.pidZ.compute(want[2], cam.pos[2], dt), -MAX_ACC, MAX_ACC),
   ];
   for (let i = 0; i < 3; i++) {
-    cam.vel[i] = (cam.vel[i] + acc[i] * dt) * Math.max(0, 1 - 2.2 * dt);
+    cam.vel[i] = clamp((cam.vel[i] + acc[i] * dt) * Math.max(0, 1 - 2.2 * dt), -MAX_VEL, MAX_VEL);
     cam.pos[i] += cam.vel[i] * dt;
   }
   // Yaw pursues the heading; the yaw-rate command becomes the roll command
   // through the mixer, so the view banks into turns and levels out of them.
   const wantYaw = Math.atan2(dir[1], dir[0]);
-  const yawRate = cam.pidYaw.compute(0, angDiff(cam.yaw, wantYaw), dt);
+  const yawRate = clamp(cam.pidYaw.compute(0, angDiff(cam.yaw, wantYaw), dt), -MAX_YAW_RATE, MAX_YAW_RATE);
   cam.yaw += yawRate * dt;
   const surfaces = cam.mixer.mix(
     0.22 * (cam.pos[2] - FLY_Z) / UP,     // pitch command: settle onto the sightline
@@ -1351,16 +1392,48 @@ function bootF117A() {
   let speed = 2; const GPS = [0, 8, 16, 30];
   let launchT = 0, endSnapshot = null;
   let acc = 0, lastTs = 0;
-  let shadow = shadowMap(M.world, M.W, M.H, M.radar), shadowT = M.t;
+  // The shadow map, memoised BY SUBSTRATE PHASE.
+  //
+  // shadowMap is O(W*H*sensors*ray) and measures 23.5 ms on this level — one
+  // call already exceeds a 16.7 ms frame budget, and at speed 3 (30 gens/sec)
+  // recomputing it every tick costs about 70% of a core. Recomputing it per
+  // FRAME, which radar.mjs warns against, would be ~85x a frame budget.
+  //
+  // But the substrate is periodic from generation 0 with period 15 (C11), so
+  // while the world is pure substrate there are only ever FIFTEEN distinct
+  // shadow maps. Computing each once and looking it up thereafter turns the
+  // dominant per-tick cost into an array index. The property that makes the
+  // level fair — that the automaton repeats, so the player can read it — is
+  // the same property that makes drawing it cheap.
+  //
+  // The exception is exact rather than cautious: once the aircraft has been
+  // SPLICED into the world (contact), the world is no longer the pure
+  // substrate and the phase no longer identifies it, so the cache is bypassed
+  // for the rest of the mission. That state resolves within 26 generations to
+  // reacquisition or MIA, so the slow path is short-lived by construction.
+  let shadowByPhase = new Array(L.period).fill(null);
+  let shadow = null, shadowT = -1;
+  function refreshShadow() {
+    if (M.splices.length) { shadow = shadowMap(M.world, M.W, M.H, M.radar); shadowT = M.t; return; }
+    const ph = ((M.t % L.period) + L.period) % L.period;
+    if (!shadowByPhase[ph]) shadowByPhase[ph] = shadowMap(M.world, M.W, M.H, M.radar);
+    shadow = shadowByPhase[ph]; shadowT = M.t;
+  }
+  refreshShadow();
 
   function markAlive() { const w = M.world, la = lastAlive; for (let i = 0; i < w.length; i++) if (w[i]) la[i] = M.t; }
   markAlive();
 
   function newMission() {
+    // Read the OUTGOING mission's splice state before M is reassigned: the
+    // cache survives a refly — same level, same substrate, same fifteen maps —
+    // but a mission that spliced must not hand its polluted maps on.
+    const wasPolluted = M.splices.length > 0;
     M = createMission(L); cam = createCamera(L);
     lastAlive = new Int32Array(L.W * L.H).fill(-99);
     desired = [...L.spawnHeading]; endSnapshot = null; paused = false; markAlive();
-    shadow = shadowMap(M.world, M.W, M.H, M.radar); shadowT = M.t;
+    if (wasPolluted) shadowByPhase = new Array(L.period).fill(null);
+    refreshShadow();
   }
 
   // ---------- flavors ----------
@@ -1456,8 +1529,9 @@ function bootF117A() {
         endSnapshot = { trace: M.trace }; mode = 'DEBRIEF';
       }
     }
-    // shadowMap on CA tick, never per frame — see the cost note in radar.mjs.
-    if (M.t !== shadowT) { shadow = shadowMap(M.world, M.W, M.H, M.radar); shadowT = M.t; }
+    // On CA tick, never per frame — see the cost note in radar.mjs and the
+    // phase-cache note above.
+    if (M.t !== shadowT) refreshShadow();
   }
 
   // ---------- 3D view ----------

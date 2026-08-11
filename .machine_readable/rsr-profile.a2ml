@@ -32,9 +32,11 @@ capabilities = [
 # Capabilities intentionally NOT declared (no corresponding code in tree):
 #   rust, zig, idris2, affinescript — the project is plain JavaScript (ESM)
 #   ffi, abi              — no foreign function or ABI seam of any kind
-#   formal-proofs         — verification here is exhaustive empirical sweep over
-#                           all 30 phases, plus an argued spacing lemma. It is
-#                           NOT mechanised proof, and is not claimed as such.
+#   formal-proofs         — verification here is exhaustive empirical measurement:
+#                           every launch phase flown, a full state-space search
+#                           for a counterexample route, and cryptographic blob
+#                           identity for the vendored kernel. It is NOT
+#                           mechanised proof, and is not claimed as such.
 #   container             — no container/ or .devcontainer/
 #   reproducible-build    — no build/guix.scm. NOTE: the BUNDLE is byte-for-byte
 #                           reproducible and CI enforces it, but that is artefact
