@@ -8,7 +8,7 @@
 // was decided by this search, run during planning and landed here as a
 // permanent test so the decision cannot quietly become folklore.
 //
-// Protocol (the one cited in spike/README.md and README.md):
+// Protocol (the one cited in spike/README.md and README.adoc):
 //   180 random soups per rule on a 24^3 torus, up to 160 generations each,
 //   spaceship detection by exact normalised-shape repeat plus displacement.
 //

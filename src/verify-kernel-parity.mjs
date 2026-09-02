@@ -24,7 +24,7 @@
 // files to a specific commit of a specific repository.
 //
 // If upstream is deliberately re-based onto a newer f19, update UPSTREAM below
-// and say why in KERNEL-DIVERGENCE.md. That is a decision; drift is not.
+// and say why in KERNEL-DIVERGENCE.adoc. That is a decision; drift is not.
 //
 // Run: node verify-kernel-parity.mjs
 

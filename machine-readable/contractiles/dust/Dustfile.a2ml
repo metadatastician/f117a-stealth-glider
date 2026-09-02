@@ -71,5 +71,5 @@ drift — none of which block a build.
 
 ### changelog-present
 - description: A CHANGELOG exists and is not empty
-- run: test -s CHANGELOG.md
+- run: test -s CHANGELOG.adoc
 - severity: info

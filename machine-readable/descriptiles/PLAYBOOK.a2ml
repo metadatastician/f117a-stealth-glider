@@ -49,7 +49,7 @@ action-pinning = "The org enforces sha_pinning_required. Every `uses:` must be a
 
 [incident-response]
 # 1. Read machine-readable/descriptiles/STATE.a2ml for the current phase and settled questions.
-# 2. Read VERIFICATION.md — if a claim is in doubt, run its named script directly.
+# 2. Read VERIFICATION.adoc — if a claim is in doubt, run its named script directly.
 # 3. `just test` reproduces the CI gate locally in full.
 # 4. If CI shows startup_failure at 0s, a workflow `uses:` lost its SHA pin.
 # 5. If the bundle diff fails, run `just build` and commit the regenerated HTML.
@@ -60,6 +60,6 @@ action-pinning = "The org enforces sha_pinning_required. Every `uses:` must be a
 # 1. Update version in machine-readable/descriptiles/STATE.a2ml, META.a2ml, and package.json.
 # 2. Run `just test` AND `just contracts` — both must be green. No release claim
 #    without a hard pass; a skipped step is a failed step.
-# 3. Confirm VERIFICATION.md matches what the scripts actually printed.
-# 4. Update CHANGELOG.md.
+# 3. Confirm VERIFICATION.adoc matches what the scripts actually printed.
+# 4. Update CHANGELOG.adoc.
 # 5. Sign off (git commit -s), tag, push, and confirm CI + Pages are green.

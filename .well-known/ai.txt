@@ -16,7 +16,7 @@ Disallow-Generation: yes
 #   machine-readable/descriptiles/STATE.a2ml       (current state; note
 #                                                    [settled-questions] — those
 #                                                    are closed, do not re-derive)
-#   VERIFICATION.md                                 (the claim ledger)
+#   VERIFICATION.adoc                                 (the claim ledger)
 #   machine-readable/descriptiles/AGENTIC.a2ml     (hard constraints)
 #
 # One constraint deserves stating here, because it is the constraint an agent is

@@ -36,36 +36,36 @@ generic template.
 - severity: critical
 
 ### readme-present
-- description: README.md must exist
-- run: test -f README.md
+- description: README.adoc must exist
+- run: test -f README.adoc
 - severity: critical
 
 ### verification-ledger-present
-- description: VERIFICATION.md — the 12-claim ledger (C1-C12) — must exist
-- run: test -f VERIFICATION.md
+- description: VERIFICATION.adoc — the 12-claim ledger (C1-C12) — must exist
+- run: test -f VERIFICATION.adoc
 - severity: critical
 - notes: This is the project's centre of gravity; every design claim is discharged there.
 
 ### ai-manifest-present
 - description: The root agent-facing documents exist
-- run: test -f README.md && test -f VERIFICATION.md && test -f AUDIT.adoc && test -f KERNEL-DIVERGENCE.md
+- run: test -f README.adoc && test -f VERIFICATION.adoc && test -f AUDIT.adoc && test -f KERNEL-DIVERGENCE.adoc
 - severity: critical
 
 ### governance-docs
 - description: The full governance set must exist
-- run: "{ test -f GOVERNANCE.adoc || test -f GOVERNANCE.md; } && { test -f MAINTAINERS.adoc || test -f MAINTAINERS; } && test -f CODE_OF_CONDUCT.md && test -f CONTRIBUTING.md && test -f SECURITY.md && test -f .github/CODEOWNERS"
+- run: "{ test -f GOVERNANCE.adoc || test -f GOVERNANCE.adoc; } && { test -f MAINTAINERS.adoc || test -f MAINTAINERS; } && test -f CODE_OF_CONDUCT.adoc && test -f CONTRIBUTING.adoc && test -f SECURITY.adoc && test -f .github/CODEOWNERS"
 - severity: critical
 - notes: The RSR template specifies GOVERNANCE.adoc / MAINTAINERS.adoc; older estate repos use .md / extensionless. Either satisfies this probe.
 
 ### readme-trio-present
 - description: The README / EXPLAINME / AFFIRMATION trio exists
-- run: test -f README.md && test -f EXPLAINME.adoc && test -f AFFIRMATION.adoc
+- run: test -f README.adoc && test -f EXPLAINME.adoc && test -f AFFIRMATION.adoc
 - severity: warning
 - notes: Three tenses. README is aspirational, EXPLAINME is mechanism, AFFIRMATION is a frozen falsifiable instant. The third is the one that decays — it names a commit SHA and is a draft once HEAD moves past it.
 
 ### audit-and-changelog-present
-- description: AUDIT.adoc and CHANGELOG.md exist
-- run: test -f AUDIT.adoc && test -f CHANGELOG.md
+- description: AUDIT.adoc and CHANGELOG.adoc exist
+- run: test -f AUDIT.adoc && test -f CHANGELOG.adoc
 - severity: warning
 
 ### hygiene-config

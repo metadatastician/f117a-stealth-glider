@@ -67,7 +67,7 @@ success-criteria = [
 invariants = [
   "The substrate is real B3/S23 and is never special-cased.",
   "src/level.mjs is frozen; a failing route is redesigned or recorded, never tuned away.",
-  "Every VERIFICATION.md claim cites a script runnable with plain `node`.",
+  "Every VERIFICATION.adoc claim cites a script runnable with plain `node`.",
   "Claims are quantified over ALL 30 launch phases, not sampled.",
   "Negative results are shipped, not deleted.",
 ]
@@ -80,7 +80,7 @@ must-have-golden-path = true
 notes = "There are no satellites today. A second level or an alternative frontend would be one, and would inherit the substrate semantics above without the right to redefine them."
 
 [semantic-authority-files]
-verification-ledger = "VERIFICATION.md"
+verification-ledger = "VERIFICATION.adoc"
 decision-records = "machine-readable/descriptiles/META.a2ml"
 frozen-level = "src/level.mjs"
 substrate = "src/kernel/engine.mjs"

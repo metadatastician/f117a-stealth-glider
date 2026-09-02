@@ -21,10 +21,10 @@ rules = [
   { name = "no-runtime-dependencies", scope = "package.json", severity = "critical", notes = "No `dependencies` or `devDependencies` keys. Zero dependencies is a design property (D-08)." },
   { name = "contact-radius-unchanged", scope = "src/mission.mjs", pattern = "nearWorld\\(M, cells, 2\\)", severity = "critical", notes = "The shipped contact rule is Chebyshev radius 2. Widening it to overlap-only trips the standing falsifier — the route becomes learnable by feel and the substrate becomes scenery." },
   { name = "stamp-throws-on-oob", scope = "src/kernel/engine.mjs", pattern = "stamp out of bounds", severity = "critical", notes = "stamp() must throw, never clip or wrap. Silent wrapping manufactured a phantom clean landing lane upstream, which is why the vendored kernel throws (D-06)." },
-  { name = "level-frozen", scope = "src/level.mjs", severity = "warning", notes = "Geometry changes invalidate the entire ledger. Any edit here must be accompanied by a full re-run of `just verify` (all twelve claims) and an updated VERIFICATION.md." },
+  { name = "level-frozen", scope = "src/level.mjs", severity = "warning", notes = "Geometry changes invalidate the entire ledger. Any edit here must be accompanied by a full re-run of `just verify` (all twelve claims) and an updated VERIFICATION.adoc." },
   { name = "b3s23-purity", scope = "src/kernel/engine.mjs", severity = "warning", notes = "The step rule is born-on-3 / survive-on-2-or-3, applied uniformly. Flag any per-cell exception, entity table, or scripted mover." },
   { name = "bundle-freshness", severity = "warning", notes = "f117a-stealth-glider.html must be byte-identical to a fresh `just build`. Flag commits touching src/ that leave it untouched." },
-  { name = "ledger-claim-has-script", scope = "VERIFICATION.md", severity = "warning", notes = "Every claim row must cite a script that exists in src/ and is runnable with plain `node`." },
+  { name = "ledger-claim-has-script", scope = "VERIFICATION.adoc", severity = "warning", notes = "Every claim row must cite a script that exists in src/ and is runnable with plain `node`." },
   { name = "root-metadata-placement", severity = "info", notes = "State/metadata belongs under machine-readable/, not the repo root (the root holds no metadata file of its own)." },
 ]
 
@@ -38,7 +38,7 @@ translation-invariance = "Life is translation-invariant away from borders. Sweep
 prohibited-nondeterminism = "No unseeded RNG, no wall-clock reads, and no iteration-order dependence anywhere in the four simulation modules (kernel/engine.mjs, mission.mjs, radar.mjs, level.mjs). The renderer is excluded because C7 proves it inert, not because it is awkward."
 
 [verification-semantics]
-ledger = "VERIFICATION.md"
+ledger = "VERIFICATION.adoc"
 cited-scripts = ["src/verify-kernel-parity.mjs", "src/verify-los.mjs", "src/verify-level.mjs", "src/verify-corridor.mjs", "src/verify-determinism.mjs", "src/verify-witness.mjs", "src/verify-falsifier.mjs", "src/verify-renderer.mjs", "src/verify-3d-rule-search.mjs", "src/build.mjs"]
 cited-semantics = "All twelve claims GATE. There is no exploratory tier and no continue-on-error: C6 ran red under that flag from this repository's creation until the level geometry earned it, and was folded into the gating ledger the day it went green."
 design-tools = ["design/measure.mjs", "design/period.mjs", "design/solve.mjs", "design/solver.mjs", "design/sweep.mjs", "design/place.mjs"]

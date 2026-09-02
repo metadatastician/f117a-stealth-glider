@@ -40,13 +40,13 @@ F117A Stealth Glider is NOT:
 
 Ask before touching: `src/level.mjs` (frozen geometry), the contact rule in
 `src/mission.mjs`, the B3/S23 step in `src/kernel/engine.mjs`, the licence, or any
-claim in `VERIFICATION.md`. Changing any of these invalidates the ledger.
+claim in `VERIFICATION.adoc`. Changing any of these invalidates the ledger.
 
 ## Committed Next-Actions
 
 ### v0-shipped
 - description: One complete, fully verified level whose substrate is provably load-bearing
-- probe: test -f f117a-stealth-glider.html && test -f VERIFICATION.md
+- probe: test -f f117a-stealth-glider.html && test -f VERIFICATION.adoc
 - status: complete
 - notes: Ledger green; the central geometric question (stream crossability) is closed.
 

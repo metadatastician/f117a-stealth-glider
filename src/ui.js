@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (c) 2026 Jonathan D.A. Jewell (hyperpolymath) <j.d.a.jewell@open.ac.uk>
 // F117A Stealth Glider — UI shell. Everything below the DOM boundary is the
-// audited core; this file is presentation only (see ARCHITECTURE.md). It owns
+// audited core; this file is presentation only (see ARCHITECTURE.adoc). It owns
 // the repository's only frame clock — legitimate here because claim C7 proves
 // the layer beneath it cannot influence the mission.
 'use strict';

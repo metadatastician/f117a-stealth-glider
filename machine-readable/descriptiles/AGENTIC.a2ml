@@ -64,13 +64,13 @@ require-evidence-per-step = true
 allow-silent-skip = false
 require-rerun-after-fix = true
 release-claim-requires-hard-pass = true
-ledger-claims-require-named-script = true   # every VERIFICATION.md row cites a runnable script
+ledger-claims-require-named-script = true   # every VERIFICATION.adoc row cites a runnable script
 
 [automation-hooks]
-# on-enter:  Read machine-readable/descriptiles/STATE.a2ml, then VERIFICATION.md,
+# on-enter:  Read machine-readable/descriptiles/STATE.a2ml, then VERIFICATION.adoc,
 #            then AUDIT.adoc for what is NOT claimed.
 # on-change: If src/ changed, run `just test` (ledger + rebuild + reproducibility diff).
-#            If a claim changed, update VERIFICATION.md in the same commit.
+#            If a claim changed, update VERIFICATION.adoc in the same commit.
 #            If machine-readable/ changed, run `just contracts`.
 # on-commit: Sign off (git commit -s). Commit email must be the GitHub noreply
 #            address — pushing with a private email is blocked by GH007.

@@ -15,7 +15,7 @@
 
 **Which ledger claims does this affect?**
 
-<!-- List them by number from VERIFICATION.md, or write "none" if this is docs,
+<!-- List them by number from VERIFICATION.adoc, or write "none" if this is docs,
      CI, or tooling only. -->
 
 **Paste the output of the scripts you ran.** A claim without a run is not a

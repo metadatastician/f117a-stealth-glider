@@ -22,7 +22,7 @@ proposes corrective actions. Advisory — it warns and trends, it does not block
 
 ### fiction-count
 - description: Exactly one departure from pure Life is admitted — the pre-contact player overlay
-- tolerance: 1 declared fiction, documented in README.md and VERIFICATION.md
+- tolerance: 1 declared fiction, documented in README.adoc and VERIFICATION.adoc
 - corrective: Either eliminate the new fiction or document and justify it in the ledger
 - severity: advisory
 - notes: Undeclared fictions are how a substrate quietly becomes scenery.
@@ -36,14 +36,14 @@ proposes corrective actions. Advisory — it warns and trends, it does not block
 ## Verification Drift
 
 ### ledger-script-correspondence
-- description: Every VERIFICATION.md claim cites a script that exists and runs
+- description: Every VERIFICATION.adoc claim cites a script that exists and runs
 - tolerance: 0 claims citing a missing script, a transcript, or "see above"
 - corrective: Write the script, or restate the claim as an argued disclosure
 - severity: advisory
-- notes: Every claim row in VERIFICATION.md cites a named script under src/ that runs with plain `node`. C4, C7, C9 and C10 were held as RESERVED numbers rather than quietly reused while their scripts did not exist; they landed with the game layer.
+- notes: Every claim row in VERIFICATION.adoc cites a named script under src/ that runs with plain `node`. C4, C7, C9 and C10 were held as RESERVED numbers rather than quietly reused while their scripts did not exist; they landed with the game layer.
 
 ### ci-runs-what-is-cited
-- description: The CI ledger and the VERIFICATION.md citations do not diverge
+- description: The CI ledger and the VERIFICATION.adoc citations do not diverge
 - tolerance: CI runs every cited script; exploratory scripts stay excluded
 - corrective: Reconcile .github/workflows/ci.yml with the ledger table
 - severity: advisory
@@ -60,7 +60,7 @@ proposes corrective actions. Advisory — it warns and trends, it does not block
 ### state-freshness
 - description: STATE.a2ml tracks the real phase and component status
 - tolerance: STATE.a2ml last-updated within one milestone of HEAD
-- corrective: Refresh machine-readable/descriptiles/STATE.a2ml from README.md + VERIFICATION.md
+- corrective: Refresh machine-readable/descriptiles/STATE.a2ml from README.adoc + VERIFICATION.adoc
 - severity: advisory
 
 ### settled-questions-stay-settled
@@ -70,7 +70,7 @@ proposes corrective actions. Advisory — it warns and trends, it does not block
 - severity: advisory
 
 ### readme-ledger-agreement
-- description: README.md's stated results match VERIFICATION.md
+- description: README.adoc's stated results match VERIFICATION.adoc
 - tolerance: 0 numeric disagreements (0/30, 21/30, 9/30, 30/30, 15 vs ~17 units)
 - corrective: The ledger wins; correct the README
 - severity: advisory

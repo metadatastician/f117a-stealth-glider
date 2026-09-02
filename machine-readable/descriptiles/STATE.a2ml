@@ -2,7 +2,7 @@
 # STATE.a2ml — F117A Stealth Glider
 #
 # Current project state, phase, and route to the next milestone.
-# Machine-readable snapshot; keep in sync with README.md and VERIFICATION.md.
+# Machine-readable snapshot; keep in sync with README.adoc and VERIFICATION.adoc.
 #
 # This file described the WRONG GAME until 2026-07-28. The repository was
 # scaffolded by copying f19-stealth-glider, and this snapshot arrived carrying
@@ -67,7 +67,7 @@ radar = { percent = 100, notes = "src/radar.mjs — supercover LOS, sensor self-
 level = { percent = 100, notes = "src/level.mjs — Operation Nightglass geometry. Knife-edged: the gate sensor and shutter positions are one-cell optima found by sweep, not chosen." }
 render3d = { percent = 100, notes = "src/render3d.mjs — pure chase camera + draw list. No DOM, no clock, no randomness, no imports. C7 proves it cannot influence the mission, and carries a stability guard after a play-reported bug: a step setpoint on every turn drove the PID into derivative kick, 1135 degrees of yaw in ONE frame. Commanded direction is now eased and every rate is clamped; the guard bounds the RATE at 30/60/144 fps so a 60-fps-only fix cannot pass." }
 ui = { percent = 90, notes = "src/ui.js — browser render, input and HUD only; carries no gameplay truth. Owns the repository's only frame clock, legitimate because C7 fences the layer below it. Memoises the radar shadow BY SUBSTRATE PHASE: shadowMap costs 23.5 ms, more than a 60 fps frame, and only 15 distinct maps exist (C11), so the per-tick cost becomes an array index." }
-verification = { percent = 100, notes = "12-claim ledger C1-C12 in VERIFICATION.md, every claim a named script under src/, all gating." }
+verification = { percent = 100, notes = "12-claim ledger C1-C12 in VERIFICATION.adoc, every claim a named script under src/, all gating." }
 bundle = { percent = 100, notes = "src/build.mjs emits the self-contained HTML, syntax-checks the shipped script and replays the witness on the TRANSFORMED core; CI asserts byte-identity with the committed file (C10)." }
 
 [settled-questions]

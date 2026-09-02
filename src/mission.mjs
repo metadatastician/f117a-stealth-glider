@@ -17,7 +17,7 @@
 //
 // Unfenced code is therefore byte-identical to upstream, and must stay that
 // way: it is what the inherited verification ledger was established against.
-// See ../KERNEL-DIVERGENCE.md for the human-readable account.
+// See ../KERNEL-DIVERGENCE.adoc for the human-readable account.
 // ===========================================================================
 // <<< FORK
 import { mkGrid, step, stamp, norm, live, gliderTables, findGlider } from './kernel/engine.mjs';

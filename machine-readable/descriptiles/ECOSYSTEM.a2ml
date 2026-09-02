@@ -27,7 +27,7 @@ radar = "src/radar.mjs — supercover line of sight, sensor self-occlusion exemp
 renderer = "src/render3d.mjs — pure chase camera and draw list; no DOM, no clock, no randomness, no imports. Proven inert by C7."
 presentation = "src/ui.js — browser render, input and HUD; no gameplay truth. Owns the only frame clock in the repository."
 distribution = "src/build.mjs -> f117a-stealth-glider.html, a single self-contained file with no dependencies."
-verification = "src/verify-*.mjs + VERIFICATION.md — 12 claims (C1-C12), each discharged by a named script, all gating."
+verification = "src/verify-*.mjs + VERIFICATION.adoc — 12 claims (C1-C12), each discharged by a named script, all gating."
 
 [dependencies]
 runtime = []

@@ -4,7 +4,7 @@
 #
 # Taken verbatim (path adjusted) from hyperpolymath/rsr-template-repo@2283f12 on
 # 2026-09-02, when this repository was retrofitted to the RSR root-shape
-# contract. Its metadata tree is the dotted machine-readable/ layout.
+# contract. Its metadata tree is the un-hidden machine-readable/ layout (since 2026-09-02).
 #
 # check-root-shape.sh — enforce the canonical root shape, in BOTH directions,
 # against machine-readable/root-allow.txt.

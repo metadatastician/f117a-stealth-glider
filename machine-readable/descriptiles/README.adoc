@@ -45,7 +45,7 @@ toc::[]
 
 . `../../AUDIT.adoc` — what is verified, what is merely argued, and what is not claimed.
 . `STATE.a2ml` — where the project is, and which questions are already closed.
-. `../../VERIFICATION.md` — the 12-claim ledger (C1-C12). This is the project's centre of
+. `../../VERIFICATION.adoc` — the 12-claim ledger (C1-C12). This is the project's centre of
   gravity; every claim cites a script runnable with plain `node`.
 
 == The two invariants that matter most
