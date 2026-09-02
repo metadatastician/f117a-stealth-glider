@@ -53,6 +53,11 @@ merged-into = ""
 superseded-by = ""
 successors = []
 
+[[status.history]]
+phase = "active"
+since = "2026-09-02"
+note = "Retrofitted to the RSR root-shape contract: bidirectional .machine_readable/root-allow.txt + scripts/check-root-shape.sh (from rsr-template-repo@2283f12), wired into just ci and ci.yml. NOT minted from the template, so lineage.instantiated-from is deliberately absent; the metadata tree stays the dotted pre-2026-08 layout and README/CHANGELOG stay Markdown pending an owner ruling."
+
 [provenance]
 # Recorded because the repository's history is shorter than the work it contains.
 note = "This repository is a declared VENDOR-AND-FORK of metadatastician/f19-stealth-glider@9effa596, not an independent authorship. src/kernel/engine.mjs is byte-identical to that tree's engine module (git blob c7a016ec) and no local change to it is ever permitted; src/mission.mjs is that tree's mission.mjs plus five explicitly fenced blocks carrying the radar channel, and two declared substitutions. Claim C1 asserts both as git blob ids, offline and cryptographically, and ships a canary proving a one-token edit outside a fence breaks it. See KERNEL-DIVERGENCE.md. The scaffolding was done by COPYING f19, which is also why this repository arrived carrying f19's CLADE uuid and, until 2026-07-28, a machine-readable tree describing f19's level; the uuid is now recomputed and scripts/metadata-citations.mjs gates the rest. VERIFICATION.md is the authoritative record of how each claim was established — not the commit log."

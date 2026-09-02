@@ -84,6 +84,10 @@ contracts:
 contracts-list:
     node scripts/contractiles.mjs --list
 
+# Root shape in BOTH directions against .machine_readable/root-allow.txt (RSR contract).
+root-shape:
+    bash scripts/check-root-shape.sh .
+
 # Everything CI gates on.
-ci: test contracts
+ci: test contracts root-shape
     @echo "OK: gating ledger, bundle reproducibility and contractiles green"
