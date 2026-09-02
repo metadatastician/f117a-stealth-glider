@@ -155,8 +155,8 @@ glider.
 
 == Licence
 
-link:./LICENSE[AGPL-3.0-or-later] for code; `MPL-2.0` for the `.a2ml` metadata;
-`CC-BY-SA-4.0` for documentation. Texts vendored under link:./LICENSES[`LICENSES/`].
+link:./LICENSE[MPL-2.0] for code and the `.a2ml` metadata; `CC-BY-SA-4.0` for
+documentation (relicensed from AGPL-3.0-or-later on 2026-09-02, owner ruling). Texts vendored under link:./LICENSES[`LICENSES/`].
 © 2026 Jonathan D.A. Jewell (hyperpolymath).
 
 Contributions under the Developer Certificate of Origin 1.1 — sign off with

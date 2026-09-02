@@ -61,8 +61,8 @@ phase-goal = "One complete, fully verified level whose substrate is provably loa
 phase-status = "complete and verified. C6 (the falsifier) is green at 14/14 off-phase PAINTED with no sub-LOCK route anywhere in the state space; the game ships as one reproducible bundle; all twelve claims gate CI."
 
 [component-status]
-engine = { percent = 100, notes = "src/kernel/engine.mjs — VENDORED VERBATIM from f19@9effa596, blob c7a016ec. No local changes are permitted; fix upstream and re-vendor. C1 asserts it as a git blob id, offline." }
-mission = { percent = 100, notes = "src/mission.mjs — DECLARED FORK of f19's mission core plus five fenced blocks carrying the radar channel. C1 strips the fences and requires the remainder to hash to blob 30f93a70." }
+engine = { percent = 100, notes = "src/kernel/engine.mjs — VENDORED VERBATIM from f19@4af642af, blob e9a26afe. No local changes are permitted; fix upstream and re-vendor. C1 asserts it as a git blob id, offline." }
+mission = { percent = 100, notes = "src/mission.mjs — DECLARED FORK of f19's mission core plus five fenced blocks carrying the radar channel. C1 strips the fences and requires the remainder to hash to blob 62591769." }
 radar = { percent = 100, notes = "src/radar.mjs — supercover LOS, sensor self-occlusion exemption, exposure dwell, shadowMap. C2 and C3, both canary-tested." }
 level = { percent = 100, notes = "src/level.mjs — Operation Nightglass geometry. Knife-edged: the gate sensor and shutter positions are one-cell optima found by sweep, not chosen." }
 render3d = { percent = 100, notes = "src/render3d.mjs — pure chase camera + draw list. No DOM, no clock, no randomness, no imports. C7 proves it cannot influence the mission, and carries a stability guard after a play-reported bug: a step setpoint on every turn drove the PID into derivative kick, 1135 degrees of yaw in ONE frame. Commanded direction is now eased and every rate is clamped; the guard bounds the RATE at 30/60/144 fps so a 60-fps-only fix cannot pass." }
@@ -87,7 +87,7 @@ resolved = [
 [open-decisions]
 remaining = [
   { item = "Whether the second level reuses the chokepoint-and-shutter grammar or looks for a different phase mechanism", resolve-by = "start of v2", notes = "The current level's parameters are one-cell optima; whether that fragility is inherent to the grammar or an artefact of this geometry is unknown." },
-  { item = "Whether level content should be split out of src/level.mjs into a data file under a content licence (CC-BY-SA-4.0)", resolve-by = "when a second level exists", notes = "Today the level is code and is AGPL like everything else, so no content licence is vendored." },
+  { item = "Whether level content should be split out of src/level.mjs into a data file under a content licence (CC-BY-SA-4.0)", resolve-by = "when a second level exists", notes = "Today the level is code and is MPL-2.0 like everything else, so no content licence is vendored." },
   { item = "Whether LOCK = 8 is justified specifically, rather than merely bounded", resolve-by = "when a second level exists", notes = "design/sweep.mjs shows LOCK 5 and 6 make this level unsolvable, which bounds it from below. AUDIT.adoc carries this as argued, not verified." },
 ]
 

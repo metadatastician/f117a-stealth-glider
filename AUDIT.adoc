@@ -32,7 +32,7 @@ demonstrating it failing on purpose.
 
 [cols="1,4"]
 |===
-| C1 | `src/kernel/engine.mjs` is byte-identical to f19@9effa596, and `src/mission.mjs` is that file plus five fenced blocks. Asserted as git blob ids, so it is cryptographic and offline. Canary: a one-token edit outside a fence breaks it.
+| C1 | `src/kernel/engine.mjs` is byte-identical to f19@4af642af, and `src/mission.mjs` is that file plus five fenced blocks. Asserted as git blob ids, so it is cryptographic and offline. Canary: a one-token edit outside a fence breaks it.
 | C2 | Supercover line of sight does not leak through a diagonal wall — 0 of 4489 cross-wall pairs. Canary: naive Bresenham leaks 1009 of 4489 through the same wall.
 | C3 | A radar does not occlude itself. Canary: without the footprint exemption it blinds itself 5/5.
 | C4 | The nominal corridor's exposure is phase-shaped and pinned: 31 always / 42 never / 8 phase-dependent of 81 cells, 36 with a consecutive run >= LOCK. Structural gates plus exact declared counts. Also: the whole-map shadow is a function of substrate phase alone (75 repeats, 0 mismatches) — the property the renderer's phase cache rests on.

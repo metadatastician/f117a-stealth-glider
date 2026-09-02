@@ -80,7 +80,7 @@ proposes corrective actions. Advisory — it warns and trends, it does not block
 ### spdx-header-consistency
 - description: All committed source and metadata files carry an SPDX header
 - tolerance: 0 files missing SPDX-License-Identifier
-- corrective: Add the correct header — AGPL-3.0-or-later for code, MPL-2.0 for .a2ml
+- corrective: Add the correct header — MPL-2.0 for code and .a2ml
 - severity: advisory
 
 ### dependency-creep

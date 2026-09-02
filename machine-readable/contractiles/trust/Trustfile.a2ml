@@ -59,15 +59,15 @@ destroy the project's entire premise without breaking anything visible.
 
 ## Licence Integrity
 
-#### license-intact-agpl
-- description: The project licence remains AGPL-3.0-or-later
-- run: grep -q '"license": "AGPL-3.0-or-later"' package.json && grep -q 'GNU AFFERO GENERAL PUBLIC LICENSE' LICENSE
+#### license-intact-mpl
+- description: The project licence remains MPL-2.0
+- run: grep -q '"license": "MPL-2.0"' package.json && grep -q 'Mozilla Public License Version 2.0' LICENSE
 - severity: critical
-- notes: Do not relicense — staying copyleft is a project invariant. This repository has already been the target of an estate-wide licence-clobbering sweep once.
+- notes: Do not relicense without an owner ruling; the 2026-09-02 AGPL-3.0-or-later -> MPL-2.0 move WAS such a ruling. Previously: This repository has already been the target of an estate-wide licence-clobbering sweep once.
 
 #### spdx-headers-intact
-- description: Every source file still declares AGPL-3.0-or-later on its first line
-- run: "! find src -name '*.mjs' -exec head -1 {} \\; | grep -qv '^// SPDX-License-Identifier: AGPL-3.0-or-later$'"
+- description: Every source file still declares MPL-2.0 on its first line
+- run: "! find src -name '*.mjs' -exec head -1 {} \\; | grep -qv '^// SPDX-License-Identifier: MPL-2.0$'"
 - severity: critical
 
 ## Design Integrity

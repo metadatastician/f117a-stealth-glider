@@ -9,7 +9,7 @@ From: United Kingdom
 /* SITE */
 Last update: 2026-07-22
 Standards: RSR (Rhodium Standard Repository), A2ML
-License: AGPL-3.0-or-later (code) / CC-BY-SA-4.0 (docs) / MPL-2.0 (.a2ml metadata)
+License: MPL-2.0 (code and .a2ml metadata) / CC-BY-SA-4.0 (docs)
 Components: Conway's Game of Life (B3/S23) engine, mission layer, canvas UI
 Language: JavaScript (ESM) — zero dependencies
 Tools: node, just, mise

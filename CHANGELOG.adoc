@@ -8,6 +8,14 @@ Including what is _not_ finished, and what was retracted.
 [[unreleased--play-driven-fixes-2026-07-28]]
 == ++[++Unreleased++]++ — play-driven fixes (2026-07-28)
 
+=== Changed
+
+* Relicensed: code and `.a2ml` metadata are MPL-2.0, documentation is CC-BY-SA-4.0
+  (was AGPL-3.0-or-later for code). Owner ruling 2026-09-02; `LICENSE`, `LICENSES/`,
+  `package.json`, `CITATION.cff`, every SPDX header and the licence probes moved together.
+* Kernel provenance re-pinned: `src/kernel/engine.mjs` re-vendored from f19@4af642af and
+  `verify-kernel-parity.mjs` UPSTREAM moved 9effa596 -> 4af642af (both blob ids), so C1 holds.
+
 === Added
 
 * *C13 — no launch beat is a dead end* (`src/verify-beats.mjs`). Prompted by a

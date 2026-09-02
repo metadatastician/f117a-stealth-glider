@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2026 Jonathan D.A. Jewell (hyperpolymath) <j.d.a.jewell@open.ac.uk>
 //
 // Ledger claim C1 — the reused f19 kernel is provably the f19 kernel.
@@ -33,10 +33,10 @@ import { readFileSync } from 'node:fs';
 
 const UPSTREAM = {
   repo: 'metadatastician/f19-stealth-glider',
-  commit: '9effa596f974f3330cbeac826e147f84086515a1',
+  commit: '4af642af490f455c19ede724fe20efabf04e95cd',
   blobs: {
-    'engine.mjs': 'c7a016ecd9003422bf46252a4713e69dabf266fe',
-    'mission.mjs': '30f93a704a63c18e0e74c4cc7c7ef7044c9f35d9',
+    'engine.mjs': 'e9a26afe7736baa7faab35b582e01e30951b91b1',
+    'mission.mjs': '62591769529d73f06fd99e24a177231569d1262f',
   },
 };
 

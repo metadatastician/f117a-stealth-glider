@@ -29,7 +29,7 @@ source = "package.json"
 format = "json"
 # Must rules. Keys suffix-match the flattened dotted path.
 must = [
-  "license == \"AGPL-3.0-or-later\"",   # strong copyleft by design; do not relicense
+  "license == \"MPL-2.0\"",   # MPL-2.0 by owner ruling 2026-09-02 (was AGPL-3.0-or-later); never relicense without one
   "type == \"module\"",                 # plain ESM, no transpiler
   "private == false",                   # the repo is public
 ]

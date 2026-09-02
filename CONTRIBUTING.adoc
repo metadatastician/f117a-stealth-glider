@@ -92,7 +92,7 @@ is preserved.
 is compact, comments explain _why_ rather than _what_, and that is the
 standard to match.
 . Keep the first line of every `src/*.mjs` and `src/*.js` exactly:
-`// SPDX-License-Identifier: AGPL-3.0-or-later`. CI checks this.
+`// SPDX-License-Identifier: MPL-2.0`. CI checks this.
 . If you touched `src/`, run `just build` and commit the regenerated
 `f117a-stealth-glider.html`. CI compares it byte-for-byte.
 . Run `just test` *and* `just contracts`. Both must be green.
@@ -121,5 +121,5 @@ By participating you agree to the link:CODE_OF_CONDUCT.adoc[Code of Conduct].
 == Licensing
 
 Contributions are accepted under the *Developer Certificate of Origin 1.1*
-(`git commit -s`) and licensed `AGPL-3.0-or-later` for code, `MPL-2.0` for
+(`git commit -s`) and licensed `MPL-2.0` for code and
 `.a2ml` metadata, `CC-BY-SA-4.0` for documentation.

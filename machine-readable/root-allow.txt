@@ -21,14 +21,14 @@ CHANGELOG.adoc               # as above
 AUDIT.adoc
 ARCHITECTURE.adoc
 VERIFICATION.adoc            # the authoritative record of how each claim was established
-KERNEL-DIVERGENCE.adoc       # the declared vendor-and-fork relationship to f19@9effa596
+KERNEL-DIVERGENCE.adoc       # the declared vendor-and-fork relationship to f19@4af642af
 GOVERNANCE.adoc
 MAINTAINERS.adoc
 CODE_OF_CONDUCT.adoc
 CONTRIBUTING.adoc
 SECURITY.adoc
 CITATION.cff
-LICENSE                    # AGPL-3.0-or-later: this repo's licence, not the template's MPL-2.0 default
+LICENSE                    # MPL-2.0 (relicensed from AGPL-3.0-or-later on 2026-09-02, owner ruling)
 LICENSES/                  # REUSE licence texts
 
 # ─── Build and tooling ───────────────────────────────────────────────────────

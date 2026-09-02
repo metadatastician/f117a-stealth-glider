@@ -18,7 +18,7 @@ version: "0.1.0"
 date-released: "2026-07-22"
 url: "https://metadatastician.github.io/f117a-stealth-glider/"
 repository-code: "https://github.com/metadatastician/f117a-stealth-glider"
-license: AGPL-3.0-or-later
+license: MPL-2.0
 keywords:
   - "cellular automata"
   - "conway's game of life"

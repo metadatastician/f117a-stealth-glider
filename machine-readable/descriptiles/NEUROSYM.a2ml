@@ -17,7 +17,7 @@ report-format = "text"
 # Domain invariants for F117A Stealth Glider, expressed as scannable rules.
 rules = [
   { name = "no-secrets", pattern = "(api[_-]?key|secret|token|password)\\s*[:=]\\s*[\"'][A-Za-z0-9]{16,}", severity = "critical", notes = "No hardcoded credentials in source." },
-  { name = "spdx-header-first-line", scope = "src/", severity = "critical", notes = "Every src/*.mjs and src/*.js must carry `// SPDX-License-Identifier: AGPL-3.0-or-later` as its FIRST line. Enforced by CI." },
+  { name = "spdx-header-first-line", scope = "src/", severity = "critical", notes = "Every src/*.mjs and src/*.js must carry `// SPDX-License-Identifier: MPL-2.0` as its FIRST line. Enforced by CI." },
   { name = "no-runtime-dependencies", scope = "package.json", severity = "critical", notes = "No `dependencies` or `devDependencies` keys. Zero dependencies is a design property (D-08)." },
   { name = "contact-radius-unchanged", scope = "src/mission.mjs", pattern = "nearWorld\\(M, cells, 2\\)", severity = "critical", notes = "The shipped contact rule is Chebyshev radius 2. Widening it to overlap-only trips the standing falsifier — the route becomes learnable by feel and the substrate becomes scenery." },
   { name = "stamp-throws-on-oob", scope = "src/kernel/engine.mjs", pattern = "stamp out of bounds", severity = "critical", notes = "stamp() must throw, never clip or wrap. Silent wrapping manufactured a phantom clean landing lane upstream, which is why the vendored kernel throws (D-06)." },

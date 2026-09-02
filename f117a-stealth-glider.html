@@ -56,7 +56,7 @@ canvas#cv{width:100%;height:auto;image-rendering:pixelated;background:#040a12;di
 </style></head>
 <body><div id="f117a"></div>
 <script>
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2026 Jonathan D.A. Jewell (hyperpolymath) <j.d.a.jewell@open.ac.uk>
 // F19 Stealth Glider — core engine. B3/S23, bounded grid, outside is permanently dead.
 
@@ -230,7 +230,7 @@ function findGlider(grid, W, H, T, x0, y0, x1, y1, notInGrid) {
 }
 
 
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2026 Jonathan D.A. Jewell (hyperpolymath) <j.d.a.jewell@open.ac.uk>
 //
 // F117A Stealth Glider — radar line-of-sight. NEW in this repository; the f19
@@ -426,13 +426,13 @@ function stepExposure(prev, painted) {
 }
 
 
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2026 Jonathan D.A. Jewell (hyperpolymath) <j.d.a.jewell@open.ac.uk>
 // F117A Stealth Glider — mission core. No DOM. Used by verify harness AND the shipped game.
 // >>> FORK
 // ===========================================================================
-// DECLARED FORK of f19-stealth-glider@9effa596:src/mission.mjs
-// (upstream git blob 30f93a704a63c18e0e74c4cc7c7ef7044c9f35d9).
+// DECLARED FORK of f19-stealth-glider@4af642af:src/mission.mjs
+// (upstream git blob 62591769529d73f06fd99e24a177231569d1262f).
 //
 // Claim C1 proves this file is upstream-plus-declared-changes offline and
 // cryptographically: verify-kernel-parity.mjs strips every FORK-fenced block,
@@ -649,7 +649,7 @@ function missionStep(M, input) {
 }
 
 
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2026 Jonathan D.A. Jewell (hyperpolymath) <j.d.a.jewell@open.ac.uk>
 //
 // Operation Nightglass — level data. NEW; f19's Operation Nightstep level is not
@@ -945,7 +945,7 @@ function buildLevel(opts = {}) {
 }
 
 
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2026 Jonathan D.A. Jewell (hyperpolymath) <j.d.a.jewell@open.ac.uk>
 //
 // F117A Stealth Glider — the 3D layer: chase camera + draw-list renderer.
@@ -1313,7 +1313,7 @@ function buildDrawList(M, shadow, cam, vw, vh, sets) {
 }
 
 
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2026 Jonathan D.A. Jewell (hyperpolymath) <j.d.a.jewell@open.ac.uk>
 // F117A Stealth Glider — UI shell. Everything below the DOM boundary is the
 // audited core; this file is presentation only (see ARCHITECTURE.adoc). It owns
