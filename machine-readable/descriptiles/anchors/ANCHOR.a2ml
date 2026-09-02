@@ -1,0 +1,86 @@
+# SPDX-License-Identifier: MPL-2.0
+# Copyright (c) 2026 Jonathan D.A. Jewell (hyperpolymath) <j.d.a.jewell@open.ac.uk>
+#
+# ANCHOR.a2ml — authoritative anchor for this repository
+
+[metadata]
+version = "1.0.0"
+last-updated = "2026-07-22"
+
+[anchor]
+schema = "hyperpolymath.anchor/1"
+repo = "metadatastician/f117a-stealth-glider"
+authority = "upstream-canonical"
+
+purpose = [
+  "Define the canonical semantics of the F117A substrate and the rules a level may rely on.",
+  "Declare which design invariants are fixed and may not be redefined downstream.",
+  "Provide a stable golden path and an invariant contract for release readiness.",
+]
+
+[identity]
+project = "F117A Stealth Glider"
+kind = "game"
+one-sentence = "A stealth puzzle in which the enemy is a live Conway's Game of Life field: fly one glider to a hangar across a B3/S23 substrate whose every hazard is a real Life pattern."
+domain = "cellular automata / puzzle game design"
+
+[semantic-authority]
+policy = "canonical"
+
+owns = [
+  "The B3/S23 substrate semantics — born on exactly 3 live neighbours, survives on 2 or 3, applied uniformly with no per-cell exceptions.",
+  "The bounded-grid convention: cells outside the grid are permanently dead, never wrapped.",
+  "The contact criterion: Chebyshev-3 is exact independence; the shipped contact rule is Chebyshev radius 2.",
+  "The single admitted fiction: a pre-contact kinematic overlay for the player glider, valid only while the player is provably independent of the substrate.",
+  "Player identity by counterfactual shadow — the player is the glider ABSENT from a shadow world stepped without them.",
+  "The Operation Nightglass geometry in src/level.mjs — one-cell knife-edged.",
+  "That the level is phase-critical, and that no sub-LOCK route exists (C6).",
+]
+
+may-not-be-redefined = [
+  "B3/S23 itself. A variant rule is a different project, not a downstream extension.",
+  "The standing falsifier: if a crossing becomes learnable by feel without reading phase, the substrate is scenery and the level fails.",
+  "stamp() throwing on out-of-bounds rather than clipping or wrapping.",
+]
+
+[implementation-policy]
+allowed = ["JavaScript (ESM)", "HTML", "Just", "Markdown", "AsciiDoc"]
+forbidden = ["runtime dependencies", "npm packages", "bundler toolchains", "network access at runtime", "transpilers"]
+rationale = "Zero dependencies is a design property (D-08). The whole project is four modules, one bundler and ten verification scripts, all runnable with a bare `node`. There is nothing to install and nothing to audit."
+
+[golden-path]
+smoke-test-command = [
+  "just test",
+  "just contracts",
+]
+
+success-criteria = [
+  "The gating ledger — all twelve claims, C1-C12 — runs green.",
+  "build.mjs replays the witness on the transformed core and reports LANDED with trace 0.",
+  "The committed f117a-stealth-glider.html is byte-identical to a fresh rebuild.",
+  "No critical contractile breach.",
+  "No unresolved critical security findings.",
+]
+
+[invariant-contract]
+# The claims a release must not outrun.
+invariants = [
+  "The substrate is real B3/S23 and is never special-cased.",
+  "src/level.mjs is frozen; a failing route is redesigned or recorded, never tuned away.",
+  "Every VERIFICATION.adoc claim cites a script runnable with plain `node`.",
+  "Claims are quantified over ALL 30 launch phases, not sampled.",
+  "Negative results are shipped, not deleted.",
+]
+
+[satellite-policy]
+must-pin-upstream = true
+must-declare-authority = true
+must-have-anchor = true
+must-have-golden-path = true
+notes = "There are no satellites today. A second level or an alternative frontend would be one, and would inherit the substrate semantics above without the right to redefine them."
+
+[semantic-authority-files]
+verification-ledger = "VERIFICATION.adoc"
+decision-records = "machine-readable/descriptiles/META.a2ml"
+frozen-level = "src/level.mjs"
+substrate = "src/kernel/engine.mjs"

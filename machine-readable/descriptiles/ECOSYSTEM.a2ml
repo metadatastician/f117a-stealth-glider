@@ -1,0 +1,58 @@
+# SPDX-License-Identifier: MPL-2.0
+# ECOSYSTEM.a2ml — Ecosystem position
+#
+# Where F117A Stealth Glider sits, what it depends on, and its explicit boundaries.
+
+[metadata]
+project = "F117A Stealth Glider"
+ecosystem = "hyperpolymath"
+org = "metadatastician"
+
+[position]
+type = "game"
+purpose = "A stealth puzzle whose enemy is a cellular automaton. The player flies one glider to a hangar across a live B3/S23 field; every hazard is a real Life pattern, so evading them means reading the automaton's phase rather than learning a patrol route."
+scope = "One complete, fully verified level (Operation Nightglass v0). Deliberately small: the point is that the substrate is provably load-bearing, demonstrated once and rigorously, rather than sprawled across many levels."
+
+[pipeline]
+position = "second Stealth Glider investigation"
+chain = "f19-stealth-glider -> f117a-stealth-glider -> sr71-blackglider -> x15-rocket-glider -> planer-1 -> enterglide-ncc-137-k -> tardis-rule-disruption"
+notes = "The chain is canonical in the coordination hub; this file copies it verbatim and is checked by the hub's membership gate."
+coordination = "metadatastician/stealth-glider-ecosystem"
+
+[architecture]
+substrate = "src/kernel/engine.mjs — VENDORED VERBATIM from f19; B3/S23 core: bounded grid, step, RLE, the 8 symmetries, bounds-checked stamp, named pattern library, empirically derived glider kinematics, shadow-filtered findGlider."
+mission = "src/mission.mjs — player overlay, Chebyshev contact rule, sensors, trace accounting, hangar splice, ambient stepping."
+level = "src/level.mjs — Operation Nightglass geometry; single source of truth. Knife-edged: gate sensor and shutter positions are one-cell optima found by sweep."
+radar = "src/radar.mjs — supercover line of sight, sensor self-occlusion exemption, exposure dwell, shadow map."
+renderer = "src/render3d.mjs — pure chase camera and draw list; no DOM, no clock, no randomness, no imports. Proven inert by C7."
+presentation = "src/ui.js — browser render, input and HUD; no gameplay truth. Owns the only frame clock in the repository."
+distribution = "src/build.mjs -> f117a-stealth-glider.html, a single self-contained file with no dependencies."
+verification = "src/verify-*.mjs + VERIFICATION.adoc — 12 claims (C1-C12), each discharged by a named script, all gating."
+
+[dependencies]
+runtime = []
+build = []
+notes = "Zero dependencies by design (D-08). Node >= 18 for the verification scripts; any modern browser to play. There is no package registry surface to audit and nothing to install."
+
+[related-projects]
+projects = [
+  { name = "IDApTIK", relationship = "sibling", notes = "The estate's other game, also under metadatastician. Shares the governance and machine-readable conventions, no code." },
+  { name = "Conway's Game of Life (B3/S23)", relationship = "substrate", notes = "Not a dependency — the rule itself, implemented from scratch in engine.mjs." },
+  { name = "Pentadecathlon (p15)", relationship = "level-primitive", notes = "The shutter oscillator. Two of them graze the gate sensor's sight lines, opening and closing the only survivable crossing on a 15-beat cycle. Period measured in isolation by design/period.mjs." },
+  { name = "Pulsar (p3)", relationship = "level-primitive", notes = "The other placed oscillator; with the pentadecathlon it sets the substrate period to lcm(3,15) = 15 (C11)." },
+  { name = "Eater 1 (sym-4)", relationship = "level-primitive", notes = "The hangar. Absorbs an arriving SE glider cleanly on exactly 3 of 21 measured approach lanes." },
+  { name = "f19-stealth-glider", relationship = "conceptual predecessor", notes = "First Stealth Glider investigation; source of the vendored kernel." },
+  { name = "sr71-blackglider", relationship = "conceptual successor", notes = "Third Stealth Glider investigation." },
+  { name = "stealth-glider-ecosystem", relationship = "coordination hub", notes = "Holds the canonical chain and membership manifest for the Stealth Glider line." },
+]
+
+[boundaries]
+# What F117A Stealth Glider deliberately is NOT.
+not = [
+  "Not a Life sandbox or simulator — it is a designed level with a win condition, and the automaton is the antagonist rather than the toy.",
+  "Not a game with scripted enemies — nothing moves except by B3/S23, and there are no special-cased cells (D-01).",
+  "Not a reflex or twitch game — the difficulty is reading phase and geometry, not execution speed.",
+  "Not tunable-by-playtest — src/level.mjs is frozen; a failing route is redesigned or recorded as a negative result, never softened by relaxing the contact rule (D-02, D-03).",
+  "Not a framework, engine, or library — there is no public API and no versioned interface for other projects to build on.",
+  "Not dependency-bearing — no npm packages, no CDN, no network access at runtime.",
+]

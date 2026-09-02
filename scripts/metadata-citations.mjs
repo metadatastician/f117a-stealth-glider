@@ -8,7 +8,7 @@
 // WHY THIS EXISTS
 // -------------------------------------------------------------------------
 // This repository was scaffolded by copying f19-stealth-glider, and the
-// .machine_readable/ tree arrived describing f19's game. Not approximately —
+// machine-readable/ tree arrived describing f19's game. Not approximately —
 // literally: a Gosper gun as this level's "level-primitive", a fence row and
 // breach columns this level does not have, a spawn and hangar at the wrong
 // coordinates, and a [settled-questions] block recording f19's rulings as
@@ -92,7 +92,7 @@ const FOREIGN = [
 const PATH_RE = /\b((?:src|design|scripts)\/[A-Za-z0-9_./-]*\.(?:mjs|js))\b/g;
 
 let dead = 0, foreign = 0, scanned = 0;
-const files = walk(join(ROOT, '.machine_readable'));
+const files = walk(join(ROOT, 'machine-readable'));
 
 for (const file of files) {
   const rel = file.slice(ROOT.length + 1);
@@ -126,7 +126,7 @@ if (dead === 0 && foreign === 0) {
   console.log('OK: the metadata describes this repository.');
   process.exit(0);
 }
-console.log('\nThe .machine_readable tree is the first thing an agent reads. A citation');
+console.log('\nThe machine-readable tree is the first thing an agent reads. A citation');
 console.log('to a file that does not exist, or to another game\'s level, is not a typo —');
 console.log('it is an instruction to act on something untrue.');
 process.exit(1);

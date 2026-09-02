@@ -1,0 +1,56 @@
+# Root allowlist for f117a-stealth-glider — RSR root-shape contract, retrofitted 2026-09-02.
+#
+# Lists every entry permitted at the repository root. The check is BIDIRECTIONAL
+# (scripts/check-root-shape.sh, taken from rsr-template-repo@2283f12):
+#   * anything at root that is not listed here is drift, and fails;
+#   * anything listed here WITHOUT the '?' marker must exist, and its absence fails.
+# Git-ignored entries (node_modules/, tmp/, _site/) are not root entries.
+#
+# Retrofitted to the template's current shape on 2026-09-02 (owner ruling):
+# the metadata tree is the un-hidden `machine-readable/` and the root
+# documents are AsciiDoc. Only .github/pull_request_template.md stays
+# Markdown, because GitHub recognises no other name for it; spike/README.md
+# is provenance (its digests are pinned in ci.yml) and is not a root entry.
+#
+# Format: one entry per line; '#' starts a comment; trailing '/' marks a directory;
+# '?' prefix = optional (permitted, not required); no prefix = required.
+
+# ─── Authority and documentation files ───────────────────────────────────────
+README.adoc                  # AsciiDoc since 2026-09-02 (converted from Markdown, owner ruling)
+CHANGELOG.adoc               # as above
+AUDIT.adoc
+ARCHITECTURE.adoc
+VERIFICATION.adoc            # the authoritative record of how each claim was established
+KERNEL-DIVERGENCE.adoc       # the declared vendor-and-fork relationship to f19@9effa596
+GOVERNANCE.adoc
+MAINTAINERS.adoc
+CODE_OF_CONDUCT.adoc
+CONTRIBUTING.adoc
+SECURITY.adoc
+CITATION.cff
+LICENSE                    # AGPL-3.0-or-later: this repo's licence, not the template's MPL-2.0 default
+LICENSES/                  # REUSE licence texts
+
+# ─── Build and tooling ───────────────────────────────────────────────────────
+justfile                   # lowercase; verify / build / test / contracts / root-shape / ci
+package.json               # zero-dependency Node manifest (scripts + licence field)
+mise.toml
+k9iser.toml
+.editorconfig
+.gitattributes
+.gitignore
+.git/                      # a file in a linked worktree, a directory otherwise; both permitted
+
+# ─── The game ────────────────────────────────────────────────────────────────
+f117a-stealth-glider.html            # committed single-file bundle; CI (C10) proves it byte-reproducible from src/
+f117a-stealth-glider.launcher.a2ml   # launcher contract
+f117a-stealth-glider-launcher.sh     # launcher
+src/
+design/                    # level-design search scripts (measure / period / solve / sweep / place)
+spike/                     # v0 spike, digest-pinned provenance (byte-identical or it is not provenance)
+scripts/                   # contractiles.mjs, metadata-citations.mjs + check-root-shape.sh
+
+# ─── Metadata and forge ──────────────────────────────────────────────────────
+machine-readable/         # un-hidden template layout since 2026-09-02 (see header)
+.github/
+.well-known/

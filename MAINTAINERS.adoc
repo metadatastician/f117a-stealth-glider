@@ -41,14 +41,14 @@ divided is the level of scrutiny a change receives:
 | `src/mission.mjs`
 | High. Contains the contact rule, which is the project's standing falsifier.
 
-| `VERIFICATION.md`
+| `VERIFICATION.adoc`
 | High. A claim may only change alongside a re-run of the script that
   discharges it.
 
 | `src/verify*.mjs`, `src/ui.js`, `src/build.mjs`
 | Normal.
 
-| Docs, CI, `.machine_readable/`
+| Docs, CI, `machine-readable/`
 | Normal — but a contractile probe that cannot pass against this tree is a
   defect, not documentation.
 |===
@@ -71,7 +71,7 @@ matters more here than shipping features.
 == Contact
 
 * General: open an issue.
-* Security: see link:SECURITY.md[SECURITY.md]. Do not open a public issue.
+* Security: see link:SECURITY.adoc[SECURITY.adoc]. Do not open a public issue.
 
 ---
 

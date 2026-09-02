@@ -15,7 +15,7 @@
 
 **Which ledger claims does this affect?**
 
-<!-- List them by number from VERIFICATION.md, or write "none" if this is docs,
+<!-- List them by number from VERIFICATION.adoc, or write "none" if this is docs,
      CI, or tooling only. -->
 
 **Paste the output of the scripts you ran.** A claim without a run is not a
@@ -63,10 +63,10 @@ record is.
 - [ ] **This PR changes a design invariant** (the B3/S23 substrate,
       `src/level.mjs` geometry, the contact rule in `src/mission.mjs`, or
       `stamp()`'s out-of-bounds behaviour).
-      Decision record: `D-__` in `.machine_readable/descriptiles/META.a2ml`
+      Decision record: `D-__` in `machine-readable/descriptiles/META.a2ml`
 
 - [ ] **This PR re-opens a question recorded as settled** in
-      `.machine_readable/descriptiles/STATE.a2ml` `[settled-questions]`
+      `machine-readable/descriptiles/STATE.a2ml` `[settled-questions]`
       (for example, the stream no-go lemma).
       New evidence:
 

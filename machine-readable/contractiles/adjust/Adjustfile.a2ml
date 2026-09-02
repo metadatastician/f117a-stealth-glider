@@ -1,0 +1,102 @@
+# SPDX-License-Identifier: MPL-2.0
+# Adjustfile — Drift-tolerance contract for F117A Stealth Glider
+# Author: Jonathan D.A. Jewell (hyperpolymath)
+#
+# Cumulative-drift catchment: tolerance bands + corrective actions.
+# Authority: advisory (Yard) — continue-with-warnings.
+# Run with: just contracts
+
+@abstract:
+Drift tolerances and corrective actions for F117A Stealth Glider. Unlike MUST
+(hard gate), ADJUST tracks cumulative drift against tolerance bands and
+proposes corrective actions. Advisory — it warns and trends, it does not block.
+@end
+
+## Design Drift
+
+### substrate-purity
+- description: Nothing in the tree special-cases a cell or scripts a mover
+- tolerance: 0 entity tables, per-cell exceptions, or hard-coded movement paths in engine.mjs
+- corrective: Express the behaviour as a real Life pattern, or drop it (D-01)
+- severity: advisory
+
+### fiction-count
+- description: Exactly one departure from pure Life is admitted — the pre-contact player overlay
+- tolerance: 1 declared fiction, documented in README.adoc and VERIFICATION.adoc
+- corrective: Either eliminate the new fiction or document and justify it in the ledger
+- severity: advisory
+- notes: Undeclared fictions are how a substrate quietly becomes scenery.
+
+### difficulty-source
+- description: Difficulty comes from reading phase and geometry, not from execution speed
+- tolerance: 0 timing windows narrower than one glider period (4 generations)
+- corrective: Widen the window or move the challenge back into geometry
+- severity: advisory
+
+## Verification Drift
+
+### ledger-script-correspondence
+- description: Every VERIFICATION.adoc claim cites a script that exists and runs
+- tolerance: 0 claims citing a missing script, a transcript, or "see above"
+- corrective: Write the script, or restate the claim as an argued disclosure
+- severity: advisory
+- notes: Every claim row in VERIFICATION.adoc cites a named script under src/ that runs with plain `node`. C4, C7, C9 and C10 were held as RESERVED numbers rather than quietly reused while their scripts did not exist; they landed with the game layer.
+
+### ci-runs-what-is-cited
+- description: The CI ledger and the VERIFICATION.adoc citations do not diverge
+- tolerance: CI runs every cited script; exploratory scripts stay excluded
+- corrective: Reconcile .github/workflows/ci.yml with the ledger table
+- severity: advisory
+
+### exploratory-script-health
+- description: Exploratory scripts still execute, even though their findings are negative
+- tolerance: 0 exploratory scripts that crash rather than reporting "no viable candidate"
+- corrective: Fix the harness. A crash is a bug; a negative result is a finding.
+- severity: advisory
+- notes: verify3 and verify9 both once crashed with `stamp out of bounds` on negative lanes. That was a harness bug masquerading as a result.
+
+## Documentation Drift
+
+### state-freshness
+- description: STATE.a2ml tracks the real phase and component status
+- tolerance: STATE.a2ml last-updated within one milestone of HEAD
+- corrective: Refresh machine-readable/descriptiles/STATE.a2ml from README.adoc + VERIFICATION.adoc
+- severity: advisory
+
+### settled-questions-stay-settled
+- description: Closed questions are not silently reopened
+- tolerance: 0 new work re-deriving a question STATE.a2ml [settled-questions] records as closed — phase-criticality (C6), the 3D-world ruling (C9), the second-gate-sensor sweep, or overlap-only contact
+- corrective: Read STATE.a2ml [settled-questions], run the script it cites, and only reopen if that script now disagrees with it
+- severity: advisory
+
+### readme-ledger-agreement
+- description: README.adoc's stated results match VERIFICATION.adoc
+- tolerance: 0 numeric disagreements (0/30, 21/30, 9/30, 30/30, 15 vs ~17 units)
+- corrective: The ledger wins; correct the README
+- severity: advisory
+
+## Repository Drift
+
+### spdx-header-consistency
+- description: All committed source and metadata files carry an SPDX header
+- tolerance: 0 files missing SPDX-License-Identifier
+- corrective: Add the correct header — AGPL-3.0-or-later for code, MPL-2.0 for .a2ml
+- severity: advisory
+
+### dependency-creep
+- description: The project stays dependency-free
+- tolerance: 0 entries under dependencies or devDependencies
+- corrective: Remove the dependency, or record a decision superseding D-08
+- severity: advisory
+
+### bundle-freshness
+- description: The committed bundle tracks src/
+- tolerance: 0 commits touching src/ that leave f117a-stealth-glider.html unchanged
+- corrective: Run `just build` and commit the regenerated bundle
+- severity: advisory
+
+### workflow-pin-drift
+- description: Workflow action pins remain full commit SHAs
+- tolerance: 0 `uses:` referencing a tag or branch
+- corrective: Re-pin to a SHA with a version comment; the org rejects tags with startup_failure
+- severity: advisory

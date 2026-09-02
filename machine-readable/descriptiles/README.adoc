@@ -1,0 +1,82 @@
+// SPDX-License-Identifier: CC-BY-SA-4.0
+// Copyright (c) 2026 Jonathan D.A. Jewell (hyperpolymath)
+= A2ML 6a2 Directory — F117A Stealth Glider
+:toc: macro
+:toclevels: 2
+
+This directory holds the six core A2ML machine-readable metadata files for
+*F117A Stealth Glider*, a stealth puzzle played on a live Conway's Game of Life
+field (B3/S23).
+
+toc::[]
+
+== Files
+
+[cols="1,3", options="header"]
+|===
+| File | Contents
+
+| `AGENTIC.a2ml`
+| AI agent permissions and hard constraints — what must never be edited, and why.
+  Read this before changing `src/level.mjs` or the contact rule.
+
+| `ECOSYSTEM.a2ml`
+| Ecosystem position, the (empty) dependency set, and explicit boundaries —
+  what this project deliberately is *not*.
+
+| `META.a2ml`
+| Decision records D-01..D-10 and design rationale. The decisions are recorded
+  here rather than in a `docs/adr/` tree because the project is a single level.
+
+| `NEUROSYM.a2ml`
+| Scannable symbolic rules, determinism semantics, and the split between the
+  *cited ledger* and the *exploratory* verification scripts.
+
+| `PLAYBOOK.a2ml`
+| Operational runbooks — every `just` recipe for playing, building, verifying,
+  and releasing, plus incident response.
+
+| `STATE.a2ml`
+| Current phase, component status, the *settled questions* (closed — do not
+  re-derive), and the route to v1.
+|===
+
+== Reading order
+
+. `../../AUDIT.adoc` — what is verified, what is merely argued, and what is not claimed.
+. `STATE.a2ml` — where the project is, and which questions are already closed.
+. `../../VERIFICATION.adoc` — the 12-claim ledger (C1-C12). This is the project's centre of
+  gravity; every claim cites a script runnable with plain `node`.
+
+== The two invariants that matter most
+
+The substrate is *B3/S23 and is never violated* — every hazard is a genuine Life
+pattern, not a scripted entity.
+
+The standing falsifier is that *the substrate must not become scenery*: if the
+crossing becomes learnable by feel without reading the automaton's phase, v0
+fails its premise. Relaxing the contact rule to open a route trips this, and is
+therefore a design failure rather than a fix.
+
+== Contractiles
+
+Unlike most of the estate, the contractiles in `../contractiles/` are
+*executable here*. Every `- run:` probe is a shell one-liner, and
+`scripts/contractiles.mjs` runs them:
+
+[source,console]
+----
+$ just contracts
+----
+
+CI fails on any `critical` breach. A probe that cannot pass against this tree
+does not belong in the file.
+
+== Standards compliance
+
+These files follow the A2ML Format Family specification from
+https://github.com/hyperpolymath/standards/tree/main/a2ml[hyperpolymath/standards].
+
+The `.a2ml` metadata set is licensed `MPL-2.0` (this README is `CC-BY-SA-4.0`);
+all project *code* is `AGPL-3.0-or-later`. Licence texts are vendored under
+`../../LICENSES/`.

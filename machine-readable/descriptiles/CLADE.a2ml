@@ -1,0 +1,68 @@
+# SPDX-License-Identifier: MPL-2.0
+# Clade declaration — part of the gv-clade-index registry
+# See: https://github.com/hyperpolymath/gv-clade-index
+#
+# This file declares F117A Stealth Glider's OWN identity. Every value below is a
+# recomputable fact about THIS repository. Nothing here was copied from the RSR
+# template: the template's CLADE.a2ml was historically propagated verbatim into
+# new repos, which then declared the template's UUID, canonical-name and clade
+# and told every arriving agent that they WERE the template. Each value was
+# individually valid, so nothing caught it.
+
+[identity]
+# THE UUID IS DERIVED, NOT ALLOCATED (gv-clade-index:
+# docs/SPEC-clade-verisim-portal.adoc §Identity Model):
+#     uuid = UUIDv5(namespace = URL, name = "github.com/<owner>/<name>")
+# Recompute it with:
+#     uuidgen --sha1 --namespace @url --name "github.com/metadatastician/f117a-stealth-glider"
+#     -> 4dcf4ed6-89ce-548e-9bba-6a4fc6a2d74f
+uuid = "4dcf4ed6-89ce-548e-9bba-6a4fc6a2d74f"
+primary-forge = "github"
+primary-owner = "metadatastician"
+canonical-name = "f117a-stealth-glider"
+prefixed-name = "gm-f117a-stealth-glider"
+
+[clade]
+# The 2 letters abbreviate the CLADE's name below — never the repo's name.
+# All 12 codes: gv-clade-index verisim/seed/clades.a2ml.
+primary = "gm"
+primary-name = "Games & Interactive"
+secondary = []
+assigned = "2026-07-22"
+rationale = "Games & Interactive (`gm`): this is a playable single-player puzzle game with a win condition, shipped as a self-contained browser artefact. No secondary clade is claimed. `fv` (Formal Verification & Proofs) would be a tempting second given the verification ledger, but the ledger is exhaustive empirical sweep plus an argued spacing lemma — not mechanised proof — and claiming `fv` would overstate it. `ax` is likewise not claimed: cellular automata are the subject matter, not neurosymbolic AI."
+
+[forges]
+github = "metadatastician/f117a-stealth-glider"
+
+[lineage]
+# `parent` is a monorepo parent, NOT a description. Estate-wide, repo
+# descriptions were mistakenly written into this field across 153 CLADE files;
+# this repo is standalone, so it is correctly empty.
+type = "standalone"
+parent = ""
+born = "2026-07-22"
+previous-names = []
+
+[status]
+# One of: reserved incubating active dormant | merged superseded archived extinct
+phase = "active"
+since = "2026-07-22"
+present = true
+aliases = []
+merged-into = ""
+superseded-by = ""
+successors = []
+
+[[status.history]]
+phase = "active"
+since = "2026-09-02"
+note = "Retrofitted to the RSR root-shape contract: bidirectional machine-readable/root-allow.txt + scripts/check-root-shape.sh (from rsr-template-repo@2283f12), wired into just ci and ci.yml. NOT minted from the template, so lineage.instantiated-from is deliberately absent; the metadata tree stays the dotted pre-2026-08 layout and README/CHANGELOG stay Markdown pending an owner ruling."
+
+[[status.history]]
+phase = "active"
+since = "2026-09-02"
+note = "Owner ruling 2026-09-02, applied the same day: metadata tree moved from the dotted .machine_readable/ to the template's un-hidden machine-readable/; the nine root Markdown documents (README, CHANGELOG, ARCHITECTURE, VERIFICATION, GOVERNANCE, CODE_OF_CONDUCT, CONTRIBUTING, SECURITY, KERNEL-DIVERGENCE) converted to AsciiDoc; only .github/pull_request_template.md stays Markdown (GitHub recognises no other name) and spike/README.md stays as pinned provenance. The uuid, lineage, kernel-parity pin (f19@9effa596) and the absence of instantiated-from are unchanged."
+
+[provenance]
+# Recorded because the repository's history is shorter than the work it contains.
+note = "This repository is a declared VENDOR-AND-FORK of metadatastician/f19-stealth-glider@9effa596, not an independent authorship. src/kernel/engine.mjs is byte-identical to that tree's engine module (git blob c7a016ec) and no local change to it is ever permitted; src/mission.mjs is that tree's mission.mjs plus five explicitly fenced blocks carrying the radar channel, and two declared substitutions. Claim C1 asserts both as git blob ids, offline and cryptographically, and ships a canary proving a one-token edit outside a fence breaks it. See KERNEL-DIVERGENCE.adoc. The scaffolding was done by COPYING f19, which is also why this repository arrived carrying f19's CLADE uuid and, until 2026-07-28, a machine-readable tree describing f19's level; the uuid is now recomputed and scripts/metadata-citations.mjs gates the rest. VERIFICATION.adoc is the authoritative record of how each claim was established — not the commit log."

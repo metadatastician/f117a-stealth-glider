@@ -1,0 +1,256 @@
+# SPDX-License-Identifier: MPL-2.0
+# Mustfile — Physical-state contract for F117A Stealth Glider
+# Author: Jonathan D.A. Jewell (hyperpolymath)
+#
+# What MUST be true about this repository. Hard requirements.
+# Run with: just contracts   (node scripts/contractiles.mjs)
+#
+# Every `- run:` below is an executable shell one-liner evaluated from the
+# repository root. These are NOT decorative: CI fails on any critical breach.
+# Do not add a probe that cannot pass against this tree.
+
+@abstract:
+Physical-state invariants for F117A Stealth Glider, a stealth puzzle on a live
+B3/S23 Conway's Game of Life field. These are hard requirements: CI fails if
+any critical check fails. Probes target this repository's real tree — the
+source modules, the cited verification ledger, and the shipped bundle — not a
+generic template.
+@end
+
+## File Presence
+
+### license-present
+- description: LICENSE file must exist
+- run: test -f LICENSE
+- severity: critical
+
+### license-texts-vendored
+- description: Every SPDX identifier used in the tree has its text vendored under LICENSES/
+- run: test -f LICENSES/AGPL-3.0-or-later.txt && test -f LICENSES/MPL-2.0.txt && test -f LICENSES/CC-BY-SA-4.0.txt
+- severity: critical
+- notes: AGPL for code, MPL for the .a2ml metadata set, CC-BY-SA for the descriptiles README.adoc and the .adoc documentation.
+
+### license-matches-vendored-text
+- description: The root LICENSE is byte-identical to the vendored AGPL text
+- run: cmp -s LICENSE LICENSES/AGPL-3.0-or-later.txt
+- severity: critical
+
+### readme-present
+- description: README.adoc must exist
+- run: test -f README.adoc
+- severity: critical
+
+### verification-ledger-present
+- description: VERIFICATION.adoc — the 12-claim ledger (C1-C12) — must exist
+- run: test -f VERIFICATION.adoc
+- severity: critical
+- notes: This is the project's centre of gravity; every design claim is discharged there.
+
+### ai-manifest-present
+- description: The root agent-facing documents exist
+- run: test -f README.adoc && test -f VERIFICATION.adoc && test -f AUDIT.adoc && test -f KERNEL-DIVERGENCE.adoc
+- severity: critical
+
+### governance-docs
+- description: The full governance set must exist
+- run: "{ test -f GOVERNANCE.adoc || test -f GOVERNANCE.adoc; } && { test -f MAINTAINERS.adoc || test -f MAINTAINERS; } && test -f CODE_OF_CONDUCT.adoc && test -f CONTRIBUTING.adoc && test -f SECURITY.adoc && test -f .github/CODEOWNERS"
+- severity: critical
+- notes: The RSR template specifies GOVERNANCE.adoc / MAINTAINERS.adoc; older estate repos use .md / extensionless. Either satisfies this probe.
+
+### readme-trio-present
+- description: The README / EXPLAINME / AFFIRMATION trio exists
+- run: test -f README.adoc && test -f EXPLAINME.adoc && test -f AFFIRMATION.adoc
+- severity: warning
+- notes: Three tenses. README is aspirational, EXPLAINME is mechanism, AFFIRMATION is a frozen falsifiable instant. The third is the one that decays — it names a commit SHA and is a draft once HEAD moves past it.
+
+### audit-and-changelog-present
+- description: AUDIT.adoc and CHANGELOG.adoc exist
+- run: test -f AUDIT.adoc && test -f CHANGELOG.adoc
+- severity: warning
+
+### hygiene-config
+- description: .editorconfig and .gitattributes must exist
+- run: test -f .editorconfig && test -f .gitattributes
+- severity: warning
+
+## Source Structure
+
+### core-modules-present
+- description: The simulation modules exist (engine is VENDORED under kernel/)
+- run: test -f src/kernel/engine.mjs && test -f src/mission.mjs && test -f src/level.mjs && test -f src/radar.mjs
+- severity: critical
+
+### cited-ledger-scripts-present
+- description: Every script cited by the verification ledger exists
+- run: test -f src/verify-kernel-parity.mjs && test -f src/verify-los.mjs && test -f src/verify-level.mjs && test -f src/verify-corridor.mjs && test -f src/verify-determinism.mjs && test -f src/verify-witness.mjs && test -f src/verify-falsifier.mjs && test -f src/verify-renderer.mjs && test -f src/verify-3d-rule-search.mjs
+- severity: critical
+
+### design-tools-retained
+- description: The design searches are retained, not deleted
+- run: test -f design/measure.mjs && test -f design/period.mjs && test -f design/solve.mjs && test -f design/sweep.mjs && test -f design/place.mjs
+- severity: warning
+- notes: A "no viable candidate" output is a recorded negative result — design/place.mjs swept 2,016 second-gate-sensor configurations and found zero viable, which is how that mechanism was ruled out. Keeping these keeps the ruled-out search space visible and re-runnable. design/period.mjs exists because src/level.mjs cited it before it did.
+
+### spike-provenance-intact
+- description: The v0 3D prototype is preserved verbatim with its defect record
+- run: test -f spike/world.html && test -f spike/simulation.html && test -f spike/README.md
+- severity: critical
+- notes: The prototypes are landed verbatim as provenance with their seven measured defects recorded in spike/README.md. Defects 4, 5 and 7 (axis disagreement, sign-broken collision, vanishing aircraft) are fixed by construction in src/render3d.mjs; defects 1, 2 and 3 are the ARCHITECTURE, and are why the substrate is 2D and deterministic.
+
+### spdx-headers-on-every-source
+- description: Every .mjs under src/ declares AGPL-3.0-or-later on its FIRST line
+- run: "! find src -name '*.mjs' -exec head -1 {} \\; | grep -qv '^// SPDX-License-Identifier: AGPL-3.0-or-later$'"
+- severity: critical
+
+## Design Invariants
+
+### substrate-purity-b3s23
+- description: The engine implements B3/S23 and the level declares it in its header
+- run: test -f src/kernel/engine.mjs && grep -q 'export function step' src/kernel/engine.mjs && grep -q 'n === 3 || (src\[i\] && n === 2)' src/kernel/engine.mjs
+- severity: critical
+- notes: Born on exactly 3 live neighbours, survives on 2 or 3, applied uniformly. No special-cased cells, no scripted entities.
+
+### stamp-throws-on-out-of-bounds
+- description: stamp() throws rather than clipping or wrapping out-of-bounds writes
+- run: grep -q 'stamp out of bounds' src/kernel/engine.mjs
+- severity: critical
+- notes: Silent wrapping previously manufactured a phantom "second clean landing lane". Strictness is a correctness gate (D-06).
+
+### contact-rule-unchanged
+- description: The shipped contact rule remains Chebyshev radius 2
+- run: grep -q 'nearWorld(M, cells, 2)' src/mission.mjs
+- severity: critical
+- notes: Chebyshev 3 is the exact independence criterion — while the aircraft keeps it, "not being in the world" and "being in it" are provably indistinguishable. Relaxing this to cell-overlap makes the route learnable by feel, converting the substrate into scenery and failing the premise. This is the standing falsifier (D-03).
+
+### level-geometry-frozen
+- description: The Operation Nightglass geometry and its measured invariants are intact
+- run: grep -q 'const W = 172, H = 108;' src/level.mjs && grep -q 'const hangarAt = \[92, 96\];' src/level.mjs && grep -q 'glidepaths: \[-10, -4, 3\]' src/level.mjs && grep -q 'radarRange = 40' src/level.mjs
+- severity: critical
+- notes: The level is the design (D-02). Any change here invalidates the entire ledger and requires a full re-run of `just verify` (all twelve claims) — and the geometry is one-cell knife-edged, so "invalidates" is literal rather than cautious.
+
+### shadow-map-not-recomputed-per-frame
+- description: The renderer recomputes the radar shadow on CA tick, never inside the frame loop
+- run: "! sed -n '/function frame(/,/^  }/p' src/ui.js | grep -q 'shadowMap('"
+- severity: critical
+- notes: shadowMap is O(W*H*sensors*ray) and MEASURES 23.5 ms on this level — a single call already exceeds a 16.7 ms frame budget. radar.mjs has always carried the warning; nothing enforced it. ui.js memoises by substrate phase (only 15 distinct maps exist, C11), which C4 asserts is sound. This probe fails if a future edit moves the call into the render path.
+
+### metadata-describes-this-repository
+- description: The machine-readable tree cites only files that exist, and only this level's vocabulary
+- run: node scripts/metadata-citations.mjs
+- severity: critical
+- notes: This repository was scaffolded by copying f19-stealth-glider and the machine-readable tree arrived describing f19's GAME — another game's gun as this level's primitive, the wrong spawn and hangar, and a [settled-questions] block recording another repository's rulings as closed here, with two more files pointing agents at it as authority. None of it could fail: the stale statements sat behind `tolerance:`, `injection_probe:` and drill-only `recovery_probe:` fields the runner does not execute. This probe is executable and critical. Deliberate contrast statements opt out per line with a greppable marker (see the header of scripts/metadata-citations.mjs), which never exempts a dead path.
+
+### zero-runtime-dependencies
+- description: package.json declares no dependencies or devDependencies
+- run: "! grep -qE '\"(dev)?[dD]ependencies\"' package.json"
+- severity: critical
+- notes: Zero dependencies is a design property, not an accident (D-08).
+
+### package-license-agpl
+- description: package.json declares the AGPL licence
+- run: grep -q '"license": "AGPL-3.0-or-later"' package.json
+- severity: critical
+
+## CI Integrity
+
+### workflows-sha-pinned
+- description: Every workflow `uses:` is pinned to a full commit SHA, never a tag
+- run: "! grep -rhoE 'uses: *[A-Za-z0-9_.-]+/[A-Za-z0-9_./-]+@[^ ]+' .github/workflows/ | grep -qvE '@[0-9a-f]{40}$'"
+- severity: critical
+- notes: The org enforces sha_pinning_required. A tag ref causes startup_failure at 0s — a workflow that never runs and never reports red.
+
+### ci-runs-the-cited-ledger
+- description: The CI workflow actually runs the cited verification scripts
+- run: grep -q 'verify-kernel-parity verify-los verify-level verify-corridor verify-determinism verify-witness verify-falsifier verify-renderer verify-3d-rule-search' .github/workflows/ci.yml && ! grep -q 'continue-on-error' .github/workflows/ci.yml
+- severity: critical
+- notes: |
+    A CI file that does not execute the ledger is a fake gate. Both halves matter.
+    The first clause pins the GATING scripts, now including verify-falsifier (C6
+    went green and was folded in, exactly as this probe's earlier notes said to).
+    The second clause forbids continue-on-error anywhere in the workflow: while C6
+    was red it ran under that flag deliberately and visibly, but now that every
+    claim gates, the cheapest way to make a red claim "green" again would be to
+    demote it back — which is precisely the failure this repository exists to
+    avoid. This probe failed the moment the fold-in happened and was updated with
+    it, which is the probe doing its job.
+
+## Machine-Readable Structure
+
+### machine-readable-dir
+- description: machine-readable/ directory must exist
+- run: test -d machine-readable
+- severity: critical
+
+### descriptiles-present
+- description: The descriptiles directory holds all six core A2ML files
+- run: test -f machine-readable/descriptiles/META.a2ml && test -f machine-readable/descriptiles/ECOSYSTEM.a2ml && test -f machine-readable/descriptiles/STATE.a2ml && test -f machine-readable/descriptiles/PLAYBOOK.a2ml && test -f machine-readable/descriptiles/AGENTIC.a2ml && test -f machine-readable/descriptiles/NEUROSYM.a2ml
+- severity: critical
+- notes: RSR v2 names this directory `descriptiles/`. The older estate name was `6a2/`; this repo uses the current one.
+
+### clade-and-anchor-present
+- description: Repository identity (CLADE) and semantic anchor exist
+- run: test -f machine-readable/descriptiles/CLADE.a2ml && test -f machine-readable/descriptiles/anchors/ANCHOR.a2ml
+- severity: critical
+
+### clade-identity-is-ours
+- description: CLADE.a2ml declares THIS repository — UUID RECOMPUTED, not merely not-the-template's
+- run: grep -q 'canonical-name = "f117a-stealth-glider"' machine-readable/descriptiles/CLADE.a2ml && grep -q "uuid = \"$(uuidgen --sha1 --namespace @url --name 'github.com/metadatastician/f117a-stealth-glider')\"" machine-readable/descriptiles/CLADE.a2ml
+- severity: critical
+- notes: |
+    Strengthened after this repo hit the bug during scaffolding. The inherited probe
+    denylisted ONE known-bad UUID (the RSR template's a5ea1382-...). That is not enough:
+    this repo was scaffolded by copying f19-stealth-glider, so it arrived carrying
+    f19's UUID (5f715988-a5b9-5b0a-acd6-b2c0a91bfa5d) — which the old probe passed,
+    because f19 is not the template. A textual f19->f117a rename cannot catch it
+    either, since a UUIDv5 contains none of the repo's name.
+    The fix is to stop denylisting and start RECOMPUTING: derive the UUID from the
+    canonical URL and require the file to declare exactly that. This now catches every
+    wrong UUID, not the two we happened to think of.
+
+### contractiles-trident-present
+- description: All six contractile verbs exist on the trident layout
+- run: test -f machine-readable/contractiles/must/Mustfile.a2ml && test -f machine-readable/contractiles/intend/Intentfile.a2ml && test -f machine-readable/contractiles/trust/Trustfile.a2ml && test -f machine-readable/contractiles/adjust/Adjustfile.a2ml && test -f machine-readable/contractiles/bust/Bustfile.a2ml && test -f machine-readable/contractiles/dust/Dustfile.a2ml
+- severity: critical
+- notes: Trident layout per contractiles/INDEX.a2ml v2.0.0 (verb-named subdirectory, not flat). The template's own Mustfile still probes the superseded flat paths and therefore fails against its own tree; this one does not.
+
+### contractile-registry-present
+- description: The contractile registry INDEX.a2ml exists
+- run: test -f machine-readable/contractiles/INDEX.a2ml
+- severity: critical
+
+### rsr-profile-present
+- description: The declared RSR capability profile exists
+- run: test -f machine-readable/rsr-profile.a2ml
+- severity: critical
+- notes: Gates which RSR criteria are applicable. Declaring a capability this repo lacks would score it against a module it does not carry.
+
+### no-template-placeholders
+- description: No unsubstituted template placeholders remain anywhere in the tree
+- run: "! grep -rlE '[{]{2}[A-Z][A-Z0-9_]*[}]{2}' --exclude-dir=.git --exclude-dir=node_modules . 2>/dev/null | head -1 | grep -q ."
+- severity: critical
+- notes: RSR template placeholders are doubled-brace SHOUTY_SNAKE tokens. "Documentation filled in" means none survives. The pattern is deliberately narrower than a bare doubled brace, because GitHub Actions expression syntax also doubles braces and a loose probe flags every workflow that uses one. It is written with bracket classes so this file does not trip its own check.
+
+### well-known-present
+- description: The .well-known trio exists
+- run: test -f .well-known/ai.txt && test -f .well-known/humans.txt && test -f .well-known/security.txt
+- severity: warning
+
+### contractile-runner-present
+- description: The contractile runner exists, so these probes are executable rather than decorative
+- run: test -f scripts/contractiles.mjs
+- severity: critical
+
+### a2ml-spdx-headers
+- description: Every .a2ml file carries an SPDX identifier
+- run: "! for f in $(find . -name '*.a2ml' -not -path './.git/*'); do head -3 \"$f\" | grep -q 'SPDX-License-Identifier:' || echo BAD; done | grep -q BAD"
+- severity: critical
+
+### k9iser-manifest
+- description: k9iser.toml manifest exists at the repository root
+- run: test -f k9iser.toml
+- severity: critical
+
+### toolchain-pins
+- description: mise.toml pins the toolchain
+- run: test -f mise.toml && grep -q 'node' mise.toml
+- severity: warning

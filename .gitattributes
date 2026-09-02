@@ -33,7 +33,7 @@ LICENSE      text eol=lf linguist-vendored=true
 LICENSES/**  text eol=lf linguist-vendored=true
 
 # ── Documentation ────────────────────────────────────────────────────────────
-# Count VERIFICATION.md as documentation rather than prose-of-unknown-kind.
+# Count VERIFICATION.adoc as documentation rather than prose-of-unknown-kind.
 *.adoc linguist-documentation=true
 
 # spike/ is verbatim provenance, not source. Its SHA-256 digests are published in

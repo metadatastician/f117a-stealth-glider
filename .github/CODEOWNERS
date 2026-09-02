@@ -4,7 +4,7 @@
 * @hyperpolymath
 
 # ── Design invariants ────────────────────────────────────────────────────────
-# These paths are trust-deny areas (see .machine_readable/contractiles/trust/).
+# These paths are trust-deny areas (see machine-readable/contractiles/trust/).
 # They are listed explicitly not because ownership differs — this is a
 # single-maintainer project — but because the list is the review checklist:
 # a change here needs a decision record and a full re-run of the ledger.
@@ -12,12 +12,12 @@
 /src/engine.mjs        @hyperpolymath   # the B3/S23 substrate itself
 /src/level.mjs         @hyperpolymath   # FROZEN geometry — the design
 /src/mission.mjs       @hyperpolymath   # contains the contact rule (the falsifier)
-/VERIFICATION.md       @hyperpolymath   # claims change only with a re-run
+/VERIFICATION.adoc       @hyperpolymath   # claims change only with a re-run
 
 # ── Licensing ────────────────────────────────────────────────────────────────
 /LICENSE               @hyperpolymath
 /LICENSES/             @hyperpolymath
 
 # ── Contracts and CI ─────────────────────────────────────────────────────────
-/.machine_readable/contractiles/  @hyperpolymath
+/machine-readable/contractiles/  @hyperpolymath
 /.github/workflows/               @hyperpolymath

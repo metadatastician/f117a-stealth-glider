@@ -1,0 +1,78 @@
+// SPDX-License-Identifier: CC-BY-SA-4.0
+// Copyright (c) 2026 Jonathan D.A. Jewell (hyperpolymath)
+
+= Architecture — F117A Stealth Glider
+
+Layers, from the bottom up. The rule that generates the whole diagram: *the
+audited core must not know the game exists.*
+
+....
+┌─────────────────────────────────────────────────────────────┐
+│ f117a-stealth-glider.html      the shipped bundle (C10)      │
+│   = mechanical concatenation of everything below, verified   │
+│     byte-reproducible at every build                         │
+├─────────────────────────────────────────────────────────────┤
+│ src/ui.js                      DOM shell                     │
+│   canvas, keyboard/touch, the frame clock, HUD, cards.       │
+│   Owns the ONLY performance.now/rAF in the repository.       │
+├─────────────────────────────────────────────────────────────┤
+│ src/render3d.mjs               pure renderer + camera (C7)   │
+│   (mission state, shadow, camera, dt) -> draw list.          │
+│   No DOM, no clock, no randomness. Proven inert: flying the  │
+│   witness with and without it produces byte-identical worlds.│
+├─────────────────────────────────────────────────────────────┤
+│ src/level.mjs   src/radar.mjs  the F117A layer               │
+│   level geometry (C6, C11, C12) and radar LOS (C2, C3).      │
+├─────────────────────────────────────────────────────────────┤
+│ src/mission.mjs                DECLARED FORK of f19 (C1)     │
+│   f19's mission core + fenced radar channel. Byte-locked     │
+│   outside the fences.                                        │
+├─────────────────────────────────────────────────────────────┤
+│ src/kernel/engine.mjs          VENDORED VERBATIM from f19    │
+│   B3/S23, RLE, glider tables. No local edits permitted.      │
+└─────────────────────────────────────────────────────────────┘
+....
+
+== Why the world is 2D and the camera is 3D
+
+Measured, not preferred: 3D Life has no glider ecology — 180 random soups per
+rule on a 24³ torus produced *0 translating patterns* in Bays 5766 and in
+4555 (claim C9, `src/verify-3d-rule-search.mjs`, the planning probe landed as
+a permanent test). A coupled 3D CA game would have no player. So the world
+stays literally Conway, and the three dimensions move to the *camera*: a
+chase view whose flight model is adapted from `spike/simulation.html` — the
+un-regressed prototype, with the PID controller and elevon mixer intact — and
+which banks into the glider's turns. See `spike/README.md` for the lineage and
+the seven measured defects of the other prototype; defects 4, 5 and 7 (axis
+disagreement, sign-broken collision, vanishing aircraft) are fixed in
+`src/render3d.mjs` by construction, and defects 1–3 are the reason the
+substrate is not 3D.
+
+== The inertness rule (C7)
+
+`render3d.mjs` is a *pure function of its inputs*. It may read mission
+state; it must not write it, and it cannot smuggle in nondeterminism because
+it has no clock and no randomness to smuggle (C7 greps for the same banned
+primitives C8 bans from the simulation). The proof is not the grep, though:
+`verify-renderer.mjs` flies the witness twice — once headless, once invoking
+the full camera-and-draw-list path every generation — and requires every
+generation's world to hash identically and the outcome to match. It ships
+with a canary: a deliberately mutating renderer must be caught by the same
+harness.
+
+`ui.js` sits above that line and is _presentation only_: it carries no
+gameplay truth, and deleting it leaves every verification claim intact. The
+frame clock lives there — legitimate, because C7 proves the layer below it
+cannot influence the mission — and CA ticks are accumulator-driven while
+rendering runs per frame. `shadowMap` is recomputed *on CA tick only*, per
+the cost note in `src/radar.mjs`.
+
+== The bundle (C10)
+
+`src/build.mjs` concatenates `kernel/engine.mjs {plus} radar.mjs {plus} mission.mjs {plus} level.mjs {plus} render3d.mjs {plus} ui.js` with imports/exports stripped, inlines the
+CSS, and emits a single self-contained `f117a-stealth-glider.html` — no
+build tooling, no runtime modules, runs from a `file://` URL. Two checks run
+at build time: `node --check` on the exact shipped script, and a smoke flight
+of the committed witness through the _transformed_ core (must LAND, trace 0,
+never locked). `just test` and CI then require the committed bundle to be
+byte-identical to a fresh rebuild.

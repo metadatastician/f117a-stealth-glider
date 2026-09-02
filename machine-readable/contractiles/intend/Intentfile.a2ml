@@ -1,0 +1,110 @@
+# SPDX-License-Identifier: MPL-2.0
+# Intentfile (A2ML Canonical) — north-star contractile for F117A Stealth Glider
+# Author: Jonathan D.A. Jewell (hyperpolymath)
+#
+# Paired runner: scripts/contractiles.mjs
+# Verb:          intend
+#
+# Semantics: North-star contractile. Declares BOTH concrete committed
+#            next-actions AND horizon aspirations. Non-gating — a report,
+#            not a gate. See the `must` contractile for hard gates.
+
+@abstract:
+North-star contractile for F117A Stealth Glider, a stealth puzzle played on a
+live Conway's Game of Life field. This file declares what the project WILL do
+next (tracked intents) and what it WISHES to become, along the roadmap
+v0 Nightglass (level + ledger) -> v1 playable (renderer, camera, bundle)
+-> v2 second level -> campaign.
+@end
+
+## Purpose
+
+Prove that a cellular automaton can be a genuine antagonist rather than
+atmosphere. The player flies one glider to a hangar across a live B3/S23 field
+in which every hazard is a real Life pattern, so the skill being tested is
+reading the automaton's phase and geometry — not memorising patrol routes or
+executing quickly.
+
+## Anti-Purpose
+
+F117A Stealth Glider is NOT:
+- A Life sandbox or simulator — it is a designed level with a win condition.
+- A game with scripted enemies — nothing moves except by B3/S23.
+- A reflex game — difficulty is comprehension, not execution speed.
+- Tunable by playtest — the level is frozen geometry; a failing route is
+  redesigned or recorded as a negative result, never softened by weakening the
+  contact rule.
+- A framework or library — there is no public API for other projects.
+
+## If In Doubt
+
+Ask before touching: `src/level.mjs` (frozen geometry), the contact rule in
+`src/mission.mjs`, the B3/S23 step in `src/kernel/engine.mjs`, the licence, or any
+claim in `VERIFICATION.adoc`. Changing any of these invalidates the ledger.
+
+## Committed Next-Actions
+
+### v0-shipped
+- description: One complete, fully verified level whose substrate is provably load-bearing
+- probe: test -f f117a-stealth-glider.html && test -f VERIFICATION.adoc
+- status: complete
+- notes: Ledger green; the central geometric question (stream crossability) is closed.
+
+### contractiles-executable
+- description: The contractile probes actually run, rather than being decorative
+- probe: test -f scripts/contractiles.mjs
+- status: complete
+- notes: Estate-wide the .ncl runners were never built. Here the probes are shell one-liners and scripts/contractiles.mjs executes them; CI fails on any critical breach.
+
+### second-level
+- description: A second level, to prove the engine and the chokepoint-and-shutter grammar generalise beyond one frozen geometry
+- probe: test -f src/level.mjs
+- status: declared
+- notes: This level's gate sensor and shutter positions are ONE-CELL optima found by sweep — neighbours measure 1/14 and 4/14 where the shipped pair measures 14/14. Whether that fragility is inherent to the grammar or an artefact of this geometry is the open question a second level answers. Whichever shape is chosen must be judged against the same standing falsifier, which now includes the no-escape assertion.
+
+### phase-readout
+- description: An in-game phase indicator so the player can read the automaton without counting ticks by hand
+- probe: grep -q 'phase' src/ui.js
+- status: declared
+- notes: Directly serves the premise — if phase is unreadable, the level is unfair rather than hard.
+
+### search-harness
+- description: Promote design/place.mjs's sweep pipeline into a reusable level-search harness
+- probe: test -f design/place.mjs
+- status: declared
+- notes: It already encodes collision, transient, solvability and falsifier scoring over a generated candidate set, and it is what found the shipped geometry and ruled the second gate sensor out across 2,016 configurations. Generalising it makes level two cheaper.
+
+## Wishes
+
+### Near Horizon
+
+#### second-level
+- description: A second level, to prove the engine generalises beyond one frozen geometry
+- horizon: near
+- status: declared
+
+#### content-licence-split
+- description: Split level data out of code so it can carry CC-BY-SA-4.0 as content
+- horizon: near
+- status: declared
+- notes: Today the level is code and is AGPL like everything else.
+
+### Mid Horizon
+
+#### solver-adversary
+- description: An automated solver that certifies a level is NOT learnable by feel
+- horizon: mid
+- status: declared
+- notes: This would turn the standing falsifier from a design principle into a mechanised check — the single highest-value thing this project could grow.
+
+#### richer-primitives
+- description: Additional Life primitives as level vocabulary (reflectors, rakes, longer-period oscillators to widen the phase space beyond 15)
+- horizon: mid
+- status: declared
+
+### Far Horizon
+
+#### campaign
+- description: A full campaign of levels, each closing a different geometric question
+- horizon: far
+- status: declared
