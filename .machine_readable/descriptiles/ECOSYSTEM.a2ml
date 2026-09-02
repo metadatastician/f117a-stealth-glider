@@ -13,6 +13,12 @@ type = "game"
 purpose = "A stealth puzzle whose enemy is a cellular automaton. The player flies one glider to a hangar across a live B3/S23 field; every hazard is a real Life pattern, so evading them means reading the automaton's phase rather than learning a patrol route."
 scope = "One complete, fully verified level (Operation Nightglass v0). Deliberately small: the point is that the substrate is provably load-bearing, demonstrated once and rigorously, rather than sprawled across many levels."
 
+[pipeline]
+position = "second Stealth Glider investigation"
+chain = "f19-stealth-glider -> f117a-stealth-glider -> sr71-blackglider -> x15-rocket-glider -> planer-1 -> enterglide-ncc-137-k -> tardis-rule-disruption"
+notes = "The chain is canonical in the coordination hub; this file copies it verbatim and is checked by the hub's membership gate."
+coordination = "metadatastician/stealth-glider-ecosystem"
+
 [architecture]
 substrate = "src/kernel/engine.mjs — VENDORED VERBATIM from f19; B3/S23 core: bounded grid, step, RLE, the 8 symmetries, bounds-checked stamp, named pattern library, empirically derived glider kinematics, shadow-filtered findGlider."
 mission = "src/mission.mjs — player overlay, Chebyshev contact rule, sensors, trace accounting, hangar splice, ambient stepping."
@@ -35,6 +41,9 @@ projects = [
   { name = "Pentadecathlon (p15)", relationship = "level-primitive", notes = "The shutter oscillator. Two of them graze the gate sensor's sight lines, opening and closing the only survivable crossing on a 15-beat cycle. Period measured in isolation by design/period.mjs." },
   { name = "Pulsar (p3)", relationship = "level-primitive", notes = "The other placed oscillator; with the pentadecathlon it sets the substrate period to lcm(3,15) = 15 (C11)." },
   { name = "Eater 1 (sym-4)", relationship = "level-primitive", notes = "The hangar. Absorbs an arriving SE glider cleanly on exactly 3 of 21 measured approach lanes." },
+  { name = "f19-stealth-glider", relationship = "conceptual predecessor", notes = "First Stealth Glider investigation; source of the vendored kernel." },
+  { name = "sr71-blackglider", relationship = "conceptual successor", notes = "Third Stealth Glider investigation." },
+  { name = "stealth-glider-ecosystem", relationship = "coordination hub", notes = "Holds the canonical chain and membership manifest for the Stealth Glider line." },
 ]
 
 [boundaries]

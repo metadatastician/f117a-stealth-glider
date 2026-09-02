@@ -161,3 +161,10 @@ jobs:
           EOF
           sed -i 's/^ *//' /tmp/spike.sha
           sha256sum -c /tmp/spike.sha
+
+      # Root shape, in BOTH directions, against .machine_readable/root-allow.txt:
+      # an unlisted root entry fails, and a listed required entry that goes
+      # missing fails. Added 2026-09-02 when the repo was retrofitted to the
+      # RSR root-shape contract (the script is rsr-template-repo@2283f12's).
+      - name: Root shape matches .machine_readable/root-allow.txt
+        run: bash scripts/check-root-shape.sh .
