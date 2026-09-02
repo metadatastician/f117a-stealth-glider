@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "Operation Nightglass — a stealth puzzle on a live Conway's Game of Life field (B3/S23).",
   "type": "module",
-  "license": "AGPL-3.0-or-later",
+  "license": "MPL-2.0",
   "author": "Jonathan D.A. Jewell (hyperpolymath) <j.d.a.jewell@open.ac.uk>",
   "private": false,
   "scripts": {

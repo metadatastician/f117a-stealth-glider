@@ -45,14 +45,14 @@ gates like everything else; `just beats` runs it.
 == C1 — kernel parity
 
 `src/kernel/engine.mjs` is byte-identical to
-`metadatastician/f19-stealth-glider@9effa596:src/engine.mjs`, and `src/mission.mjs`
+`metadatastician/f19-stealth-glider@4af642af:src/engine.mjs`, and `src/mission.mjs`
 is that repository's `mission.mjs` plus explicitly fenced additions.
 
 Both are asserted as *git blob ids* — `sha1("blob ++<++len++>\++0" {plus} bytes)`, the same
 identifiers f19's own tree records — so the check is cryptographic and entirely
 offline. `verify-kernel-parity.mjs` strips every `++>>>++ FORK … ++<<<++ FORK` block from
 `mission.mjs`, reverses the two declared substitutions, and requires the result
-to hash to `30f93a70…`.
+to hash to `62591769…`.
 
 Vendoring has failed the same way repeatedly across this estate — a copy is
 taken, improved locally, and later nobody can say which is authoritative. A

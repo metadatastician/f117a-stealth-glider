@@ -1,5 +1,5 @@
 # F117A Stealth Glider — task runner
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: MPL-2.0
 #
 # Node >= 18 is the only requirement. There is nothing to install.
 

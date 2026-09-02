@@ -87,7 +87,7 @@ claim in `VERIFICATION.adoc`. Changing any of these invalidates the ledger.
 - description: Split level data out of code so it can carry CC-BY-SA-4.0 as content
 - horizon: near
 - status: declared
-- notes: Today the level is code and is AGPL like everything else.
+- notes: Today the level is code and is MPL-2.0 like everything else.
 
 ### Mid Horizon
 

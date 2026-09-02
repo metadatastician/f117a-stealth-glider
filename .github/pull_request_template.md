@@ -48,7 +48,7 @@ result — asserting that a script "would pass" is not sufficient.
 - [ ] If I touched `src/`, I ran `just build` and committed the regenerated
       `f117a-stealth-glider.html`.
 - [ ] Every new or changed `src/*.mjs` / `src/*.js` still has
-      `// SPDX-License-Identifier: AGPL-3.0-or-later` as its **first** line.
+      `// SPDX-License-Identifier: MPL-2.0` as its **first** line.
 - [ ] I added no dependencies (`package.json` has no `dependencies` /
       `devDependencies`).
 - [ ] Commits are signed off — `git commit -s` (DCO 1.1).

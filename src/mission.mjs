@@ -1,10 +1,10 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2026 Jonathan D.A. Jewell (hyperpolymath) <j.d.a.jewell@open.ac.uk>
 // F117A Stealth Glider — mission core. No DOM. Used by verify harness AND the shipped game.
 // >>> FORK
 // ===========================================================================
-// DECLARED FORK of f19-stealth-glider@9effa596:src/mission.mjs
-// (upstream git blob 30f93a704a63c18e0e74c4cc7c7ef7044c9f35d9).
+// DECLARED FORK of f19-stealth-glider@4af642af:src/mission.mjs
+// (upstream git blob 62591769529d73f06fd99e24a177231569d1262f).
 //
 // Claim C1 proves this file is upstream-plus-declared-changes offline and
 // cryptographically: verify-kernel-parity.mjs strips every FORK-fenced block,

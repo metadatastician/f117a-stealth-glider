@@ -44,8 +44,8 @@ can-create-files = true
 #   output is a recorded negative result, not a broken test: 2,016 swept
 #   second-gate configurations produced zero viable, which is how that
 #   mechanism was ruled out.
-# - Never change the licence. All code is AGPL-3.0-or-later; the .a2ml metadata
-#   set is MPL-2.0. Staying copyleft is deliberate.
+# - Never change the licence without an owner ruling. All code and the .a2ml
+#   metadata set are MPL-2.0 (ruling of 2026-09-02; AGPL-3.0-or-later before).
 # - Never commit secrets or credentials.
 # - Never place state/metadata in the repository root — it belongs under
 #   machine-readable/ (this repo carries no root manifest file of its own).

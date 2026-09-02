@@ -83,9 +83,9 @@ because the failure genuinely occurred and the recovery was genuinely applied.
 
 ### licence-clobbered-by-sweep
 - class: licensing
-- description: An estate-wide sweep flattens the AGPL licence to a permissive one
+- description: A sweep silently changes the licence (the AGPL-3.0-or-later -> MPL-2.0 move of 2026-09-02 was an owner ruling; anything unruled is a clobber)
 - injection_probe: "true"
-- recovery_probe: "grep -q 'GNU AFFERO GENERAL PUBLIC LICENSE' LICENSE && grep -q '\"license\": \"AGPL-3.0-or-later\"' package.json && cmp -s LICENSE LICENSES/AGPL-3.0-or-later.txt"
+- recovery_probe: "grep -q 'Mozilla Public License Version 2.0' LICENSE && grep -q '\"license\": \"MPL-2.0\"' package.json && cmp -s LICENSE LICENSES/MPL-2.0.txt"
 - expected_recovery_time_seconds: 120
 - status: declared
 - notes: This has happened to sibling repos in this estate. Check BOTH directions — a correct header over a wrong body is the same defect as the reverse.

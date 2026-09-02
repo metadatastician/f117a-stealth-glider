@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Identifier: MPL-2.0
 #
 # The real gate for F117A Stealth Glider. Every step here can fail; none of them
 # is annotate-only. If you add a step, make sure it can actually go red — a
@@ -43,8 +43,8 @@ jobs:
           set -euo pipefail
           fail=0
           while IFS= read -r f; do
-            if [ "$(head -1 "$f")" != "// SPDX-License-Identifier: AGPL-3.0-or-later" ]; then
-              echo "::error file=$f::missing SPDX AGPL header"; fail=1
+            if [ "$(head -1 "$f")" != "// SPDX-License-Identifier: MPL-2.0" ]; then
+              echo "::error file=$f::missing SPDX MPL-2.0 header"; fail=1
             fi
           done < <(find src scripts design \( -name '*.mjs' -o -name '*.js' \))
           [ "$fail" = 0 ]
@@ -76,11 +76,11 @@ jobs:
       # verify-kernel-parity already proves this offline via git blob ids. This
       # step is a second, INDEPENDENT witness computed by git itself rather than
       # by our own reimplementation of the blob hash.
-      - name: Vendored engine blob id matches f19@9effa596
+      - name: Vendored engine blob id matches f19@4af642af
         run: |
           set -euo pipefail
           got="$(git hash-object src/kernel/engine.mjs)"
-          want="c7a016ecd9003422bf46252a4713e69dabf266fe"
+          want="e9a26afe7736baa7faab35b582e01e30951b91b1"
           echo "engine.mjs blob: $got"
           if [ "$got" != "$want" ]; then
             echo "::error::vendored engine.mjs has diverged from f19 (want $want)"

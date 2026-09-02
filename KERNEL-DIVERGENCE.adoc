@@ -3,7 +3,7 @@
 
 = Kernel divergence from f19-stealth-glider
 
-Upstream: `metadatastician/f19-stealth-glider` @ `9effa596f974f3330cbeac826e147f84086515a1`
+Upstream: `metadatastician/f19-stealth-glider` @ `4af642af490f455c19ede724fe20efabf04e95cd`
 
 This repository reuses f19's simulation core. Across this estate that kind of
 reuse has failed the same way every time: a copy is taken, improved locally, and
@@ -16,7 +16,7 @@ link:./src/verify-kernel-parity.mjs[`src/verify-kernel-parity.mjs`] (claim C1).
 
 [cols=",",]
 |===
-|upstream blob |`c7a016ecd9003422bf46252a4713e69dabf266fe`
+|upstream blob |`e9a26afe7736baa7faab35b582e01e30951b91b1`
 |local changes |*none, and none are permitted*
 |===
 
@@ -30,7 +30,7 @@ point. Do not fix anything here. Fix it upstream, re-vendor, re-pin.
 
 [cols=",",]
 |===
-|upstream blob |`30f93a704a63c18e0e74c4cc7c7ef7044c9f35d9`
+|upstream blob |`62591769529d73f06fd99e24a177231569d1262f`
 |local changes |five fenced blocks, plus two substitutions
 |===
 
