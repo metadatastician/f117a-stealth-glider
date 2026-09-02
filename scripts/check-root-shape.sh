@@ -4,10 +4,10 @@
 #
 # Taken verbatim (path adjusted) from hyperpolymath/rsr-template-repo@2283f12 on
 # 2026-09-02, when this repository was retrofitted to the RSR root-shape
-# contract. Its metadata tree is the dotted .machine_readable/ layout.
+# contract. Its metadata tree is the dotted machine-readable/ layout.
 #
 # check-root-shape.sh — enforce the canonical root shape, in BOTH directions,
-# against .machine_readable/root-allow.txt.
+# against machine-readable/root-allow.txt.
 #
 #   * an entry at root that is not listed          -> drift (extra)
 #   * a listed entry WITHOUT '?' that is missing   -> drift (missing)
@@ -30,7 +30,7 @@
 set -euo pipefail
 
 REPO_ROOT="${1:-.}"
-ALLOW_FILE="${REPO_ROOT}/.machine_readable/root-allow.txt"
+ALLOW_FILE="${REPO_ROOT}/machine-readable/root-allow.txt"
 
 if [ ! -f "$ALLOW_FILE" ]; then
     echo "ERROR: allowlist not found at $ALLOW_FILE" >&2
@@ -124,7 +124,7 @@ if [ ${#EXTRAS[@]} -gt 0 ]; then
     done
     echo "" >&2
     echo "Either move them into the appropriate subdirectory, or add a justified" >&2
-    echo "entry to .machine_readable/root-allow.txt." >&2
+    echo "entry to machine-readable/root-allow.txt." >&2
 fi
 
 if [ ${#MISSING[@]} -gt 0 ]; then

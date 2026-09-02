@@ -25,7 +25,7 @@ rules = [
   { name = "b3s23-purity", scope = "src/kernel/engine.mjs", severity = "warning", notes = "The step rule is born-on-3 / survive-on-2-or-3, applied uniformly. Flag any per-cell exception, entity table, or scripted mover." },
   { name = "bundle-freshness", severity = "warning", notes = "f117a-stealth-glider.html must be byte-identical to a fresh `just build`. Flag commits touching src/ that leave it untouched." },
   { name = "ledger-claim-has-script", scope = "VERIFICATION.md", severity = "warning", notes = "Every claim row must cite a script that exists in src/ and is runnable with plain `node`." },
-  { name = "root-metadata-placement", severity = "info", notes = "State/metadata belongs under .machine_readable/, not the repo root (the root holds no metadata file of its own)." },
+  { name = "root-metadata-placement", severity = "info", notes = "State/metadata belongs under machine-readable/, not the repo root (the root holds no metadata file of its own)." },
 ]
 
 [determinism-semantics]

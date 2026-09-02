@@ -113,7 +113,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      # Every `- run:` probe in .machine_readable/contractiles/ is a shell
+      # Every `- run:` probe in machine-readable/contractiles/ is a shell
       # one-liner, so they are executed for real rather than read as prose.
       # Fails the build on any `critical` breach.
       - name: Execute the contractile probes
@@ -162,9 +162,9 @@ jobs:
           sed -i 's/^ *//' /tmp/spike.sha
           sha256sum -c /tmp/spike.sha
 
-      # Root shape, in BOTH directions, against .machine_readable/root-allow.txt:
+      # Root shape, in BOTH directions, against machine-readable/root-allow.txt:
       # an unlisted root entry fails, and a listed required entry that goes
       # missing fails. Added 2026-09-02 when the repo was retrofitted to the
       # RSR root-shape contract (the script is rsr-template-repo@2283f12's).
-      - name: Root shape matches .machine_readable/root-allow.txt
+      - name: Root shape matches machine-readable/root-allow.txt
         run: bash scripts/check-root-shape.sh .

@@ -4,7 +4,7 @@
 * @hyperpolymath
 
 # ── Design invariants ────────────────────────────────────────────────────────
-# These paths are trust-deny areas (see .machine_readable/contractiles/trust/).
+# These paths are trust-deny areas (see machine-readable/contractiles/trust/).
 # They are listed explicitly not because ownership differs — this is a
 # single-maintainer project — but because the list is the review checklist:
 # a change here needs a decision record and a full re-run of the ledger.
@@ -19,5 +19,5 @@
 /LICENSES/             @hyperpolymath
 
 # ── Contracts and CI ─────────────────────────────────────────────────────────
-/.machine_readable/contractiles/  @hyperpolymath
+/machine-readable/contractiles/  @hyperpolymath
 /.github/workflows/               @hyperpolymath

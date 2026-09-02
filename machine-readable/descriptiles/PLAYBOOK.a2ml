@@ -34,7 +34,7 @@ contracts = "just contracts"         # execute the contractile probes (Must/Trus
 # Individual claims run with plain node, from src/:  cd src && node verify-falsifier.mjs
 
 [machine-readable]
-# .machine_readable/ holds the agent-readable metadata (descriptiles/) and the contractiles.
+# machine-readable/ holds the agent-readable metadata (descriptiles/) and the contractiles.
 # Unlike most of the estate, the contractiles here are EXECUTABLE: every `- run:`
 # probe is a shell one-liner and scripts/contractiles.mjs actually runs them.
 run-contractiles = "node scripts/contractiles.mjs"
@@ -48,7 +48,7 @@ code-scanning = "GitHub code-scanning DEFAULT SETUP — actions + javascript, ex
 action-pinning = "The org enforces sha_pinning_required. Every `uses:` must be a full commit SHA with a version comment; tag refs cause startup_failure at 0s."
 
 [incident-response]
-# 1. Read .machine_readable/descriptiles/STATE.a2ml for the current phase and settled questions.
+# 1. Read machine-readable/descriptiles/STATE.a2ml for the current phase and settled questions.
 # 2. Read VERIFICATION.md — if a claim is in doubt, run its named script directly.
 # 3. `just test` reproduces the CI gate locally in full.
 # 4. If CI shows startup_failure at 0s, a workflow `uses:` lost its SHA pin.
@@ -57,7 +57,7 @@ action-pinning = "The org enforces sha_pinning_required. Every `uses:` must be a
 #    amend to 6759885+hyperpolymath@users.noreply.github.com.
 
 [release-process]
-# 1. Update version in .machine_readable/descriptiles/STATE.a2ml, META.a2ml, and package.json.
+# 1. Update version in machine-readable/descriptiles/STATE.a2ml, META.a2ml, and package.json.
 # 2. Run `just test` AND `just contracts` — both must be green. No release claim
 #    without a hard pass; a skipped step is a failed step.
 # 3. Confirm VERIFICATION.md matches what the scripts actually printed.

@@ -48,9 +48,9 @@ reason the game exists. So:
 
 The invariants that carry this are listed in
 [GOVERNANCE.adoc](GOVERNANCE.adoc#invariants) and enforced as CI probes in
-[`Mustfile.a2ml`](.machine_readable/contractiles/must/Mustfile.a2ml). Changing
+[`Mustfile.a2ml`](machine-readable/contractiles/must/Mustfile.a2ml). Changing
 one requires a decision record in
-[`META.a2ml`](.machine_readable/descriptiles/META.a2ml).
+[`META.a2ml`](machine-readable/descriptiles/META.a2ml).
 
 ## Evidence, not assertion
 

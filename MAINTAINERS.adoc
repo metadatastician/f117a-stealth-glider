@@ -48,7 +48,7 @@ divided is the level of scrutiny a change receives:
 | `src/verify*.mjs`, `src/ui.js`, `src/build.mjs`
 | Normal.
 
-| Docs, CI, `.machine_readable/`
+| Docs, CI, `machine-readable/`
 | Normal — but a contractile probe that cannot pass against this tree is a
   defect, not documentation.
 |===

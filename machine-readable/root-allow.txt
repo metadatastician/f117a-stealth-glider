@@ -7,7 +7,7 @@
 # Git-ignored entries (node_modules/, tmp/, _site/) are not root entries.
 #
 # This repository predates the template's 2026-08 un-hide of machine-readable/,
-# so its metadata tree is the dotted `.machine_readable/` and its README and
+# so its metadata tree is the dotted `machine-readable/` and its README and
 # CHANGELOG are Markdown. They are recorded here as they ARE, not as the
 # template's current shape says they should be: migrating them is a separate
 # decision, and an allowlist must not paper over it.
@@ -51,6 +51,6 @@ spike/                     # v0 spike, digest-pinned provenance (byte-identical 
 scripts/                   # contractiles.mjs, metadata-citations.mjs + check-root-shape.sh
 
 # ─── Metadata and forge ──────────────────────────────────────────────────────
-.machine_readable/         # dotted, pre-2026-08 layout (see header)
+machine-readable/         # dotted, pre-2026-08 layout (see header)
 .github/
 .well-known/

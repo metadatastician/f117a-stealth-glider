@@ -81,6 +81,6 @@ notes = "There are no satellites today. A second level or an alternative fronten
 
 [semantic-authority-files]
 verification-ledger = "VERIFICATION.md"
-decision-records = ".machine_readable/descriptiles/META.a2ml"
+decision-records = "machine-readable/descriptiles/META.a2ml"
 frozen-level = "src/level.mjs"
 substrate = "src/kernel/engine.mjs"

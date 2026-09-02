@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (c) 2026 Jonathan D.A. Jewell (hyperpolymath) <j.d.a.jewell@open.ac.uk>
 //
-// contractiles.mjs — execute the contractile probes in .machine_readable/contractiles/.
+// contractiles.mjs — execute the contractile probes in machine-readable/contractiles/.
 //
 // Why this exists: across the estate, contractiles are declarative documents whose
 // paired Nickel runners (x.ncl / x.k9.ncl) were never built, so every `- run:` line
@@ -29,7 +29,7 @@ import { fileURLToPath } from 'node:url';
 
 // `import.meta.dirname` only landed in Node 20.11; package.json declares >= 18.
 const ROOT = resolve(fileURLToPath(new URL('.', import.meta.url)), '..');
-const CONTRACTILES = join(ROOT, '.machine_readable', 'contractiles');
+const CONTRACTILES = join(ROOT, 'machine-readable', 'contractiles');
 
 const STRICT = process.argv.includes('--strict');
 const LIST_ONLY = process.argv.includes('--list');

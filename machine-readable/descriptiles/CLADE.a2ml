@@ -56,7 +56,7 @@ successors = []
 [[status.history]]
 phase = "active"
 since = "2026-09-02"
-note = "Retrofitted to the RSR root-shape contract: bidirectional .machine_readable/root-allow.txt + scripts/check-root-shape.sh (from rsr-template-repo@2283f12), wired into just ci and ci.yml. NOT minted from the template, so lineage.instantiated-from is deliberately absent; the metadata tree stays the dotted pre-2026-08 layout and README/CHANGELOG stay Markdown pending an owner ruling."
+note = "Retrofitted to the RSR root-shape contract: bidirectional machine-readable/root-allow.txt + scripts/check-root-shape.sh (from rsr-template-repo@2283f12), wired into just ci and ci.yml. NOT minted from the template, so lineage.instantiated-from is deliberately absent; the metadata tree stays the dotted pre-2026-08 layout and README/CHANGELOG stay Markdown pending an owner ruling."
 
 [provenance]
 # Recorded because the repository's history is shorter than the work it contains.

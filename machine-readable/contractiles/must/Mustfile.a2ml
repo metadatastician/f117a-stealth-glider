@@ -138,7 +138,7 @@ generic template.
 - description: The machine-readable tree cites only files that exist, and only this level's vocabulary
 - run: node scripts/metadata-citations.mjs
 - severity: critical
-- notes: This repository was scaffolded by copying f19-stealth-glider and the .machine_readable tree arrived describing f19's GAME — another game's gun as this level's primitive, the wrong spawn and hangar, and a [settled-questions] block recording another repository's rulings as closed here, with two more files pointing agents at it as authority. None of it could fail: the stale statements sat behind `tolerance:`, `injection_probe:` and drill-only `recovery_probe:` fields the runner does not execute. This probe is executable and critical. Deliberate contrast statements opt out per line with a greppable marker (see the header of scripts/metadata-citations.mjs), which never exempts a dead path.
+- notes: This repository was scaffolded by copying f19-stealth-glider and the machine-readable tree arrived describing f19's GAME — another game's gun as this level's primitive, the wrong spawn and hangar, and a [settled-questions] block recording another repository's rulings as closed here, with two more files pointing agents at it as authority. None of it could fail: the stale statements sat behind `tolerance:`, `injection_probe:` and drill-only `recovery_probe:` fields the runner does not execute. This probe is executable and critical. Deliberate contrast statements opt out per line with a greppable marker (see the header of scripts/metadata-citations.mjs), which never exempts a dead path.
 
 ### zero-runtime-dependencies
 - description: package.json declares no dependencies or devDependencies
@@ -177,24 +177,24 @@ generic template.
 ## Machine-Readable Structure
 
 ### machine-readable-dir
-- description: .machine_readable/ directory must exist
-- run: test -d .machine_readable
+- description: machine-readable/ directory must exist
+- run: test -d machine-readable
 - severity: critical
 
 ### descriptiles-present
 - description: The descriptiles directory holds all six core A2ML files
-- run: test -f .machine_readable/descriptiles/META.a2ml && test -f .machine_readable/descriptiles/ECOSYSTEM.a2ml && test -f .machine_readable/descriptiles/STATE.a2ml && test -f .machine_readable/descriptiles/PLAYBOOK.a2ml && test -f .machine_readable/descriptiles/AGENTIC.a2ml && test -f .machine_readable/descriptiles/NEUROSYM.a2ml
+- run: test -f machine-readable/descriptiles/META.a2ml && test -f machine-readable/descriptiles/ECOSYSTEM.a2ml && test -f machine-readable/descriptiles/STATE.a2ml && test -f machine-readable/descriptiles/PLAYBOOK.a2ml && test -f machine-readable/descriptiles/AGENTIC.a2ml && test -f machine-readable/descriptiles/NEUROSYM.a2ml
 - severity: critical
 - notes: RSR v2 names this directory `descriptiles/`. The older estate name was `6a2/`; this repo uses the current one.
 
 ### clade-and-anchor-present
 - description: Repository identity (CLADE) and semantic anchor exist
-- run: test -f .machine_readable/descriptiles/CLADE.a2ml && test -f .machine_readable/descriptiles/anchors/ANCHOR.a2ml
+- run: test -f machine-readable/descriptiles/CLADE.a2ml && test -f machine-readable/descriptiles/anchors/ANCHOR.a2ml
 - severity: critical
 
 ### clade-identity-is-ours
 - description: CLADE.a2ml declares THIS repository — UUID RECOMPUTED, not merely not-the-template's
-- run: grep -q 'canonical-name = "f117a-stealth-glider"' .machine_readable/descriptiles/CLADE.a2ml && grep -q "uuid = \"$(uuidgen --sha1 --namespace @url --name 'github.com/metadatastician/f117a-stealth-glider')\"" .machine_readable/descriptiles/CLADE.a2ml
+- run: grep -q 'canonical-name = "f117a-stealth-glider"' machine-readable/descriptiles/CLADE.a2ml && grep -q "uuid = \"$(uuidgen --sha1 --namespace @url --name 'github.com/metadatastician/f117a-stealth-glider')\"" machine-readable/descriptiles/CLADE.a2ml
 - severity: critical
 - notes: |
     Strengthened after this repo hit the bug during scaffolding. The inherited probe
@@ -209,18 +209,18 @@ generic template.
 
 ### contractiles-trident-present
 - description: All six contractile verbs exist on the trident layout
-- run: test -f .machine_readable/contractiles/must/Mustfile.a2ml && test -f .machine_readable/contractiles/intend/Intentfile.a2ml && test -f .machine_readable/contractiles/trust/Trustfile.a2ml && test -f .machine_readable/contractiles/adjust/Adjustfile.a2ml && test -f .machine_readable/contractiles/bust/Bustfile.a2ml && test -f .machine_readable/contractiles/dust/Dustfile.a2ml
+- run: test -f machine-readable/contractiles/must/Mustfile.a2ml && test -f machine-readable/contractiles/intend/Intentfile.a2ml && test -f machine-readable/contractiles/trust/Trustfile.a2ml && test -f machine-readable/contractiles/adjust/Adjustfile.a2ml && test -f machine-readable/contractiles/bust/Bustfile.a2ml && test -f machine-readable/contractiles/dust/Dustfile.a2ml
 - severity: critical
 - notes: Trident layout per contractiles/INDEX.a2ml v2.0.0 (verb-named subdirectory, not flat). The template's own Mustfile still probes the superseded flat paths and therefore fails against its own tree; this one does not.
 
 ### contractile-registry-present
 - description: The contractile registry INDEX.a2ml exists
-- run: test -f .machine_readable/contractiles/INDEX.a2ml
+- run: test -f machine-readable/contractiles/INDEX.a2ml
 - severity: critical
 
 ### rsr-profile-present
 - description: The declared RSR capability profile exists
-- run: test -f .machine_readable/rsr-profile.a2ml
+- run: test -f machine-readable/rsr-profile.a2ml
 - severity: critical
 - notes: Gates which RSR criteria are applicable. Declaring a capability this repo lacks would score it against a module it does not carry.
 

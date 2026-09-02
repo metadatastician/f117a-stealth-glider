@@ -60,7 +60,7 @@ proposes corrective actions. Advisory — it warns and trends, it does not block
 ### state-freshness
 - description: STATE.a2ml tracks the real phase and component status
 - tolerance: STATE.a2ml last-updated within one milestone of HEAD
-- corrective: Refresh .machine_readable/descriptiles/STATE.a2ml from README.md + VERIFICATION.md
+- corrective: Refresh machine-readable/descriptiles/STATE.a2ml from README.md + VERIFICATION.md
 - severity: advisory
 
 ### settled-questions-stay-settled

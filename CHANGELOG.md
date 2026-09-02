@@ -41,7 +41,7 @@ Including what is *not* finished, and what was retracted.
   the level does not place) and performs the `lcm` arithmetic the PERIOD comment
   only stated in prose.
 - `scripts/metadata-citations.mjs` — a critical probe: every `src/` and `design/`
-  path cited anywhere in `.machine_readable/` must exist, and another level's
+  path cited anywhere in `machine-readable/` must exist, and another level's
   vocabulary fails. It found 27 dead paths and 45 foreign references.
 
 ### Changed

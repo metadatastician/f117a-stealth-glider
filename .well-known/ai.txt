@@ -13,11 +13,11 @@ Disallow-Generation: yes
 #
 # For AI agent integration instructions, read in this order:
 #   0-AI-MANIFEST.a2ml                              (universal AI entry point)
-#   .machine_readable/descriptiles/STATE.a2ml       (current state; note
+#   machine-readable/descriptiles/STATE.a2ml       (current state; note
 #                                                    [settled-questions] — those
 #                                                    are closed, do not re-derive)
 #   VERIFICATION.md                                 (the claim ledger)
-#   .machine_readable/descriptiles/AGENTIC.a2ml     (hard constraints)
+#   machine-readable/descriptiles/AGENTIC.a2ml     (hard constraints)
 #
 # One constraint deserves stating here, because it is the constraint an agent is
 # most likely to violate while trying to be helpful: do NOT weaken the contact

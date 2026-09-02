@@ -40,24 +40,24 @@ drift — none of which block a build.
 
 ### metadata-format-a2ml
 - description: Machine-readable metadata files use the .a2ml format
-- run: test -z "$(find .machine_readable -name '*.contractile' -o -name '*.hs' 2>/dev/null | head -1)"
+- run: test -z "$(find machine-readable -name '*.contractile' -o -name '*.hs' 2>/dev/null | head -1)"
 - severity: warning
 
 ### no-duplicate-root-metadata
 - description: No stray STATE/META/ECOSYSTEM copies in the repository root
 - run: test ! -f STATE.a2ml && test ! -f META.a2ml && test ! -f ECOSYSTEM.a2ml
 - severity: warning
-- notes: The authoritative copies live under .machine_readable/descriptiles/. This repo carries no root manifest file of its own.
+- notes: The authoritative copies live under machine-readable/descriptiles/. This repo carries no root manifest file of its own.
 
 ### no-superseded-6a2-directory
 - description: The superseded 6a2/ directory name is not present alongside descriptiles/
-- run: test ! -d .machine_readable/6a2
+- run: test ! -d machine-readable/descriptiles
 - severity: warning
 - notes: RSR v2 renamed 6a2/ to descriptiles/. Carrying both would be exactly the duplication this repo is trying not to inherit.
 
 ### no-flat-contractiles
 - description: No superseded flat-layout contractile files remain beside the trident directories
-- run: test ! -f .machine_readable/contractiles/Mustfile.a2ml && test ! -f .machine_readable/contractiles/Trustfile.a2ml && test ! -f .machine_readable/contractiles/Intentfile.a2ml && test ! -f .machine_readable/contractiles/Adjustfile.a2ml
+- run: test ! -f machine-readable/contractiles/Mustfile.a2ml && test ! -f machine-readable/contractiles/Trustfile.a2ml && test ! -f machine-readable/contractiles/Intentfile.a2ml && test ! -f machine-readable/contractiles/Adjustfile.a2ml
 - severity: warning
 - notes: INDEX.a2ml v2.0.0 mandates verb-named subdirectories. A flat copy left behind is what makes upstream's own probes ambiguous.
 
